@@ -3,6 +3,67 @@ import Layout from "../layouts/Layout.astro";
 import { Image } from "astro:assets";
 import picProfile from "../assets/profile.jpeg";
 import RecentListensHome from "../components/RecentListensHome";
+import { getAnilistActivity } from "../lib/anilist";
+import { getTraktHistory } from "../lib/trakt";
+
+const anilistData = await getAnilistActivity(5);
+const traktData = await getTraktHistory(5);
+// Normalize and combine
+
+const items = [
+  ...anilistData
+    .filter((item) => {
+      const s = item.status?.toLowerCase() || "";
+      return (
+        !s.includes("dropped") &&
+        !s.includes("planning") &&
+        !s.includes("paused")
+      );
+    })
+    .map((item) => ({
+      id: `al-${item.id}`,
+      title: item.media.title.english || item.media.title.romaji,
+      image: item.media.coverImage.large,
+      progress: item.status?.toLowerCase().includes("completed")
+        ? "COMPLETED"
+        : item.media.type === "ANIME"
+          ? `ep ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+          : `vol ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`,
+      date: new Date(item.createdAt * 1000),
+      type: item.media.type.toLowerCase(),
+      url: item.siteUrl || item.media.siteUrl,
+      displayString: item.status?.toLowerCase().includes("completed")
+        ? `${item.media.title.english || item.media.title.romaji}`
+        : `${item.media.title.english || item.media.title.romaji} - ${
+            item.media.type === "ANIME"
+              ? `episode ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+              : `volume ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+          }`,
+    })),
+  ...traktData.map((item) => ({
+    id: `tr-${item.id}`,
+    title:
+      (item.type === "episode" ? item.show?.title : item.movie?.title) || "",
+    image: item.image,
+    progress:
+      item.type === "episode"
+        ? `s${item.episode?.season}e${item.episode?.number}`
+        : "movie",
+    date: new Date(item.watched_at),
+    type: item.type === "episode" ? "show" : "movie",
+    url:
+      item.type === "episode"
+        ? `https://trakt.tv/shows/${item.show?.ids.trakt}/seasons/${item.episode?.season}/episodes/${item.episode?.number}`
+        : `https://trakt.tv/movies/${item.movie?.ids.trakt}`,
+    displayString:
+      item.type === "episode"
+        ? `${item.show?.title} - s${item.episode?.season}e${item.episode?.number}`
+        : `${item.movie?.title}`,
+  })),
+].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+const featured = items[0];
+const recentList = items.slice(1, 15);
 ---
 
 <Layout>
@@ -16,10 +77,10 @@ import RecentListensHome from "../components/RecentListensHome";
     />
     <div class="space-y-3">
       <h1 class="text-primary">
-        hey, i'm <span class="text-accent-blue font-medium">[your name]</span> 👋
+        hey, i'm <span class="text-accent-blue font-medium">sal</span> 👋
       </h1>
       <p class="text-primary leading-relaxed max-w-lg">
-        just a person who likes stuff. welcome to my corner of the internet
+        just a person who likes stuff. welcome to my little internet space
         <br />
         where i share what i'm into right now.
       </p>
@@ -33,59 +94,108 @@ import RecentListensHome from "../components/RecentListensHome";
   <section class="space-y-4">
     <h2 class="font-medium tracking-wide">watched/read recently</h2>
     <div class="flex flex-col md:flex-row gap-6 items-start">
-      <!-- Poster Placeholder -->
-      <div
-        class="w-24 h-32 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5"
-      >
-        <!-- Film Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-primary-opaque/40"
-          ><rect width="18" height="18" x="3" y="3" rx="2" ry="2"
-          ></rect><polyline points="7 3 7 21"></polyline><polyline
-            points="17 3 17 21"></polyline><line x1="3" x2="21" y1="12" y2="12"
-          ></line><line x1="3" x2="7" y1="7" y2="7"></line><line
-            x1="3"
-            x2="7"
-            y1="17"
-            y2="17"></line><line x1="17" x2="21" y1="17" y2="17"></line><line
-            x1="17"
-            x2="21"
-            y1="7"
-            y2="7"></line></svg
-        >
-      </div>
+      <!-- Poster Placeholder / Featured Item -->
+      {
+        featured ? (
+          <a href={featured.url} target="_blank" rel="noopener noreferrer">
+            <div class="w-24 h-32 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative group">
+              {featured.image ? (
+                <img
+                  src={featured.image}
+                  alt="Featured"
+                  class="w-full h-full object-cover "
+                />
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-primary-opaque/40"
+                >
+                  {featured.type === "manga" ? (
+                    <g>
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                    </g>
+                  ) : featured.type === "show" ? (
+                    <g>
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                      <polyline points="7 3 7 21" />
+                      <polyline points="17 3 17 21" />
+                      <line x1="3" x2="21" y1="12" y2="12" />
+                    </g>
+                  ) : (
+                    <g>
+                      <rect width="18" height="18" x="3" y="3" rx="2" />
+                      <path d="M7 3v18" />
+                      <path d="M3 7.5h4" />
+                      <path d="M3 12h18" />
+                    </g>
+                  )}
+                </svg>
+              )}
+            </div>
+          </a>
+        ) : (
+          <div class="w-24 h-32 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-primary-opaque/40"
+            >
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+              <polyline points="7 3 7 21" />
+              <polyline points="17 3 17 21" />
+              <line x1="3" x2="21" y1="12" y2="12" />
+            </svg>
+          </div>
+        )
+      }
 
       <!-- Content -->
       <div class="flex flex-col w-full gap-3">
-        <div class="flex items-center gap-2 text-sm">
-          <span class="text-accent-blue font-medium">title</span>
-          <span class="text-primary-opaque text-xs">•</span>
-          <span class="text-accent-gold font-medium tracking-wider"
-            >progress info</span
-          >
-        </div>
+        {
+          featured && (
+            <div class="flex items-center gap-2 text-sm">
+              <a
+                href={featured.url}
+                target="_blank"
+                class="text-accent-blue font-medium line-clamp-1"
+              >
+                {featured.title}
+              </a>
+              <span class="text-primary-opaque text-xs">•</span>
+              <span class="text-accent-gold font-medium tracking-wider">
+                {featured.progress}
+              </span>
+            </div>
+          )
+        }
 
         <!-- List Grid -->
         <div
           class="flex flex-wrap gap-y-2 gap-x-4 text-xs text-primary-opaque/75"
         >
-          <p>mob psycho 100 - episode 8</p>
-          <p>chainsaw man 2</p>
-          <p>perfect blue - 1997</p>
-          <p>bojack horseman - s6e15</p>
-          <p>norwegian wood</p>
-          <p>everything everywhere all at once</p>
-          <p>fleabag - season 2</p>
-          <p>oyasumi punpun - volume 7</p>
+          {
+            recentList.length > 0 ? (
+              recentList.map((item) => <p>{item.displayString}</p>)
+            ) : (
+              <p>no recent activity.</p>
+            )
+          }
         </div>
       </div>
     </div>

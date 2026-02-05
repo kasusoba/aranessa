@@ -1,5 +1,5 @@
 export const userConfig = {
-	currently: "scrolling or smn",
+	currently: "doin some bullshi",
 	socials: [
 		{
 			name: "github",

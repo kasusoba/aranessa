@@ -1,27 +1,13 @@
 import { useEffect, useState } from "preact/hooks";
 import { getRecentTracks, type Track } from "../lib/lastfm";
-
-function formatTimeAgo(uts?: string) {
-	if (!uts) return "";
-	const timestamp = parseInt(uts, 10) * 1000;
-	const now = Date.now();
-	const diff = now - timestamp;
-
-	const minutes = Math.floor(diff / 60000);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
-	const days = Math.floor(hours / 24);
-	return `${days}d ago`;
-}
+import { getRelativeTime } from "../lib/utils";
 
 export default function RecentScrobblesListen() {
 	const [tracks, setTracks] = useState<Track[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		getRecentTracks(4).then((data) => {
+		getRecentTracks(5).then((data) => {
 			setTracks(data);
 			setLoading(false);
 		});
@@ -114,7 +100,13 @@ export default function RecentScrobblesListen() {
 								</div>
 							</div>
 							<span class="text-xs text-primary-opaque/50 whitespace-nowrap ml-4">
-								{isPlaying ? "now playing" : formatTimeAgo(track.date?.uts)}
+								{isPlaying
+									? "now playing"
+									: track.date?.uts
+										? getRelativeTime(
+												new Date(parseInt(track.date.uts, 10) * 1000),
+											)
+										: ""}
 							</span>
 						</div>
 					);

@@ -3,9 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import RecentScrobblesListen from "../components/RecentScrobblesListen";
 import { getTopAlbums, getTopArtists, getTopTracks } from "../lib/lastfm";
 
-const topArtists = await getTopArtists(4);
-const topAlbums = await getTopAlbums(4);
-const topTracks = await getTopTracks(4);
+const topArtists = await getTopArtists(5);
+const topAlbums = await getTopAlbums(5);
+const topTracks = await getTopTracks(5);
 ---
 
 <Layout>

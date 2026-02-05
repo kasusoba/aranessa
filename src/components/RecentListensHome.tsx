@@ -53,19 +53,21 @@ export default function RecentListensHome() {
 			</h2>
 			<div class="flex flex-col md:flex-row gap-6 items-start">
 				{/* Album Art */}
-				<div class="w-24 h-24 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative">
-					{albumArt ? (
-						<img
-							src={albumArt}
-							alt={currentTrack.album["#text"]}
-							class="w-full h-full object-cover"
-						/>
-					) : (
-						<div class="w-8 h-8 rounded-full border-2 border-primary-opaque/20 flex items-center justify-center">
-							<div class="w-2 h-2 rounded-full bg-primary-opaque/40"></div>
-						</div>
-					)}
-				</div>
+				<a href={currentTrack.url} target="_blank" rel="noopener noreferrer">
+					<div class="w-24 h-24 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative">
+						{albumArt ? (
+							<img
+								src={albumArt}
+								alt={currentTrack.album["#text"]}
+								class="w-full h-full object-cover"
+							/>
+						) : (
+							<div class="w-8 h-8 rounded-full border-2 border-primary-opaque/20 flex items-center justify-center">
+								<div class="w-2 h-2 rounded-full bg-primary-opaque/40"></div>
+							</div>
+						)}
+					</div>
+				</a>
 
 				{/* Content */}
 				<div class="flex flex-col w-full gap-3">
@@ -87,14 +89,9 @@ export default function RecentListensHome() {
 					{/* Song List Grid */}
 					<div class="flex flex-wrap gap-y-2 gap-x-4 text-xs text-primary-opaque/75">
 						{recentTracks.map((track) => (
-							<a
-								href={track.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="hover:text-accent-blue transition-colors truncate block"
-							>
+							<span>
 								{track.artist["#text"]} - {track.name}
-							</a>
+							</span>
 						))}
 					</div>
 				</div>
