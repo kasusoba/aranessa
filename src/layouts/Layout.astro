@@ -1,23 +1,115 @@
+---
+import "../styles/global.css";
+import { userConfig } from "../config";
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === "/";
+const isProjects = currentPath.startsWith("/projects");
+const isListen = currentPath.startsWith("/listen");
+const isWatch = currentPath.startsWith("/watch");
+---
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro Basics</title>
+  </head>
+  <body class="bg-darkblue-300 text-primary">
+    <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
+      <div
+        class="grid grid-cols-1 lg:grid-cols-12 max-w-5xl w-full bg-darkblue-100 rounded-3xl overflow-hidden shadow-2xl lg:h-[80vh]"
+      >
+        <!-- Left Column: Main Content -->
+        <main
+          class="lg:col-span-9 p-8 md:p-12 flex flex-col gap-12 overflow-y-scroll"
+        >
+          <!-- Profile / Intro -->
+          <slot />
+        </main>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+        <!-- Right Column: Sidebar -->
+        <aside
+          class="lg:col-span-3 bg-darkblue-200 p-8 md:p-12 flex flex-col justify-between border-l border-white/5"
+        >
+          <!-- Navigation -->
+          <div class="space-y-3">
+            <h3 class="text-sm font-bold text-primary-opaque">what's here</h3>
+            <nav>
+              <ul class="space-y-2">
+                <li>
+                  <a
+                    href="/"
+                    class={`flex items-center gap-3  transition-colors duration-200 ${isHome ? "text-primary" : "text-primary-opaque hover:text-primary hover:text-accent-blue"}`}
+                  >
+                    <span>👤</span>
+                    me
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/projects"
+                    class={`flex items-center gap-3  transition-colors duration-200 ${isProjects ? "text-primary" : "text-primary-opaque hover:text-primary hover:text-accent-blue"}`}
+                  >
+                    <span>📁</span>
+                    projects
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/listen"
+                    class={`flex items-center gap-3  transition-colors duration-200 ${isListen ? "text-primary" : "text-primary-opaque hover:text-primary hover:text-accent-blue"}`}
+                  >
+                    <span>🎧</span>
+                    listen
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/watch"
+                    class={`flex items-center gap-3  transition-colors duration-200 ${isWatch ? "text-primary" : "text-primary-opaque hover:text-primary hover:text-accent-blue"}`}
+                  >
+                    <span>📺</span>
+                    watch/read
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <!-- Footer Info -->
+          <div class="flex flex-col gap-10 mt-12 lg:mt-auto">
+            <div class="space-y-3">
+              <h3 class="text-sm font-bold text-primary-opaque">currently</h3>
+              <p class="text-primary-opaque leading-relaxed italic">
+                {userConfig.currently}
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-sm font-bold text-primary-opaque">find me</h3>
+              <ul class="flex flex-col gap-2 text-primary">
+                {
+                  userConfig.socials.map((social) => (
+                    <li>
+                      <a
+                        href={social.url}
+                        target="_blank"
+                        class="hover:text-primary"
+                      >
+                        {social.name}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
