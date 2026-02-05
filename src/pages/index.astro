@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { Image } from "astro:assets";
 import picProfile from "../assets/profile.jpeg";
+import RecentListensHome from "../components/RecentListensHome";
 ---
 
 <Layout>
@@ -26,44 +27,7 @@ import picProfile from "../assets/profile.jpeg";
   </section>
 
   <!-- Listen Section -->
-  <section class="space-y-4">
-    <h2 class="font-medium tracking-wide">
-      currently listening to / recently listened to
-    </h2>
-    <div class="flex flex-col md:flex-row gap-6 items-start">
-      <!-- Album Art Placeholder -->
-      <div
-        class="w-24 h-24 bg-darkblue-200/50 rounded-xl flex items-center justify-center shrink-0 border border-white/5"
-      >
-        <div
-          class="w-8 h-8 rounded-full border-2 border-primary-opaque/20 flex items-center justify-center"
-        >
-          <div class="w-2 h-2 rounded-full bg-primary-opaque/40"></div>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div class="flex flex-col w-full gap-3">
-        <div class="flex items-center gap-2 text-sm">
-          <span class="text-accent-blue font-medium">song title</span>
-          <span class="text-primary-opaque text-xs">•</span>
-          <span class="text-accent-gold font-medium">artist name</span>
-        </div>
-
-        <!-- Song List Grid -->
-        <div
-          class="flex flex-wrap gap-y-2 gap-x-4 text-xs text-primary-opaque/75"
-        >
-          <p>cigarettes after sex - apocalypse</p>
-          <p>mac demarco - chamber of reflection</p>
-          <p>there is a light that never goes out</p>
-          <p>clairo - bags</p>
-          <p>rex orange county - loving is easy</p>
-          <p>mitski - nobody</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <RecentListensHome client:load />
 
   <!-- Watch/Read Section -->
   <section class="space-y-4">
