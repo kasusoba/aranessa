@@ -37,7 +37,7 @@ const isWatch = currentPath.startsWith("/watch");
         >
           <!-- Navigation -->
           <div class="space-y-3">
-            <h3 class="text-sm font-bold text-primary-opaque">what's here</h3>
+            <h3 class="text-sm font-bold text-primary-opaque">things</h3>
             <nav>
               <ul class="space-y-2">
                 <li>
@@ -90,7 +90,7 @@ const isWatch = currentPath.startsWith("/watch");
             </div>
 
             <div class="space-y-3">
-              <h3 class="text-sm font-bold text-primary-opaque">find me</h3>
+              <h3 class="text-sm font-bold text-primary-opaque">social</h3>
               <ul class="flex flex-col gap-2 text-primary">
                 {
                   userConfig.socials.map((social) => (
@@ -98,7 +98,7 @@ const isWatch = currentPath.startsWith("/watch");
                       <a
                         href={social.url}
                         target="_blank"
-                        class="hover:text-primary"
+                        class="italic transition-colors duration-200"
                       >
                         {social.name}
                       </a>

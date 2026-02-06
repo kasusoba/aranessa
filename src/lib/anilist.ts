@@ -138,10 +138,10 @@ export function parseAnilistProgress(
 	// progress might be "5" or "5 - 6"
 	const p = progress ? progress.toString().split(" - ").pop() : "?";
 
-	if (s.includes("read")) return `ch ${p}`;
-	if (s.includes("watched")) return `ep ${p}`;
+	if (s.includes("read")) return `ch${p}`;
+	if (s.includes("watched")) return `e${p}`;
 
 	// Fallback
-	const label = type === "ANIME" ? "ep" : "ch";
-	return `${label} ${p}`;
+	const label = type === "ANIME" ? "e" : "ch";
+	return `${label}${p}`;
 }

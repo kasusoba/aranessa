@@ -9,3 +9,26 @@
 	--color-accent-blue: #93c5fd;
 	--color-accent-gold: #fbbf24;
 }
+
+@keyframes gradient-move {
+	0% {
+		background-position: 0% 50%;
+	}
+	100% {
+		background-position: 200% 50%;
+	}
+}
+
+.text-gradient-animate {
+	background: linear-gradient(
+		to right,
+		var(--color-accent-blue),
+		var(--color-accent-gold),
+		var(--color-accent-blue)
+	);
+	background-size: 200% auto;
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: gradient-move 10s linear infinite;
+}

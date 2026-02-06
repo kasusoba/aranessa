@@ -27,8 +27,8 @@ const items = [
       progress: item.status?.toLowerCase().includes("completed")
         ? "COMPLETED"
         : item.media.type === "ANIME"
-          ? `ep ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
-          : `vol ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`,
+          ? `e${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+          : `ch${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`,
       date: new Date(item.createdAt * 1000),
       type: item.media.type.toLowerCase(),
       url: item.siteUrl || item.media.siteUrl,
@@ -36,8 +36,8 @@ const items = [
         ? `${item.media.title.english || item.media.title.romaji}`
         : `${item.media.title.english || item.media.title.romaji} - ${
             item.media.type === "ANIME"
-              ? `episode ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
-              : `volume ${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+              ? `e${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
+              : `ch${item.progress ? item.progress.toString().split(" - ").pop() : "?"}`
           }`,
     })),
   ...traktData.map((item) => ({

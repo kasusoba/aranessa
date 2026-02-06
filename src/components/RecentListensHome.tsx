@@ -48,7 +48,11 @@ export default function RecentListensHome() {
 
 	return (
 		<section class="space-y-4">
-			<h2 class="font-medium tracking-wide">
+			<h2
+				class={`font-medium tracking-wide ${
+					isPlaying ? "text-gradient-animate" : ""
+				}`}
+			>
 				{isPlaying ? "currently listening to" : "recently listened to"}
 			</h2>
 			<div class="flex flex-col md:flex-row gap-6 items-start">
