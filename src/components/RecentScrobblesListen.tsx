@@ -80,9 +80,18 @@ export default function RecentScrobblesListen() {
 									<span class="text-xs text-primary-opaque truncate max-w-[150px] sm:max-w-xs block">
 										{track.artist["#text"]}
 									</span>
+									<span class="text-xs text-primary-opaque/50 sm:hidden">
+										{isPlaying
+											? "now playing"
+											: track.date?.uts
+												? getRelativeTime(
+														new Date(parseInt(track.date.uts, 10) * 1000),
+													)
+												: ""}
+									</span>
 								</div>
 							</div>
-							<span class="text-xs text-primary-opaque/50 whitespace-nowrap ml-4">
+							<span class="hidden sm:block text-xs text-primary-opaque/50 whitespace-nowrap ml-4">
 								{isPlaying
 									? "now playing"
 									: track.date?.uts
