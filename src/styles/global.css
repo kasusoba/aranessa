@@ -32,3 +32,23 @@
 	-webkit-text-fill-color: transparent;
 	animation: gradient-move 10s linear infinite;
 }
+
+/* Custom Scrollbar for unified look */
+.custom-scrollbar {
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: var(--color-darkblue-200) transparent; /* Firefox */
+}
+
+/* Chrome, Edge, and Safari */
+.custom-scrollbar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background-color: var(--color-darkblue-200);
+	border-radius: 20px;
+}
