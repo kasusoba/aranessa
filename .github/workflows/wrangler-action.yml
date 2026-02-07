@@ -27,6 +27,8 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
+      - name: Build project
+        run: pnpm build
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
