@@ -30,6 +30,13 @@ jobs:
         run: pnpm install
       - name: Build project
         run: pnpm build
+        env:
+          PUBLIC_LASTFM_API_KEY: 015b8754dbc5383e32fb34ec7beea2ec
+          PUBLIC_LASTFM_USERNAME: kasusoba
+          PUBLIC_ANILIST_USERNAME: kasusoba
+          PUBLIC_TRAKT_CLIENT_ID: 55b07aee21c9c7767c60cc83fa99e9b60f6ebd598a82d06ba1b65dd9ce82078a
+          PUBLIC_TRAKT_USERNAME: kasusoba
+          PUBLIC_TMDB_API_KEY: 3529c5ac64b8140eaa605bbf0ea5ecca
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
