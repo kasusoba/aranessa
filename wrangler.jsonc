@@ -1,0 +1,7 @@
+{
+  "name": "aranessa",
+  "compatibility_date": "2026-02-06", // Update to the day you deploy
+  "assets": {
+    "directory": "./dist",
+  },
+}
