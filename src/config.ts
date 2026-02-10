@@ -2,7 +2,6 @@ import tmsyncImg from "./assets/tmsync.jpeg";
 import chrolloImg from "./assets/chrollo.png";
 
 export const userConfig = {
-	currently: "doin some bullshi",
 	socials: [
 		{
 			name: "github",
