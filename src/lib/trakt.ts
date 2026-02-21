@@ -74,10 +74,10 @@ export async function getTraktHistory(
 					"Content-Type": "application/json",
 					"trakt-api-version": "2",
 					"trakt-api-key": clientId,
+					"User-Agent": "onesal.me/1.0",
 				},
 			},
 		);
-
 		const data: TraktHistoryItem[] = await response.json();
 
 		// Fetch images in parallel if TMDB key exists
