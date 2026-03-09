@@ -52,7 +52,7 @@ async function getUserId(username: string): Promise<number | null> {
 export async function getAnilistActivity(
 	limit: number = 20,
 ): Promise<AnilistActivity[]> {
-	const username = import.meta.env.PUBLIC_ANILIST_USERNAME;
+	const username = import.meta.env.ANILIST_USERNAME;
 
 	if (!username) return [];
 

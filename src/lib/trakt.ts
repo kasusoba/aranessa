@@ -37,7 +37,7 @@ async function getTmdbImage(
 	type: "movie" | "tv",
 	tmdbId: number,
 ): Promise<string | null> {
-	const apiKey = import.meta.env.PUBLIC_TMDB_API_KEY;
+	const apiKey = import.meta.env.TMDB_API_KEY;
 	if (!apiKey) return null;
 
 	try {
@@ -61,8 +61,8 @@ export interface TraktItemWithImage extends TraktHistoryItem {
 export async function getTraktHistory(
 	limit: number = 20,
 ): Promise<TraktItemWithImage[]> {
-	const clientId = import.meta.env.PUBLIC_TRAKT_CLIENT_ID;
-	const username = import.meta.env.PUBLIC_TRAKT_USERNAME;
+	const clientId = import.meta.env.TRAKT_CLIENT_ID;
+	const username = import.meta.env.TRAKT_USERNAME;
 
 	if (!clientId || !username) return [];
 

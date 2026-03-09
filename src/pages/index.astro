@@ -5,9 +5,11 @@ import picProfile from "../assets/profile.jpeg";
 import RecentListensHome from "../components/RecentListensHome";
 import { getAnilistActivity } from "../lib/anilist";
 import { getTraktHistory } from "../lib/trakt";
+import { getRecentGames, getHeaderImage, formatHours } from "../lib/steam";
 
 const anilistData = await getAnilistActivity(5);
 const traktData = await getTraktHistory(5);
+const recentGames = await getRecentGames(2);
 // Normalize and combine
 
 const items = [
@@ -200,4 +202,44 @@ const recentList = items.slice(1, 15);
       </div>
     </div>
   </section>
+
+  <!-- Games Section -->
+  {recentGames.length > 0 && (
+    <section class="space-y-4">
+      <h2 class="font-medium tracking-wide">recently played</h2>
+      <div class="flex gap-3">
+        {recentGames.map((game, i) => {
+          const profileUrl = i === 0
+            ? "https://steamcommunity.com/profiles/76561198238407266"
+            : "https://steamcommunity.com/profiles/76561198205996123";
+          return (
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex flex-col gap-2"
+          >
+            <div class="relative w-full overflow-hidden rounded-lg border border-white/5 bg-darkblue-200/50 aspect-[460/215]">
+              <img
+                src={getHeaderImage(game.appid)}
+                alt={game.name}
+                class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div class="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                <p class="text-xs font-medium text-white/90 group-hover:text-white transition-colors truncate leading-tight">
+                  {game.name.toLowerCase()}
+                </p>
+                <p class="text-xs text-white/50">
+                  <span class="text-accent-gold">{formatHours(game.playtime_forever)}</span>
+                </p>
+              </div>
+            </div>
+          </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
 </Layout>
