@@ -1,11 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import RecentScrobblesListen from "../components/RecentScrobblesListen";
-import { getTopAlbums, getTopArtists, getTopTracks } from "../lib/lastfm";
-
-const topArtists = await getTopArtists(5);
-const topAlbums = await getTopAlbums(5);
-const topTracks = await getTopTracks(5);
+import TopListens from "../components/TopListens";
 ---
 
 <Layout>
@@ -13,101 +9,7 @@ const topTracks = await getTopTracks(5);
     <!-- Recent Scrobbles -->
     <RecentScrobblesListen client:load />
 
-    <!-- Top 90 Days -->
-    <section class="space-y-6">
-      <h2
-        class="flex items-center gap-2 text-primary font-medium tracking-wide"
-      >
-        top of the last 90 days
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Artists -->
-        <div class="space-y-4">
-          <h3
-            class="text-xs font-bold text-primary-opaque tracking-wider border-b border-white/5 pb-2"
-          >
-            top artists
-          </h3>
-          <div class="space-y-3">
-            {
-              topArtists.map((artist) => (
-                <div class="flex items-center justify-between text-sm group">
-                  <a
-                    href={artist.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-primary-opaque group-hover:text-primary transition-colors truncate pr-2"
-                  >
-                    {artist.name.toLowerCase()}
-                  </a>
-                  <span class="text-accent-gold text-xs font-medium shrink-0">
-                    {artist.playcount} plays
-                  </span>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-
-        <!-- Albums -->
-        <div class="space-y-4">
-          <h3
-            class="text-xs font-bold text-primary-opaque tracking-wider border-b border-white/5 pb-2"
-          >
-            top albums
-          </h3>
-          <div class="space-y-3">
-            {
-              topAlbums.map((album) => (
-                <div class="flex items-center justify-between text-sm group">
-                  <a
-                    href={album.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-primary-opaque group-hover:text-primary transition-colors truncate pr-2"
-                    title={`${album.name} by ${album.artist.name}`}
-                  >
-                    {album.name.toLowerCase()}
-                  </a>
-                  <span class="text-accent-gold text-xs font-medium shrink-0">
-                    {album.playcount} plays
-                  </span>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-
-        <!-- Tracks -->
-        <div class="space-y-4">
-          <h3
-            class="text-xs font-bold text-primary-opaque tracking-wider border-b border-white/5 pb-2"
-          >
-            top tracks
-          </h3>
-          <div class="space-y-3">
-            {
-              topTracks.map((track) => (
-                <div class="flex items-center justify-between text-sm group">
-                  <a
-                    href={track.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-primary-opaque group-hover:text-primary transition-colors truncate pr-2"
-                    title={`${track.name} by ${track.artist.name}`}
-                  >
-                    {track.name.toLowerCase()}
-                  </a>
-                  <span class="text-accent-gold text-xs font-medium shrink-0">
-                    {track.playcount} plays
-                  </span>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Top Stats -->
+    <TopListens client:load />
   </div>
 </Layout>
