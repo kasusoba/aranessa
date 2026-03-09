@@ -1,7 +1,6 @@
 ---
 import "../styles/global.css";
 import { userConfig } from "../config";
-import { ClientRouter } from "astro:transitions";
 const currentPath = Astro.url.pathname;
 const isHome = currentPath === "/";
 const isProjects = currentPath.startsWith("/projects");
@@ -17,7 +16,6 @@ const isWatch = currentPath.startsWith("/watch");
     <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <title>onesal.me</title>
-    <ClientRouter />
   </head>
   <body class="bg-darkblue-300 text-primary">
     <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -26,7 +24,6 @@ const isWatch = currentPath.startsWith("/watch");
       >
         <!-- Left Column: Main Content -->
         <main
-          transition:animate="slide"
           class="lg:col-span-9 p-8 md:p-12 flex flex-col gap-12 overflow-y-scroll custom-scrollbar"
         >
           <!-- Profile / Intro -->
@@ -35,7 +32,6 @@ const isWatch = currentPath.startsWith("/watch");
 
         <!-- Right Column: Sidebar -->
         <aside
-          transition:persist
           class="lg:col-span-3 bg-darkblue-200 p-8 md:p-12 flex flex-col justify-between border-l border-white/5"
         >
           <!-- Navigation -->
