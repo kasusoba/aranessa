@@ -207,7 +207,7 @@ const recentList = items.slice(1, 15);
   {recentGames.length > 0 && (
     <section class="space-y-4">
       <h2 class="font-medium tracking-wide">recently played</h2>
-      <div class="flex gap-3">
+      <div class="flex flex-col md:flex-row gap-3">
         {recentGames.map((game, i) => {
           const profileUrl = i === 0
             ? "https://steamcommunity.com/profiles/76561198238407266"
