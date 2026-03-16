@@ -81,7 +81,7 @@ export async function getTraktHistory(
 		const data: TraktHistoryItem[] = await response.json();
 
 		// Fetch images in parallel if TMDB key exists
-		if (import.meta.env.PUBLIC_TMDB_API_KEY) {
+		if (import.meta.env.TMDB_API_KEY) {
 			const itemsWithImages = await Promise.all(
 				data.map(async (item) => {
 					let imageUrl: string | null = null;
