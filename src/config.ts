@@ -19,6 +19,18 @@ export const userConfig = {
 			name: "trakt",
 			url: "https://trakt.tv/users/kasusoba",
 		},
+		{
+			name: "letterboxd",
+			url: "https://letterboxd.com/kasusoba/",
+		},
+		{
+			name: "ib",
+			url: "https://infinitebacklog.net/users/kasusoba",
+		},
+		{
+			name: "setlist.fm",
+			url: "https://www.setlist.fm/user/kasusoba",
+		},
 	],
 	projects: [
 		{
