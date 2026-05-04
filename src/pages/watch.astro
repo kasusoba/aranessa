@@ -4,8 +4,11 @@ import { getAnilistActivity, parseAnilistProgress } from "../lib/anilist";
 import { getTraktHistory } from "../lib/trakt";
 import { getRelativeTime } from "../lib/utils";
 
-const anilistData = await getAnilistActivity(20);
-const traktData = await getTraktHistory(20);
+const sixMonthsAgo = new Date();
+sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+const anilistData = await getAnilistActivity(sixMonthsAgo);
+const traktData = await getTraktHistory(sixMonthsAgo);
 
 const items = [
   ...anilistData.map((item) => ({

@@ -59,7 +59,8 @@ export interface TraktItemWithImage extends TraktHistoryItem {
 }
 
 export async function getTraktHistory(
-	limit: number = 20,
+	startDate?: Date,
+	limit = 1000,
 ): Promise<TraktItemWithImage[]> {
 	const clientId = import.meta.env.TRAKT_CLIENT_ID;
 	const username = import.meta.env.TRAKT_USERNAME;
@@ -67,8 +68,10 @@ export async function getTraktHistory(
 	if (!clientId || !username) return [];
 
 	try {
+		const params = new URLSearchParams({ limit: String(limit) });
+		if (startDate) params.set("start_at", startDate.toISOString());
 		const response = await fetch(
-			`${TRAKT_API_BASE}/users/${username}/history?limit=${limit}`,
+			`${TRAKT_API_BASE}/users/${username}/history?${params}`,
 			{
 				headers: {
 					"Content-Type": "application/json",

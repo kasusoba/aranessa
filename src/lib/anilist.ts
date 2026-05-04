@@ -50,7 +50,7 @@ async function getUserId(username: string): Promise<number | null> {
 }
 
 export async function getAnilistActivity(
-	limit: number = 20,
+	startDate?: Date,
 ): Promise<AnilistActivity[]> {
 	const username = import.meta.env.ANILIST_USERNAME;
 
@@ -60,9 +60,12 @@ export async function getAnilistActivity(
 	if (!userId) return [];
 
 	const query = `
-    query ($userId: Int, $perPage: Int) {
-      Page(perPage: $perPage) {
-        activities(userId: $userId, type: MEDIA_LIST, sort: ID_DESC) {
+    query ($userId: Int, $createdAt_greater: Int, $page: Int) {
+      Page(page: $page, perPage: 50) {
+        pageInfo {
+          hasNextPage
+        }
+        activities(userId: $userId, type: MEDIA_LIST, sort: ID_DESC, createdAt_greater: $createdAt_greater) {
           ... on ListActivity {
             id
             status
@@ -91,30 +94,42 @@ export async function getAnilistActivity(
     }
   `;
 
+	const createdAt_greater = startDate
+		? Math.floor(startDate.getTime() / 1000)
+		: undefined;
+
+	const allActivities: AnilistActivity[] = [];
+	let page = 1;
+
 	try {
-		const response = await fetch(ANILIST_API_BASE, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
-			body: JSON.stringify({
-				query,
-				variables: {
-					userId,
-					perPage: limit,
+		while (true) {
+			const response = await fetch(ANILIST_API_BASE, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
 				},
-			}),
-		});
+				body: JSON.stringify({
+					query,
+					variables: { userId, createdAt_greater, page },
+				}),
+			});
 
-		const data = await response.json();
+			const data = await response.json();
 
-		if (data.errors) {
-			console.error("Anilist API Errors:", data.errors);
-			return [];
+			if (data.errors) {
+				console.error("Anilist API Errors:", data.errors);
+				break;
+			}
+
+			const pageData = data.data.Page;
+			allActivities.push(...pageData.activities);
+
+			if (!pageData.pageInfo.hasNextPage) break;
+			page++;
 		}
 
-		return data.data.Page.activities;
+		return allActivities;
 	} catch (error) {
 		console.error("Failed to fetch Anilist activity:", error);
 		return [];
