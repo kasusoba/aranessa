@@ -1,16 +1,179 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getAnilistActivity, parseAnilistProgress } from "../lib/anilist";
-import { getTraktHistory } from "../lib/trakt";
+import {
+  getAnilistActivity,
+  getAnilistEntries,
+  getAnilistFavorites,
+  parseAnilistProgress,
+} from "../lib/anilist";
+import {
+  getTraktFavorites,
+  getTraktFinished,
+  getTraktHistory,
+  getTraktReviews,
+} from "../lib/trakt";
+import {
+  getHardcoverReading,
+  getHardcoverRead,
+} from "../lib/hardcover";
+import { devCache } from "../lib/cache";
 import { getRelativeTime } from "../lib/utils";
 
 const sixMonthsAgo = new Date();
 sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-const anilistData = await getAnilistActivity(sixMonthsAgo);
-const traktData = await getTraktHistory(sixMonthsAgo);
+// In dev, each source is cached for 30 min so reloads don't re-hit every API.
+// Production builds always fetch fresh (devCache is a no-op outside dev).
+const TTL = 30 * 60 * 1000;
 
-const items = [
+// Trakt + Hardcover tolerate concurrency; run them together.
+const [
+  traktData,
+  traktFav,
+  traktReviews,
+  traktFinished,
+  hardcoverReading,
+  hardcoverRead,
+] = await Promise.all([
+  devCache("trakt-history", TTL, () => getTraktHistory(sixMonthsAgo)),
+  devCache("trakt-favorites", TTL, () => getTraktFavorites()),
+  devCache("trakt-reviews", TTL, () => getTraktReviews()),
+  devCache("trakt-finished", TTL, () => getTraktFinished()),
+  devCache("hardcover-reading", TTL, () => getHardcoverReading()),
+  devCache("hardcover-read", TTL, () => getHardcoverRead()),
+]);
+
+// AniList rate-limits aggressively, so fetch its sources sequentially to avoid
+// 429s (and the long Retry-After backoff they trigger).
+const anilistData = await devCache("anilist-activity", TTL, () =>
+  getAnilistActivity(sixMonthsAgo),
+);
+const anilistFav = await devCache("anilist-favorites", TTL, () =>
+  getAnilistFavorites(),
+);
+const anilistEntries = await devCache("anilist-entries", TTL, () =>
+  getAnilistEntries(),
+);
+
+// AniList entries and Hardcover read-books split into reviewed vs finished-only.
+const anilistNotes = anilistEntries.filter((e) => e.hasNote);
+const hardcoverReviews = hardcoverRead.filter((b) => b.hasReview);
+
+// Unify type vocabulary across sections so one filter covers all of them.
+const normType = (t: string) => {
+  const v = t.toLowerCase();
+  return v === "tv" || v === "episode" || v === "season" ? "show" : v;
+};
+
+// --- Favorites (curated taste) ---
+const favorites = [
+  ...anilistFav.anime.map((f) => ({ ...f, url: f.siteUrl })),
+  ...anilistFav.manga.map((f) => ({ ...f, url: f.siteUrl })),
+  ...traktFav,
+].map((f) => ({
+  key: `${f.type}-${f.id}`,
+  title: f.title,
+  image: f.image,
+  url: f.url,
+  type: normType(String(f.type)),
+}));
+
+// --- Reviews & notes (the voice) ---
+const dateLabel = (d: Date) =>
+  d
+    .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    .toLowerCase();
+
+const reviews = [
+  ...anilistNotes.map((n) => ({
+    key: `al-${n.media.id}`,
+    title: n.media.title,
+    image: n.media.image,
+    url: n.media.siteUrl,
+    type: normType(n.media.type),
+    subtitle: `${n.media.type.toLowerCase()} · ${n.status.toLowerCase()}`,
+    rating: n.scoreDisplay,
+    note: n.notes,
+    spoiler: false,
+    date: new Date(n.date),
+  })),
+  ...traktReviews.map((r) => ({
+    key: `tr-${r.id}`,
+    title: r.title,
+    image: r.image,
+    url: r.url,
+    type: r.subtitle.startsWith("movie") ? "movie" : "show",
+    subtitle: r.subtitle,
+    rating: r.rating ? `${r.rating}/10` : "",
+    note: r.note,
+    spoiler: r.spoiler,
+    date: r.date,
+  })),
+  ...hardcoverReviews.map((r) => ({
+    key: `hc-${r.id}`,
+    title: r.title,
+    image: r.image,
+    url: r.url,
+    type: "book",
+    subtitle: "book",
+    rating: r.rating,
+    note: r.note,
+    spoiler: r.spoiler,
+    date: r.date,
+  })),
+]
+  .filter(
+    (r, i, arr) => arr.findIndex((other) => other.key === r.key) === i,
+  )
+  .map((r) => ({ ...r, dateLabel: dateLabel(r.date) }))
+  .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// --- Finished, no review (the quiet archive) ---
+// Completed/read items without a note, with or without a rating. Just the
+// numeric part of the rating for the compact corner badge.
+const archive = [
+  ...anilistEntries
+    .filter((e) => e.status === "COMPLETED" && !e.hasNote)
+    .map((e) => ({
+      key: `al-${e.media.id}`,
+      title: e.media.title,
+      image: e.media.imageMedium,
+      url: e.media.siteUrl,
+      type: normType(e.media.type),
+      rating: e.scoreDisplay.split("/")[0],
+      date: new Date(e.date),
+    })),
+  ...traktFinished.map((r) => ({
+    key: `tr-${r.type}-${r.id}`,
+    title: r.title,
+    image: r.image,
+    url: r.url,
+    type: r.type,
+    rating: r.rating != null ? String(r.rating) : "",
+    date: r.date,
+  })),
+  ...hardcoverRead
+    .filter((b) => !b.hasReview)
+    .map((b) => ({
+      key: `hc-${b.id}`,
+      title: b.title,
+      image: b.image,
+      url: b.url,
+      type: "book",
+      rating: b.rating ? b.rating.split("/")[0] : "",
+      date: b.date,
+    })),
+].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// The wall can grow large over the years, so collapse it past this many tiles
+// behind a "show all" toggle.
+const ARCHIVE_CAP = 60;
+
+// --- Recent activity (compact pulse) ---
+// Cap the watch/listen feed at the 24 most recent, but always keep every
+// currently-reading book (Hardcover progress updates are sporadic, so they'd
+// otherwise fall off the cap).
+const mediaItems = [
   ...anilistData.map((item) => ({
     id: `al-${item.id}`,
     title: item.media.title.english || item.media.title.romaji,
@@ -18,7 +181,7 @@ const items = [
     progress: parseAnilistProgress(item.status, item.progress, item.media.type),
     date: new Date(item.createdAt * 1000),
     relativeDate: getRelativeTime(new Date(item.createdAt * 1000)),
-    type: item.media.type.toLowerCase(), // 'anime' or 'manga'
+    type: item.media.type.toLowerCase(),
     url: item.siteUrl || item.media.siteUrl,
   })),
   ...traktData.map((item) => ({
@@ -37,7 +200,38 @@ const items = [
         ? `https://trakt.tv/shows/${item.show?.ids.trakt}/seasons/${item.episode?.season}/episodes/${item.episode?.number}`
         : `https://trakt.tv/movies/${item.movie?.ids.trakt}`,
   })),
-].sort((a, b) => b.date.getTime() - a.date.getTime());
+]
+  .sort((a, b) => b.date.getTime() - a.date.getTime())
+  .slice(0, 24);
+
+const bookItems = hardcoverReading.map((b) => ({
+  id: `hc-${b.id}`,
+  title: b.title,
+  image: b.image,
+  progress: b.progress,
+  date: b.date,
+  relativeDate: getRelativeTime(b.date),
+  type: "book",
+  url: b.url,
+}));
+
+const items = [...bookItems, ...mediaItems].sort(
+  (a, b) => b.date.getTime() - a.date.getTime(),
+);
+
+// One filter for the whole page — only offer types present in any section.
+const presentTypes = new Set([
+  ...items.map((i) => i.type),
+  ...favorites.map((f) => f.type),
+  ...reviews.map((r) => r.type),
+  ...archive.map((a) => a.type),
+]);
+const filters = [
+  "all",
+  ...["anime", "manga", "movie", "show", "book"].filter((t) =>
+    presentTypes.has(t),
+  ),
+];
 ---
 
 <Layout>
@@ -45,90 +239,396 @@ const items = [
     <!-- Header -->
     <h1 class="font-medium text-primary tracking-wide">watch/read</h1>
 
-    <!-- Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
-      {
-        items.map((item) => (
-          <a href={item.url} target="_blank" class="flex flex-col gap-2 group">
-            <div class="aspect-[2/3] w-full bg-darkblue-200/50 rounded-lg overflow-hidden border border-white/5 relative flex items-center justify-center group-hover:border-white/10 transition-colors">
-              {item.image ? (
+    <!-- Page-wide media-type filter -->
+    {
+      filters.length > 1 && (
+        <div data-filter-bar class="flex gap-1.5 flex-wrap -mt-2">
+          {filters.map((f) => (
+            <button
+              type="button"
+              data-filter={f}
+              class:list={[
+                "text-[11px] lowercase px-2 py-0.5 rounded-full border border-primary-opaque/15 text-primary-opaque/50 hover:text-primary transition-colors cursor-pointer",
+                { "is-active": f === "all" },
+              ]}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- Recent activity (compact) -->
+    <section data-section class="flex flex-col gap-4">
+      <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
+        recently
+      </h2>
+      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+        {items.map((item) => (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noreferrer"
+            title={item.title}
+            data-filter-item
+            data-type={item.type}
+            class="group shrink-0 w-20 snap-start"
+          >
+            <div class="aspect-[2/3] w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 relative group-hover:border-white/15 transition-colors">
+              {item.image && (
                 <img
                   src={item.image}
                   alt={item.title}
-                  class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                  loading="lazy"
+                  class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
                 />
-              ) : (
-                <>
-                  {item.type === "manga" && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="text-primary-opaque/30 group-hover:scale-110 transition-transform"
-                    >
-                      <path d="M12 12c-2-2-2-5-2-7l2-2 2 2c0 2 0 5-2 7Z" />
-                      <path d="M7.5 18a6 6 0 0 0 4.5 3h0a6 6 0 0 0 4.5-3" />
-                      <path d="M5 9c0 5 2 9 7 9s7-4 7-9" />
-                    </svg>
-                  )}
-                  {(item.type === "anime" || item.type === "movie") && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="text-primary-opaque/30 group-hover:scale-110 transition-transform"
-                    >
-                      <circle cx="12" cy="8" r="5" />
-                      <path d="M20 21a8 8 0 0 0-16 0" />
-                    </svg>
-                  )}
-                  {item.type === "show" && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="text-primary-opaque/30 group-hover:scale-110 transition-transform"
-                    >
-                      <rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
-                      <polyline points="17 2 12 7 7 2" />
-                    </svg>
-                  )}
-                </>
               )}
-              <div class="absolute inset-0 bg-gradient-to-t from-darkblue-300/80 to-transparent opacity-60" />
+              <span class="absolute bottom-1 left-1 right-1 text-[10px] text-primary font-medium tracking-wide text-center bg-darkblue-300/85 rounded px-1 py-0.5 backdrop-blur-sm">
+                {item.progress}
+              </span>
             </div>
-            <div class="space-y-1">
-              <h3 class="text-accent-blue font-medium text-sm leading-tight line-clamp-2">
-                {item.title}
-              </h3>
-              <div class="flex items-center justify-between text-xs">
-                <p class="text-accent-gold font-medium tracking-wide">
-                  {item.progress}
-                </p>
-                <p class="text-primary-opaque/50">{item.relativeDate}</p>
-              </div>
-            </div>
+            <p class="mt-1.5 text-[11px] text-primary-opaque/55 line-clamp-1">
+              {item.relativeDate}
+            </p>
+            <span class="sr-only">{item.title}</span>
           </a>
-        ))
+        ))}
+      </div>
+      <p data-empty class="hidden text-sm text-primary-opaque/35 lowercase">
+        nothing here yet
+      </p>
+    </section>
+
+    <!-- Favorites -->
+    <section data-section class="flex flex-col gap-4">
+      <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
+        favorites
+      </h2>
+      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+        {favorites.map((f) => (
+          <a
+            href={f.url}
+            target="_blank"
+            rel="noreferrer"
+            title={f.title}
+            data-filter-item
+            data-type={f.type}
+            class="group shrink-0 w-24 snap-start"
+          >
+            <div class="aspect-[2/3] w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors">
+              {f.image && (
+                <img
+                  src={f.image}
+                  alt={f.title}
+                  loading="lazy"
+                  class="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity"
+                />
+              )}
+            </div>
+            <p class="mt-1.5 text-xs text-primary-opaque/70 line-clamp-1 group-hover:text-accent-blue transition-colors">
+              {f.title}
+            </p>
+          </a>
+        ))}
+      </div>
+      <p data-empty class="hidden text-sm text-primary-opaque/35 lowercase">
+        nothing here yet
+      </p>
+    </section>
+
+    <!-- Reviews & notes -->
+    <section data-section class="flex flex-col gap-4">
+      <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
+        reviews & notes
+      </h2>
+      <div data-section-body class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+        {reviews.map((r) => (
+              <div data-review data-filter-item data-type={r.type} class="relative">
+                <div
+                  data-review-card
+                  class="group flex gap-4 p-3 rounded-2xl border border-white/5 bg-darkblue-200/40 hover:border-white/10 transition-colors"
+                >
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={r.title}
+                    class="self-start shrink-0 w-20 aspect-[2/3] rounded-lg overflow-hidden border border-white/5 bg-darkblue-300/50 block"
+                  >
+                    {r.image && (
+                      <img
+                        src={r.image}
+                        alt={r.title}
+                        loading="lazy"
+                        class="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity"
+                      />
+                    )}
+                  </a>
+                  <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-2">
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        class="text-accent-blue font-medium text-sm leading-tight line-clamp-2 transition-colors hover:text-accent-blue/70"
+                      >
+                        {r.title}
+                      </a>
+                      {r.rating && (
+                        <span class="shrink-0 text-xs text-accent-gold font-medium tabular-nums">
+                          ★ {r.rating}
+                        </span>
+                      )}
+                    </div>
+                    <p class="text-xs text-primary-opaque/45 lowercase">
+                      {r.subtitle} · {r.dateLabel}
+                    </p>
+                    <div data-note data-spoiler={r.spoiler ? "" : undefined} class="relative mt-0.5">
+                      <p
+                        data-note-text
+                        class="text-xs text-primary-opaque/75 leading-relaxed whitespace-pre-line"
+                      >
+                        {r.note}
+                      </p>
+                      {r.spoiler && (
+                        <button
+                          type="button"
+                          data-spoiler-toggle
+                          class="absolute inset-0 flex items-center justify-center text-[11px] tracking-wide uppercase text-accent-gold/90 hover:text-accent-gold cursor-pointer"
+                        >
+                          reveal spoiler
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+        ))}
+      </div>
+      <p data-empty class="hidden text-sm text-primary-opaque/35 lowercase">
+        nothing here yet
+      </p>
+    </section>
+
+    <!-- Finished, no review — a quiet mini poster wall -->
+    <section data-section data-archive class="flex flex-col gap-4 is-collapsed">
+      <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
+        also finished
+      </h2>
+      <div data-section-body class="flex flex-wrap gap-2.5">
+        {archive.map((a, i) => (
+          <a
+            href={a.url}
+            target="_blank"
+            rel="noreferrer"
+            title={a.title}
+            data-filter-item
+            data-type={a.type}
+            data-extra={i >= ARCHIVE_CAP ? "" : undefined}
+            class="group relative w-14 shrink-0"
+          >
+            <div class="aspect-[2/3] w-full rounded-md overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors">
+              {a.image && (
+                <img
+                  src={a.image}
+                  alt={a.title}
+                  loading="lazy"
+                  class="w-full h-full object-cover opacity-55 group-hover:opacity-90 transition-opacity"
+                />
+              )}
+            </div>
+            {a.rating && (
+              <span class="absolute top-1 right-1 text-[9px] leading-none font-medium text-primary bg-darkblue-300/90 rounded px-1 py-0.5 backdrop-blur-sm">
+                ★{a.rating}
+              </span>
+            )}
+            <span class="sr-only">{a.title}</span>
+          </a>
+        ))}
+      </div>
+      {
+        archive.length > ARCHIVE_CAP && (
+          <button
+            type="button"
+            data-archive-toggle
+            class="self-start text-[11px] lowercase tracking-wide text-primary-opaque/50 hover:text-primary transition-colors cursor-pointer"
+          >
+            show all ({archive.length})
+          </button>
+        )
       }
-    </div>
+      <p data-empty class="hidden text-sm text-primary-opaque/35 lowercase">
+        nothing here yet
+      </p>
+    </section>
   </div>
+
+  <style is:global>
+    /* Notes clamp to ~4 lines by default. */
+    [data-note-text] {
+      max-height: 6.5em;
+      overflow: hidden;
+      transition: filter 0.3s ease;
+    }
+    /* Clampable notes are click-to-expand, with a bottom fade hinting more. */
+    [data-note].is-clampable [data-note-text] {
+      cursor: pointer;
+      -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
+      mask-image: linear-gradient(to bottom, #000 65%, transparent);
+    }
+    [data-note].is-expanded [data-note-text] {
+      max-height: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    /* When a note opens, its whole card lifts out of flow and floats over the
+       cards below (no reflow). The slot keeps the collapsed footprint. */
+    [data-review].is-open [data-review-card] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: var(--color-darkblue-100);
+      border-color: rgb(255 255 255 / 0.12);
+      box-shadow: 0 16px 40px rgb(0 0 0 / 0.5);
+    }
+    /* Spoiler notes stay blurred until revealed. */
+    [data-spoiler] [data-note-text] {
+      filter: blur(5px);
+      user-select: none;
+    }
+    [data-spoiler].is-revealed [data-note-text] {
+      filter: none;
+      user-select: auto;
+    }
+    [data-spoiler].is-revealed [data-spoiler-toggle] {
+      display: none;
+    }
+    /* Active filter chip — subtle, not loud. */
+    [data-filter-bar] button.is-active {
+      color: var(--color-primary);
+      border-color: var(--color-primary-opaque);
+      background: rgb(255 255 255 / 0.05);
+    }
+    /* Collapsed archive hides its overflow tiles behind the "show all" toggle. */
+    [data-archive].is-collapsed [data-extra] {
+      display: none;
+    }
+  </style>
+
+  <script>
+    function setupNotes() {
+      // Mark notes whose text overflows the clamp so they become click-to-expand.
+      document.querySelectorAll<HTMLElement>("[data-note]").forEach((note) => {
+        const text = note.querySelector<HTMLElement>("[data-note-text]");
+        if (text && text.scrollHeight > text.clientHeight + 2) {
+          note.classList.add("is-clampable");
+        }
+      });
+    }
+
+    // Open a note: lock the slot to its collapsed height, then lift the card out
+    // of flow so it grows down over the cards below without shifting them.
+    function openNote(note: HTMLElement) {
+      const card = note.closest<HTMLElement>("[data-review-card]");
+      const slot = card?.closest<HTMLElement>("[data-review]");
+      if (card && slot) {
+        slot.style.height = `${card.offsetHeight}px`;
+        slot.classList.add("is-open");
+      }
+      note.classList.add("is-expanded");
+    }
+
+    function closeNote(note: Element) {
+      note.classList.remove("is-expanded");
+      const slot = note.closest<HTMLElement>("[data-review]");
+      if (slot) {
+        slot.classList.remove("is-open");
+        slot.style.height = "";
+      }
+    }
+
+    function closeAllExcept(keep: Element | null) {
+      document.querySelectorAll("[data-note].is-expanded").forEach((n) => {
+        if (n !== keep) closeNote(n);
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+
+      // Click-to-reveal spoiler notes (Trakt comments flagged as spoilers).
+      const reveal = target.closest("[data-spoiler-toggle]");
+      if (reveal) {
+        reveal.closest("[data-note]")?.classList.add("is-revealed");
+        return;
+      }
+
+      // Clicking a clamped note opens its card over the ones below; clicking
+      // anywhere else closes whatever's open.
+      const note = target
+        .closest("[data-note-text]")
+        ?.closest<HTMLElement>("[data-note].is-clampable");
+      closeAllExcept(note ?? null);
+      if (note && target.closest("[data-note-text]")) {
+        if (note.classList.contains("is-expanded")) closeNote(note);
+        else openNote(note);
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAllExcept(null);
+    });
+
+    // "show all" toggle for the finished wall.
+    document.querySelector("[data-archive-toggle]")?.addEventListener("click", (e) => {
+      const section = (e.target as HTMLElement).closest("[data-archive]");
+      const collapsed = section?.classList.toggle("is-collapsed");
+      (e.target as HTMLElement).textContent = collapsed
+        ? `show all (${section?.querySelectorAll("[data-filter-item]").length})`
+        : "show less";
+    });
+
+    // Show a placeholder (and hide the body) for any section with no visible
+    // items — whether empty to begin with or filtered down to nothing.
+    function updateEmptyStates() {
+      document.querySelectorAll<HTMLElement>("[data-section]").forEach((sec) => {
+        const items = sec.querySelectorAll<HTMLElement>("[data-filter-item]");
+        const visible = [...items].some((i) => !i.classList.contains("hidden"));
+        sec.querySelector("[data-section-body]")?.classList.toggle("hidden", !visible);
+        sec.querySelector("[data-empty]")?.classList.toggle("hidden", visible);
+      });
+    }
+
+    // Page-wide media-type filter across every section.
+    const filterBar = document.querySelector("[data-filter-bar]");
+    filterBar?.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>(
+        "button[data-filter]",
+      );
+      if (!btn) return;
+      const filter = btn.dataset.filter;
+      filterBar
+        .querySelectorAll("button")
+        .forEach((b) => b.classList.toggle("is-active", b === btn));
+      closeAllExcept(null);
+      document
+        .querySelectorAll<HTMLElement>("[data-filter-item]")
+        .forEach((item) => {
+          item.classList.toggle(
+            "hidden",
+            filter !== "all" && item.dataset.type !== filter,
+          );
+        });
+      updateEmptyStates();
+    });
+
+    updateEmptyStates();
+
+    // Run after load so web fonts don't throw off the overflow measurement.
+    if (document.readyState === "complete") setupNotes();
+    else window.addEventListener("load", setupNotes);
+  </script>
 </Layout>

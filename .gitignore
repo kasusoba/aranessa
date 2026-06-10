@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# build-time api/image cache
+.cache/
+
 # generated types
 .astro/
 

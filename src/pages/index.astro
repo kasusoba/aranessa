@@ -7,7 +7,7 @@ import { getAnilistActivity } from "../lib/anilist";
 import { getTraktHistory } from "../lib/trakt";
 import { getRecentGames, getHeaderImage, formatHours } from "../lib/steam";
 
-const anilistData = (await getAnilistActivity()).slice(0, 5);
+const anilistData = (await getAnilistActivity(undefined, 1)).slice(0, 5);
 const traktData = await getTraktHistory(undefined, 5);
 const recentGames = await getRecentGames(2);
 // Normalize and combine

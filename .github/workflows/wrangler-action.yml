@@ -28,6 +28,12 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
+      - name: Restore API/image cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: api-cache-${{ github.run_id }}
+          restore-keys: api-cache-
       - name: Build project
         run: pnpm build
         env:
@@ -40,6 +46,7 @@ jobs:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           GH_USERNAME: ${{ vars.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          HARDCOVER_TOKEN: ${{ secrets.HARDCOVER_TOKEN }}
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
