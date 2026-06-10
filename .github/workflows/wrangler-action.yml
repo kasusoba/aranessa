@@ -38,6 +38,8 @@ jobs:
           TRAKT_USERNAME: ${{ vars.TRAKT_USERNAME }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          GH_USERNAME: ${{ vars.GH_USERNAME }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
