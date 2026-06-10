@@ -26,14 +26,16 @@ async function hardcoverRequest(
 	query: string,
 	// biome-ignore lint/suspicious/noExplicitAny: graphql response is arbitrary
 ): Promise<any | null> {
-	const token = import.meta.env.HARDCOVER_TOKEN;
-	if (!token) return null;
+	const raw = import.meta.env.HARDCOVER_TOKEN?.trim();
+	if (!raw) return null;
+	// Accept the token with or without a "Bearer " prefix.
+	const authorization = raw.startsWith("Bearer ") ? raw : `Bearer ${raw}`;
 	try {
 		const res = await fetch(HARDCOVER_API_BASE, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: token,
+				Authorization: authorization,
 			},
 			body: JSON.stringify({ query }),
 		});
