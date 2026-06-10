@@ -11,5 +11,14 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
+  // Allow Astro to download & optimize GitHub social-preview images at build
+  // time, so visitors load them from our own domain (avoids GitHub rate limits).
+  image: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'repository-images.githubusercontent.com' },
+      { protocol: 'https', hostname: 'opengraph.githubassets.com' }
+    ]
+  },
+
   integrations: [preact()]
 });

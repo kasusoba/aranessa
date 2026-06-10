@@ -1,7 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { userConfig } from "../config";
-import { Image } from "astro:assets";
+import { getProjects } from "../lib/github";
+
+// Pull from GitHub at build time (repos tagged `portfolio`), falling back to
+// the hardcoded list if the API is unavailable, unconfigured, or no repos are
+// tagged yet.
+const fetched = await getProjects();
+const projects = fetched && fetched.length > 0 ? fetched : userConfig.projects;
 ---
 
 <Layout>
@@ -12,7 +18,7 @@ import { Image } from "astro:assets";
     <!-- Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       {
-        userConfig.projects.map((project) => (
+        projects.map((project) => (
           <a
             href={project.url}
             target="_blank"
@@ -21,10 +27,11 @@ import { Image } from "astro:assets";
           >
             <div class="bg-darkblue-200/50 rounded-2xl aspect-video w-full flex items-center justify-center border border-white/5 transition-colors group-hover:border-white/10 group-hover:bg-darkblue-200/80 overflow-hidden">
               {project.image ? (
-                <Image
-                  src={project.image}
+                <img
+                  src={typeof project.image === "string" ? project.image : project.image.src}
                   alt={project.title}
-                  class="w-full h-full object-contain transition-transform duration-500 "
+                  loading="lazy"
+                  class="w-full h-full object-contain transition-transform duration-500"
                 />
               ) : (
                 <svg
