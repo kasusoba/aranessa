@@ -88,8 +88,8 @@ async function toProject(repo: GitHubRepo, owner: string): Promise<Project> {
  * list.
  */
 export async function getProjects(): Promise<Project[] | null> {
-	const owner = import.meta.env.GITHUB_USERNAME;
-	const token = import.meta.env.GITHUB_TOKEN;
+	const owner = import.meta.env.GH_USERNAME;
+	const token = import.meta.env.GH_TOKEN;
 	if (!owner) return null;
 
 	try {
