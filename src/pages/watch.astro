@@ -264,7 +264,7 @@ const filters = [
       <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
         recently
       </h2>
-      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {items.map((item) => (
           <a
             href={item.url}
@@ -273,7 +273,7 @@ const filters = [
             title={item.title}
             data-filter-item
             data-type={item.type}
-            class="group shrink-0 w-20 snap-start"
+            class="group relative shrink-0 w-20"
           >
             <div class="aspect-[2/3] w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 relative group-hover:border-white/15 transition-colors">
               {item.image && (
@@ -305,7 +305,7 @@ const filters = [
       <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
         favorites
       </h2>
-      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+      <div data-section-body class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {favorites.map((f) => (
           <a
             href={f.url}
@@ -314,7 +314,7 @@ const filters = [
             title={f.title}
             data-filter-item
             data-type={f.type}
-            class="group shrink-0 w-24 snap-start"
+            class="group shrink-0 w-24"
           >
             <div class="aspect-[2/3] w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors">
               {f.image && (
@@ -395,7 +395,7 @@ const filters = [
                         <button
                           type="button"
                           data-spoiler-toggle
-                          class="absolute inset-0 flex items-center justify-center text-[11px] tracking-wide uppercase text-accent-gold/90 hover:text-accent-gold cursor-pointer"
+                          class="absolute inset-0 flex items-center justify-center text-[11px] tracking-wide lowercase text-accent-gold/90 hover:text-accent-gold cursor-pointer"
                         >
                           reveal spoiler
                         </button>
@@ -412,7 +412,7 @@ const filters = [
     </section>
 
     <!-- Finished, no review — a quiet mini poster wall -->
-    <section data-section data-archive class="flex flex-col gap-4 is-collapsed">
+    <section data-section data-archive data-cap={ARCHIVE_CAP} class="flex flex-col gap-4 is-collapsed">
       <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">
         also finished
       </h2>
@@ -582,13 +582,36 @@ const filters = [
       if (e.key === "Escape") closeAllExcept(null);
     });
 
+    // Re-derive the finished wall's overflow + "show all" toggle for whatever
+    // filter is active: only items matching the current filter count toward the
+    // cap, so each filter view gets its own count and its own collapsed state.
+    function updateArchive() {
+      const section = document.querySelector<HTMLElement>("[data-archive]");
+      if (!section) return;
+      const cap = Number(section.dataset.cap) || 0;
+      const all = [...section.querySelectorAll<HTMLElement>("[data-filter-item]")];
+      const matching = all.filter((i) => !i.classList.contains("hidden"));
+      // Mark only the matching tiles past the cap as overflow (hidden while
+      // collapsed); clear it everywhere else so filtered-out tiles don't count.
+      all.forEach((i) => i.removeAttribute("data-extra"));
+      matching.forEach((i, idx) => {
+        if (idx >= cap) i.setAttribute("data-extra", "");
+      });
+      const toggle = section.querySelector<HTMLElement>("[data-archive-toggle]");
+      if (toggle) {
+        toggle.classList.toggle("hidden", matching.length <= cap);
+        toggle.textContent = section.classList.contains("is-collapsed")
+          ? `show all (${matching.length})`
+          : "show less";
+      }
+    }
+
     // "show all" toggle for the finished wall.
     document.querySelector("[data-archive-toggle]")?.addEventListener("click", (e) => {
-      const section = (e.target as HTMLElement).closest("[data-archive]");
-      const collapsed = section?.classList.toggle("is-collapsed");
-      (e.target as HTMLElement).textContent = collapsed
-        ? `show all (${section?.querySelectorAll("[data-filter-item]").length})`
-        : "show less";
+      (e.target as HTMLElement)
+        .closest("[data-archive]")
+        ?.classList.toggle("is-collapsed");
+      updateArchive();
     });
 
     // Show a placeholder (and hide the body) for any section with no visible
@@ -622,9 +645,16 @@ const filters = [
             filter !== "all" && item.dataset.type !== filter,
           );
         });
+      // Each filter view owns its collapsed state — reset to collapsed so its
+      // count and visible set stay consistent when switching filters.
+      document
+        .querySelector("[data-archive]")
+        ?.classList.add("is-collapsed");
+      updateArchive();
       updateEmptyStates();
     });
 
+    updateArchive();
     updateEmptyStates();
 
     // Run after load so web fonts don't throw off the overflow measurement.

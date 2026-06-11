@@ -83,8 +83,12 @@ const isWatch = currentPath.startsWith("/watch");
           <div class="flex flex-col gap-10 mt-12 lg:mt-auto">
             <div class="space-y-3">
               <h3 class="text-sm font-bold text-primary-opaque">今</h3>
-              <p class="text-primary-opaque leading-relaxed italic">
-                don't really know what i'm doing
+              <p
+                data-thought
+                data-thoughts={JSON.stringify(userConfig.thoughts ?? [])}
+                class="text-primary-opaque leading-relaxed italic cursor-pointer select-none transition-opacity duration-200"
+              >
+                {(userConfig.thoughts ?? ["don't really know what i'm doing"])[0]}
               </p>
             </div>
 
@@ -123,5 +127,26 @@ const isWatch = currentPath.startsWith("/watch");
         </aside>
       </div>
     </div>
+
+    <script>
+      // Easter egg: clicking the 今 line cycles through other half-thoughts.
+      const thought = document.querySelector<HTMLElement>("[data-thought]");
+      if (thought) {
+        let list: string[] = [];
+        try {
+          list = JSON.parse(thought.dataset.thoughts || "[]");
+        } catch {}
+        let i = 0;
+        thought.addEventListener("click", () => {
+          if (list.length < 2) return;
+          i = (i + 1) % list.length;
+          thought.style.opacity = "0";
+          setTimeout(() => {
+            thought.textContent = list[i];
+            thought.style.opacity = "";
+          }, 200);
+        });
+      }
+    </script>
   </body>
 </html>

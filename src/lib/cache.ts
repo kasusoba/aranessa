@@ -34,8 +34,7 @@ const KV_FILE = `${CACHE_DIR}/kv.json`;
 let kv: Record<string, string> | null = null;
 
 function loadKv(): Record<string, string> {
-	if (!kv) kv = readJson(KV_FILE) ?? {};
-	return kv;
+	return (kv ??= readJson(KV_FILE) ?? {});
 }
 
 // Returns undefined when the key was never cached (vs "" for a cached miss).

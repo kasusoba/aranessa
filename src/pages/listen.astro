@@ -1,15 +1,182 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import RecentScrobblesListen from "../components/RecentScrobblesListen";
-import TopListens from "../components/TopListens";
+import { getListenData, PERIODS, DEFAULT_PERIOD } from "../lib/listen";
+
+const { periods, nowPlaying, feed, loved } = await getListenData();
 ---
 
 <Layout>
-  <div class="flex flex-col gap-10">
-    <!-- Recent Scrobbles -->
-    <RecentScrobblesListen client:load />
+  <div class="flex flex-col gap-9">
+    <!-- Header: title left, now-playing (wall style) top-right -->
+    <div class="flex items-start justify-between gap-4">
+      <h1 class="font-medium text-primary tracking-wide shrink-0">listen</h1>
+      {
+        nowPlaying && (
+          <a
+            href={nowPlaying.url}
+            target="_blank"
+            rel="noreferrer"
+            class="group flex items-center gap-2.5 min-w-0 max-w-[70%]"
+          >
+            <span class="shrink-0 w-11 h-11 rounded-md overflow-hidden border border-white/5 bg-darkblue-300/50">
+              {nowPlaying.image && <img src={nowPlaying.image} alt="" class="w-full h-full object-cover" />}
+            </span>
+            <span class="flex flex-col min-w-0 leading-tight gap-0.5">
+              <span class="flex items-center gap-1.5 text-[10px] tracking-wide lowercase text-primary-opaque/55">
+                {nowPlaying.live && <span class="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />}
+                {nowPlaying.live ? "now playing" : `last played · ${nowPlaying.when}`}
+              </span>
+              <span class="text-xs text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate">
+                {nowPlaying.name} · {nowPlaying.artist}
+              </span>
+            </span>
+          </a>
+        )
+      }
+    </div>
 
-    <!-- Top Stats -->
-    <TopListens client:load />
+    <!-- Recently — snap art row (period-independent) -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">recently</h2>
+      <div class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        {
+          feed.slice(0, 16).map((t) => (
+            <a href={t.url} target="_blank" rel="noreferrer" title={`${t.name} — ${t.artist}`} class="group relative shrink-0 w-20">
+              <div class="aspect-square w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors">
+                {t.image && <img src={t.image} alt="" loading="lazy" class="w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity" />}
+              </div>
+              <p class="mt-1.5 text-[11px] text-primary-opaque/55 line-clamp-1">{t.name}</p>
+              <p class="text-[10px] text-primary-opaque/35 line-clamp-1">{t.when}</p>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Period chips (client-side toggle) -->
+    <div data-chips class="flex gap-1.5 flex-wrap -mb-2">
+      {
+        PERIODS.map((p) => (
+          <button
+            type="button"
+            data-chip={p.value}
+            class:list={[
+              "text-[11px] lowercase px-2 py-0.5 rounded-full border transition-colors cursor-pointer",
+              p.value === DEFAULT_PERIOD
+                ? "text-primary border-primary-opaque bg-white/5"
+                : "border-primary-opaque/15 text-primary-opaque/50 hover:text-primary",
+            ]}
+          >
+            {p.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- Per-period blocks: albums wall + artists/tracks. Only the active one shows. -->
+    {
+      PERIODS.map((p) => {
+        const d = periods[p.value];
+        return (
+          <div data-period-block data-period={p.value} class:list={["flex flex-col gap-9", { hidden: p.value !== DEFAULT_PERIOD }]}>
+            {/* Top albums — cover wall */}
+            <section class="flex flex-col gap-4">
+              <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">top albums</h2>
+              <div class="flex flex-wrap gap-2.5">
+                {d.albums.map((a) => (
+                  <a href={a.url} target="_blank" rel="noreferrer" title={`${a.name} — ${a.artist}`} class="group relative w-16 shrink-0">
+                    <div class="aspect-square w-full rounded-md overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors">
+                      {a.image && <img src={a.image} alt="" loading="lazy" class="w-full h-full object-cover opacity-70 group-hover:opacity-95 transition-opacity" />}
+                    </div>
+                    <span class="absolute top-1 right-1 text-[9px] leading-none font-medium text-primary bg-darkblue-300/90 rounded px-1 py-0.5 backdrop-blur-sm tabular-nums">
+                      {a.plays}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            {/* Top artists (with photos) + top tracks */}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <section class="flex flex-col gap-4">
+                <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">top artists</h2>
+                <div class="flex flex-col gap-2">
+                  {d.artists.map((a, i) => (
+                    <a href={a.url} target="_blank" rel="noreferrer" class="group flex items-center gap-3 text-sm">
+                      <span class="text-[11px] tabular-nums text-primary-opaque/35 w-3 shrink-0">{i + 1}</span>
+                      <span class="shrink-0 w-9 h-9 rounded-full overflow-hidden border border-white/5 bg-darkblue-300/50">
+                        {a.image ? (
+                          <img src={a.image} alt="" loading="lazy" class="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                          <span class="flex w-full h-full items-center justify-center text-[11px] text-primary-opaque/40">{a.name.slice(0, 1)}</span>
+                        )}
+                      </span>
+                      <span class="flex-1 text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate lowercase">{a.name}</span>
+                      <span class="text-accent-gold text-xs font-medium shrink-0 tabular-nums">{a.plays}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+
+              <section class="flex flex-col gap-4">
+                <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">top tracks</h2>
+                <div class="flex flex-col gap-2">
+                  {d.tracks.map((t, i) => (
+                    <a href={t.url} target="_blank" rel="noreferrer" class="group flex items-center gap-3 text-sm">
+                      <span class="text-[11px] tabular-nums text-primary-opaque/35 w-4 shrink-0">{i + 1}</span>
+                      <span class="flex-1 min-w-0">
+                        <span class="block text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate lowercase">{t.name}</span>
+                        <span class="block text-[11px] text-primary-opaque/40 truncate lowercase">{t.artist}</span>
+                      </span>
+                      <span class="text-accent-gold text-xs font-medium shrink-0 tabular-nums">{t.plays}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </div>
+        );
+      })
+    }
+
+    <!-- Loved tracks (no art from Last.fm; a quiet list) -->
+    {
+      loved.length > 0 && (
+        <section class="flex flex-col gap-4">
+          <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">loved</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+            {loved.map((t) => (
+              <a href={t.url} target="_blank" rel="noreferrer" class="group flex items-center gap-2.5 text-sm">
+                <span class="text-accent-gold/70 shrink-0 text-xs">♥</span>
+                <span class="min-w-0 truncate">
+                  <span class="text-primary-opaque/75 group-hover:text-accent-blue transition-colors">{t.name}</span>
+                  <span class="text-primary-opaque/40"> · {t.artist}</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
   </div>
+
+  <script>
+    const chips = document.querySelector("[data-chips]");
+    chips?.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>("button[data-chip]");
+      if (!btn) return;
+      const period = btn.dataset.chip;
+      chips.querySelectorAll<HTMLElement>("button[data-chip]").forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle("text-primary", on);
+        b.classList.toggle("border-primary-opaque", on);
+        b.classList.toggle("bg-white/5", on);
+        b.classList.toggle("border-primary-opaque/15", !on);
+        b.classList.toggle("text-primary-opaque/50", !on);
+      });
+      document.querySelectorAll<HTMLElement>("[data-period-block]").forEach((blk) => {
+        blk.classList.toggle("hidden", blk.dataset.period !== period);
+      });
+    });
+  </script>
 </Layout>

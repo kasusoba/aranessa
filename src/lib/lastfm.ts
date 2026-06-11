@@ -157,6 +157,58 @@ export async function getTopTracks(
 	}
 }
 
+export interface LovedTrack {
+	name: string;
+	url: string;
+	artist: { name: string; url: string };
+}
+
+export async function getLovedTracks(limit: number = 12): Promise<LovedTrack[]> {
+	const apiKey = import.meta.env.PUBLIC_LASTFM_API_KEY;
+	const username = import.meta.env.PUBLIC_LASTFM_USERNAME;
+	if (!apiKey || !username) return [];
+	try {
+		const params = new URLSearchParams({
+			method: "user.getlovedtracks",
+			user: username,
+			api_key: apiKey,
+			format: "json",
+			limit: limit.toString(),
+		});
+		const response = await fetch(`${LASTFM_API_BASE}?${params.toString()}`);
+		const data = await response.json();
+		return data.lovedtracks?.track ?? [];
+	} catch (error) {
+		console.error("Failed to fetch loved tracks:", error);
+		return [];
+	}
+}
+
+export async function getArtistTopTags(
+	artist: string,
+): Promise<Array<{ name: string; count: number }>> {
+	const apiKey = import.meta.env.PUBLIC_LASTFM_API_KEY;
+	if (!apiKey) return [];
+	try {
+		const params = new URLSearchParams({
+			method: "artist.gettoptags",
+			artist,
+			api_key: apiKey,
+			format: "json",
+			autocorrect: "1",
+		});
+		const response = await fetch(`${LASTFM_API_BASE}?${params.toString()}`);
+		const data = await response.json();
+		return (data.toptags?.tag ?? []).map((t: { name: string; count: number }) => ({
+			name: t.name,
+			count: Number(t.count) || 0,
+		}));
+	} catch (error) {
+		console.error("Failed to fetch artist tags:", error);
+		return [];
+	}
+}
+
 export async function getRecentTracks(limit: number = 10): Promise<Track[]> {
 	const apiKey = import.meta.env.PUBLIC_LASTFM_API_KEY;
 	const username = import.meta.env.PUBLIC_LASTFM_USERNAME;

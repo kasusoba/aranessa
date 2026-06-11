@@ -67,7 +67,7 @@ async function getTmdbImage(
 			console.error("Failed to fetch TMDB image:", error);
 			path = "";
 		}
-		kvSet(cacheKey, path);
+		kvSet(cacheKey, path ?? "");
 	}
 
 	return path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
