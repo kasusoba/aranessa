@@ -18,8 +18,88 @@ const isWatch = currentPath.startsWith("/watch");
     <title>onesal.me</title>
   </head>
   <body class="bg-darkblue-300 text-primary">
-    <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
+    <!--
+      Easter egg (P5-style menu reveal): clicking the home avatar plays a
+      one-shot "hand places the menu" intro, then leaves an ambient background
+      looping behind the card. Both layers use PLACEHOLDER assets for now —
+      #egg-bg is an animated gradient (swap for an ambient <video>), #egg-hand is
+      an emoji palm (swap for an alpha-channel hand <video>).
+    -->
+    <div
+      id="egg-bg"
+      aria-hidden="true"
+      class="fixed inset-0 z-0 opacity-0 pointer-events-none"
+    >
+      <!-- PLACEHOLDER Persona-style splat. Swap this whole SVG for the real
+           background asset (image / video / Lottie). -->
+      <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+        <defs>
+          <pattern id="egg-halftone" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
+            <circle cx="5" cy="5" r="3.2" fill="#e30613" fill-opacity="0.22" />
+          </pattern>
+        </defs>
+        <rect width="1000" height="1000" fill="#0a0103" />
+        <rect width="1000" height="1000" fill="url(#egg-halftone)" />
+        <g class="egg-splat-idle">
+          <polygon fill="#e30613" points="500,30 565,205 770,110 705,330 965,355 775,500 980,655 715,650 805,890 555,765 515,975 430,770 195,905 275,650 35,645 255,500 55,360 300,330 235,115 445,210" />
+          <polygon fill="#ffffff" fill-opacity="0.92" points="500,500 980,470 990,520" />
+          <polygon fill="#ffffff" fill-opacity="0.92" points="500,500 520,20 470,25" />
+          <polygon fill="#ffffff" fill-opacity="0.92" points="500,500 30,540 25,485" />
+          <polygon fill="#ffffff" fill-opacity="0.92" points="500,500 540,985 485,980" />
+          <polygon fill="#0a0103" points="120,0 260,0 720,1000 580,1000" />
+          <polygon fill="#0a0103" fill-opacity="0.6" points="820,0 900,0 500,1000 420,1000" />
+        </g>
+      </svg>
+    </div>
+    <div
+      id="egg-hand"
+      aria-hidden="true"
+      class="fixed inset-0 z-0 opacity-0 pointer-events-none overflow-hidden"
+    >
+      <!-- The hand sits BEHIND the content card and reaches in to slap its back;
+           the card occludes its middle, so only the arm shows in the margins.
+           Swap /lottie/hand.json for the real arm/hand. -->
+      <div id="egg-hand-lottie" class="w-full h-full"></div>
+    </div>
+
+    <!-- Easter egg variant 2 (Dorohedoro): travel into Kaiman's mouth (front→
+         back) to reveal Risu, behind the card. PLACEHOLDER teeth / throat /
+         figure SVG — swap the whole #egg-bg-doro for the real clip. -->
+    <div
+      id="egg-bg-doro"
+      aria-hidden="true"
+      class="fixed inset-0 z-0 opacity-0 pointer-events-none overflow-hidden"
+    >
+      <div class="egg-throat absolute inset-0"></div>
+      <div id="egg-risu" class="absolute inset-0 flex items-center justify-center opacity-0">
+        <svg viewBox="0 0 200 360" class="h-[55vh] w-auto" fill="#0a0103">
+          <circle cx="100" cy="58" r="40" />
+          <path d="M52 112 q48 -22 96 0 l14 150 q-62 26 -124 0 z" />
+          <rect x="68" y="250" width="26" height="104" rx="6" />
+          <rect x="106" y="250" width="26" height="104" rx="6" />
+        </svg>
+      </div>
+      <div id="egg-teeth" class="absolute inset-0">
+        <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+          <polygon fill="#f4ece0" points="0,0 1000,0 1000,130 925,300 855,160 780,310 705,165 630,315 555,160 480,310 405,170 330,315 255,160 180,305 105,165 35,300 0,130" />
+          <polygon fill="#f4ece0" points="0,1000 1000,1000 1000,870 925,700 855,840 780,690 705,835 630,685 555,840 480,690 405,830 330,685 255,840 180,695 105,835 35,700 0,870" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Netflix-style subtitle (variant 2 interaction): bottom-center, over
+         everything including the content card. -->
+    <div
+      id="egg-subtitle"
+      aria-hidden="true"
+      class="fixed inset-x-0 bottom-[8%] z-[60] flex justify-center px-4 pointer-events-none"
+    >
+      <span class="egg-sub-text opacity-0 bg-black text-white px-3 py-1 rounded-[3px] text-xl md:text-3xl font-medium leading-snug">お前は違う</span>
+    </div>
+
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-8">
       <div
+        id="egg-card"
         class="grid grid-cols-1 lg:grid-cols-12 max-w-5xl w-full bg-darkblue-100 rounded-3xl overflow-hidden shadow-2xl lg:h-[80vh]"
       >
         <!-- Left Column: Main Content -->
@@ -128,7 +208,151 @@ const isWatch = currentPath.startsWith("/watch");
       </div>
     </div>
 
+    <style>
+      /* The splat breathes very slightly once it's landed, so the background
+         isn't dead. Impact + fade-in is driven from JS. */
+      .egg-splat-idle { transform-origin: 500px 500px; transform-box: fill-box; }
+      #egg-bg.on .egg-splat-idle { animation: egg-throb 7s ease-in-out infinite; }
+      @keyframes egg-throb {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.025) rotate(0.5deg); }
+      }
+      /* Lottie hand gets a soft shadow so it reads against the splat. */
+      #egg-hand-lottie {
+        filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.5));
+      }
+
+      /* Dorohedoro variant — the wet red dark of Kaiman's throat. */
+      .egg-throat {
+        background: radial-gradient(circle at 50% 52%, #6a0d0d 0%, #3a0707 38%, #160203 72%, #0a0103 100%);
+      }
+      /* Classic subtitle: white text on an opaque black box. */
+      .egg-sub-text { letter-spacing: 0.03em; }
+    </style>
+
     <script>
+      // Easter egg — clicking the home avatar ([data-egg-trigger]) plays one of
+      // several variants. Which one cycles on every refresh (by visit count):
+      //   0 → persona  : a hand reaches behind the card and slaps on a splat
+      //   1 → doro     : travel into Kaiman's mouth to reveal Risu + a subtitle
+      import lottie from "lottie-web/build/player/lottie_light";
+
+      (() => {
+        const trigger = document.querySelector<HTMLElement>("[data-egg-trigger]");
+        const card = document.getElementById("egg-card");
+        if (!trigger || !card) return; // the avatar only exists on home
+
+        // Pick the variant by visit count, then bump it — cycles on refresh.
+        const VARIANTS = ["persona", "doro"];
+        let n = 0;
+        try { n = parseInt(localStorage.getItem("egg-visit") || "0", 10) || 0; } catch {}
+        const variant = VARIANTS[n % VARIANTS.length];
+        try { localStorage.setItem("egg-visit", String(n + 1)); } catch {}
+
+        let playing = false;
+        let play = () => {};
+
+        if (variant === "persona") {
+          const bg = document.getElementById("egg-bg");
+          const handLayer = document.getElementById("egg-hand");
+          const handBox = document.getElementById("egg-hand-lottie");
+          if (bg && handLayer && handBox) {
+            const hand = lottie.loadAnimation({
+              container: handBox,
+              renderer: "svg",
+              loop: false,
+              autoplay: false,
+              path: "/lottie/hand.json",
+              rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+            });
+            hand.addEventListener("complete", () => { playing = false; });
+
+            play = () => {
+              // hand reaches in from behind the card (card stays still)
+              handLayer.style.opacity = "1";
+              hand.goToAndPlay(0, true);
+              // on the press (~frame 22 of 60), the splat lands and stays
+              setTimeout(() => {
+                bg.classList.add("on");
+                bg.animate(
+                  [
+                    { transform: "scale(0.5) rotate(-6deg)", opacity: 0 },
+                    { transform: "scale(1.06) rotate(1.5deg)", opacity: 1, offset: 0.6 },
+                    { transform: "scale(1) rotate(0deg)", opacity: 1 },
+                  ],
+                  { duration: 520, easing: "cubic-bezier(.2,.9,.25,1)", fill: "forwards" },
+                );
+                // the impact registers on the card — a subtle recoil, no reflow
+                card!.animate(
+                  [
+                    { transform: "translate3d(0,0,0)" },
+                    { transform: "translate3d(0,4px,0) scale(.995)", offset: 0.35 },
+                    { transform: "translate3d(0,0,0) scale(1)" },
+                  ],
+                  { duration: 320, easing: "cubic-bezier(.3,1.4,.5,1)" },
+                );
+              }, 370);
+            };
+          }
+        } else if (variant === "doro") {
+          const dBg = document.getElementById("egg-bg-doro");
+          const teeth = document.getElementById("egg-teeth");
+          const risu = document.getElementById("egg-risu");
+          const sub = document.getElementById("egg-subtitle");
+          if (dBg && teeth && risu && sub) {
+            play = () => {
+              dBg.style.opacity = "1";
+              // travel forward: the front teeth blow past the camera...
+              teeth.animate(
+                [
+                  { transform: "scale(1)", opacity: 1 },
+                  { transform: "scale(2.6)", opacity: 0 },
+                ],
+                { duration: 1500, easing: "cubic-bezier(.45,0,.55,1)", fill: "forwards" },
+              );
+              // ...revealing Risu deeper in the throat
+              risu.animate(
+                [
+                  { transform: "scale(.7)", opacity: 0 },
+                  { transform: "scale(1)", opacity: 1 },
+                ],
+                { duration: 1200, delay: 600, easing: "ease-out", fill: "forwards" },
+              );
+              // then the subtitle appears over everything, holds, and fades —
+              // timed like a real subtitle line, not permanent
+              setTimeout(() => {
+                const line = sub.querySelector<HTMLElement>(".egg-sub-text");
+                if (line) {
+                  line.animate(
+                    [
+                      { transform: "translateY(8px)", opacity: 0 },
+                      { transform: "translateY(0)", opacity: 1 },
+                    ],
+                    { duration: 320, easing: "ease-out", fill: "forwards" },
+                  );
+                  setTimeout(() => {
+                    line.animate([{ opacity: 1 }, { opacity: 0 }], {
+                      duration: 400,
+                      easing: "ease-in",
+                      fill: "forwards",
+                    });
+                  }, 3000);
+                }
+                playing = false;
+              }, 1450);
+            };
+          }
+        }
+
+        trigger.style.cursor = "pointer";
+        trigger.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (playing) return;
+          playing = true;
+          play();
+        });
+      })();
+
       // Easter egg: clicking the 今 line cycles through other half-thoughts.
       const thought = document.querySelector<HTMLElement>("[data-thought]");
       if (thought) {
