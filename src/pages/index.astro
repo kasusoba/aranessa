@@ -44,14 +44,16 @@ const project = userConfig.projects[0]; // the newest thing i'm building
         {
           rows.map((r, idx) => {
             const isNp = quad.listening != null && r === quad.listening;
+            const isNw = quad.watching != null && r === quad.watching;
+            const live = isNp || isNw; // listening + watching both come alive
             return (
               <>
                 {idx > 0 && <span class="text-primary-opaque/25"> · </span>}
-                <a href={r.url} target="_blank" rel="noreferrer" class="group whitespace-nowrap" data-np={isNp ? "" : undefined}>
-                  {isNp && <span data-np-dot class="hidden w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse align-middle mr-1.5 group-[.is-live]:inline-block" />}
-                  {r.image && <img src={r.image} alt="" data-np-img={isNp ? "" : undefined} class="inline-block w-5 h-5 rounded object-cover align-middle mr-1.5 opacity-80 group-hover:opacity-100 transition-opacity" />}
-                  <span data-np-label={isNp ? "" : undefined} class="text-primary-opaque/45 lowercase">{r.label} </span>
-                  <span data-np-title={isNp ? "" : undefined} class="text-primary-opaque/90 group-hover:text-accent-blue transition-colors">{r.title}</span>
+                <a href={r.url} target="_blank" rel="noreferrer" class="group whitespace-nowrap" data-np={isNp ? "" : undefined} data-nw={isNw ? "" : undefined}>
+                  {live && <span data-live-dot class="hidden w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse align-middle mr-1.5 group-[.is-live]:inline-block" />}
+                  {r.image && <img src={r.image} alt="" data-live-img={live ? "" : undefined} class="inline-block w-5 h-5 rounded object-cover align-middle mr-1.5 opacity-80 group-hover:opacity-100 transition-opacity" />}
+                  <span data-live-label={live ? "" : undefined} class="text-primary-opaque/45 lowercase">{r.label} </span>
+                  <span data-live-title={live ? "" : undefined} class="text-primary-opaque/90 group-hover:text-accent-blue transition-colors">{r.title}</span>
                 </a>
               </>
             );
@@ -108,35 +110,38 @@ const project = userConfig.projects[0]; // the newest thing i'm building
     tickClock();
     setInterval(tickClock, 30000);
 
-    // Live now-playing: poll Last.fm and light up the "currently" listen item.
-    const KEY = import.meta.env.PUBLIC_LASTFM_API_KEY;
-    const USER = import.meta.env.PUBLIC_LASTFM_USERNAME;
-    const np = document.querySelector<HTMLAnchorElement>("[data-np]");
-    async function pollNowPlaying() {
-      if (!np || !KEY || !USER) return;
-      try {
-        const res = await fetch(
-          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${KEY}&format=json&limit=1`,
-        );
-        const data = await res.json();
-        const t = data?.recenttracks?.track?.[0];
-        const live = t?.["@attr"]?.nowplaying === "true";
-        const title = np.querySelector<HTMLElement>("[data-np-title]");
-        const label = np.querySelector<HTMLElement>("[data-np-label]");
-        const img = np.querySelector<HTMLImageElement>("[data-np-img]");
-        np.classList.toggle("is-live", !!live);
-        if (live && t) {
-          if (title) { title.textContent = t.name; title.classList.add("text-gradient-animate"); }
-          if (label) label.textContent = "now playing ";
-          const art = t.image?.find((i: any) => i.size === "large")?.["#text"] || t.image?.[0]?.["#text"];
-          if (img && art) img.src = art;
-          if (t.url) np.href = t.url;
-        } else if (title) {
-          title.classList.remove("text-gradient-animate");
-        }
-      } catch {}
+    // Live "currently": light up the now-playing (Last.fm) and now-watching
+    // (Trakt) lines whenever something is actually on.
+    import { fetchTracks, fetchWatching, poll } from "../scripts/live";
+
+    function paint(sel: string, live: boolean, label: string, title: string, url: string, image: string) {
+      const el = document.querySelector<HTMLAnchorElement>(sel);
+      if (!el) return;
+      el.classList.toggle("is-live", live);
+      const t = el.querySelector<HTMLElement>("[data-live-title]");
+      const l = el.querySelector<HTMLElement>("[data-live-label]");
+      const img = el.querySelector<HTMLImageElement>("[data-live-img]");
+      if (live) {
+        if (t) { t.textContent = title; t.classList.add("text-gradient-animate"); }
+        if (l) l.textContent = `${label} `;
+        if (img && image) img.src = image;
+        if (url) el.href = url;
+      } else if (t) {
+        t.classList.remove("text-gradient-animate");
+      }
     }
-    pollNowPlaying();
-    setInterval(pollNowPlaying, 30000);
+
+    poll(async () => {
+      const tracks = await fetchTracks(1);
+      if (!tracks) return;
+      const np = tracks[0];
+      paint("[data-np]", !!np?.live, "now playing", np?.name ?? "", np?.url ?? "", np?.image ?? "");
+    }, 30000);
+
+    poll(async () => {
+      const w = await fetchWatching();
+      if (!w) return;
+      paint("[data-nw]", w.live, "now watching", w.title, w.url, w.image);
+    }, 30000);
   </script>
 </Layout>

@@ -2,6 +2,16 @@ import { kvGet, kvSet } from "./cache";
 
 export const TRAKT_API_BASE = "https://api.trakt.tv";
 
+// Trakt client id / username and the TMDB key double as client-side credentials
+// for the live "now watching" poller, so prefer the PUBLIC_ names and fall back
+// to the legacy server-only names so existing deployments keep building.
+const TRAKT_CLIENT_ID =
+	import.meta.env.PUBLIC_TRAKT_CLIENT_ID ?? import.meta.env.TRAKT_CLIENT_ID;
+const TRAKT_USERNAME =
+	import.meta.env.PUBLIC_TRAKT_USERNAME ?? import.meta.env.TRAKT_USERNAME;
+const TMDB_API_KEY =
+	import.meta.env.PUBLIC_TMDB_API_KEY ?? import.meta.env.TMDB_API_KEY;
+
 export interface TraktHistoryItem {
 	id: number;
 	watched_at: string;
@@ -49,7 +59,7 @@ async function getTmdbImage(
 	tmdbId: number,
 	size: "w185" | "w342" | "w500" = "w342",
 ): Promise<string | null> {
-	const apiKey = import.meta.env.TMDB_API_KEY;
+	const apiKey = TMDB_API_KEY;
 	if (!apiKey) return null;
 
 	// Poster paths are effectively immutable, so cache them across builds.
@@ -81,8 +91,8 @@ export async function getTraktHistory(
 	startDate?: Date,
 	limit = 1000,
 ): Promise<TraktItemWithImage[]> {
-	const clientId = import.meta.env.TRAKT_CLIENT_ID;
-	const username = import.meta.env.TRAKT_USERNAME;
+	const clientId = TRAKT_CLIENT_ID;
+	const username = TRAKT_USERNAME;
 
 	if (!clientId || !username) return [];
 
@@ -103,7 +113,7 @@ export async function getTraktHistory(
 		const data: TraktHistoryItem[] = await response.json();
 
 		// Fetch images in parallel if TMDB key exists
-		if (import.meta.env.TMDB_API_KEY) {
+		if (TMDB_API_KEY) {
 			const itemsWithImages = await Promise.all(
 				data.map(async (item) => {
 					let imageUrl: string | null = null;
@@ -189,8 +199,8 @@ async function getRatingLookup(
 // Pull the user's comments (which they use as reviews), attaching the matching
 // rating and a poster image. One comment per item is assumed.
 export async function getTraktReviews(): Promise<TraktReview[]> {
-	const clientId = import.meta.env.TRAKT_CLIENT_ID;
-	const username = import.meta.env.TRAKT_USERNAME;
+	const clientId = TRAKT_CLIENT_ID;
+	const username = TRAKT_USERNAME;
 	if (!clientId || !username) return [];
 
 	try {
@@ -273,8 +283,8 @@ export async function getTraktReviews(): Promise<TraktReview[]> {
 }
 
 export async function getTraktFavorites(): Promise<TraktFavorite[]> {
-	const clientId = import.meta.env.TRAKT_CLIENT_ID;
-	const username = import.meta.env.TRAKT_USERNAME;
+	const clientId = TRAKT_CLIENT_ID;
+	const username = TRAKT_USERNAME;
 	if (!clientId || !username) return [];
 
 	try {
@@ -324,8 +334,8 @@ export interface TraktFinished {
 // reviews). "Finished" = every watched movie, and shows where the watched
 // episode count has caught up to the aired count. Rating attached if present.
 export async function getTraktFinished(): Promise<TraktFinished[]> {
-	const clientId = import.meta.env.TRAKT_CLIENT_ID;
-	const username = import.meta.env.TRAKT_USERNAME;
+	const clientId = TRAKT_CLIENT_ID;
+	const username = TRAKT_USERNAME;
 	if (!clientId || !username) return [];
 
 	try {

@@ -236,8 +236,27 @@ const filters = [
 
 <Layout>
   <div class="flex flex-col gap-8">
-    <!-- Header -->
-    <h1 class="font-medium text-primary tracking-wide">watch/read</h1>
+    <!-- Header: title left, now-watching (live, mirrors listen) top-right -->
+    <div class="flex items-start justify-between gap-4">
+      <h1 class="font-medium text-primary tracking-wide shrink-0">watch/read</h1>
+      <a
+        data-nw-card
+        target="_blank"
+        rel="noreferrer"
+        class="hidden group items-center gap-2.5 min-w-0 max-w-[70%]"
+      >
+        <span class="shrink-0 w-11 h-11 rounded-md overflow-hidden border border-white/5 bg-darkblue-300/50">
+          <img data-nw-img alt="" class="w-full h-full object-cover hidden" />
+        </span>
+        <span class="flex flex-col min-w-0 leading-tight gap-0.5">
+          <span class="flex items-center gap-1.5 text-[10px] tracking-wide lowercase text-primary-opaque/55">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />
+            now watching
+          </span>
+          <span data-nw-meta class="text-xs text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate" />
+        </span>
+      </a>
+    </div>
 
     <!-- Page-wide media-type filter -->
     {
@@ -519,6 +538,31 @@ const filters = [
   </style>
 
   <script>
+    import { fetchWatching, poll } from "../scripts/live";
+
+    // Live "now watching" card — polls Trakt and reveals when something's on.
+    const nwCard = document.querySelector<HTMLAnchorElement>("[data-nw-card]");
+    poll(async () => {
+      if (!nwCard) return;
+      const w = await fetchWatching();
+      if (!w) return;
+      if (w.live) {
+        nwCard.href = w.url;
+        const img = nwCard.querySelector<HTMLImageElement>("[data-nw-img]");
+        const meta = nwCard.querySelector<HTMLElement>("[data-nw-meta]");
+        if (meta) meta.textContent = `${w.title} · ${w.sub}`;
+        if (img) {
+          if (w.image) { img.src = w.image; img.classList.remove("hidden"); }
+          else img.classList.add("hidden");
+        }
+        nwCard.classList.remove("hidden");
+        nwCard.classList.add("flex");
+      } else {
+        nwCard.classList.add("hidden");
+        nwCard.classList.remove("flex");
+      }
+    }, 30000);
+
     function setupNotes() {
       // Mark notes whose text overflows the clamp so they become click-to-expand.
       document.querySelectorAll<HTMLElement>("[data-note]").forEach((note) => {

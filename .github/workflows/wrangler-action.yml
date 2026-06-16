@@ -45,9 +45,9 @@ jobs:
           PUBLIC_LASTFM_API_KEY: ${{ secrets.PUBLIC_LASTFM_API_KEY }}
           PUBLIC_LASTFM_USERNAME: ${{ vars.PUBLIC_LASTFM_USERNAME }}
           ANILIST_USERNAME: ${{ vars.ANILIST_USERNAME }}
-          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
-          TRAKT_USERNAME: ${{ vars.TRAKT_USERNAME }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          PUBLIC_TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          PUBLIC_TRAKT_USERNAME: ${{ vars.TRAKT_USERNAME }}
+          PUBLIC_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           GH_USERNAME: ${{ vars.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

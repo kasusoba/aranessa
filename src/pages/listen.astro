@@ -13,20 +13,21 @@ const { periods, nowPlaying, feed, loved } = await getListenData();
       {
         nowPlaying && (
           <a
+            data-np-card
             href={nowPlaying.url}
             target="_blank"
             rel="noreferrer"
             class="group flex items-center gap-2.5 min-w-0 max-w-[70%]"
           >
             <span class="shrink-0 w-11 h-11 rounded-md overflow-hidden border border-white/5 bg-darkblue-300/50">
-              {nowPlaying.image && <img src={nowPlaying.image} alt="" class="w-full h-full object-cover" />}
+              <img data-np-img src={nowPlaying.image} alt="" class:list={["w-full h-full object-cover", { hidden: !nowPlaying.image }]} />
             </span>
             <span class="flex flex-col min-w-0 leading-tight gap-0.5">
               <span class="flex items-center gap-1.5 text-[10px] tracking-wide lowercase text-primary-opaque/55">
-                {nowPlaying.live && <span class="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />}
-                {nowPlaying.live ? "now playing" : `last played · ${nowPlaying.when}`}
+                <span data-np-dot class:list={["w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse", { hidden: !nowPlaying.live }]} />
+                <span data-np-state>{nowPlaying.live ? "now playing" : `last played · ${nowPlaying.when}`}</span>
               </span>
-              <span class="text-xs text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate">
+              <span data-np-meta class="text-xs text-primary-opaque/80 group-hover:text-accent-blue transition-colors truncate">
                 {nowPlaying.name} · {nowPlaying.artist}
               </span>
             </span>
@@ -38,7 +39,7 @@ const { periods, nowPlaying, feed, loved } = await getListenData();
     <!-- Recently — snap art row (period-independent) -->
     <section class="flex flex-col gap-4">
       <h2 class="text-sm font-medium text-primary-opaque/60 tracking-wide lowercase">recently</h2>
-      <div class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+      <div data-recent class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {
           feed.slice(0, 16).map((t) => (
             <a href={t.url} target="_blank" rel="noreferrer" title={`${t.name} — ${t.artist}`} class="group relative shrink-0 w-20">
@@ -161,6 +162,68 @@ const { periods, nowPlaying, feed, loved } = await getListenData();
   </div>
 
   <script>
+    import { fetchTracks, poll } from "../scripts/live";
+
+    // Keep the now-playing card and the "recently" row live by polling Last.fm.
+    const card = document.querySelector<HTMLAnchorElement>("[data-np-card]");
+    const recent = document.querySelector<HTMLElement>("[data-recent]");
+
+    type LiveTrack = NonNullable<Awaited<ReturnType<typeof fetchTracks>>>[number];
+
+    function buildItem(t: LiveTrack): HTMLAnchorElement {
+      const a = document.createElement("a");
+      a.href = t.url;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.title = `${t.name} — ${t.artist}`;
+      a.className = "group relative shrink-0 w-20";
+      const box = document.createElement("div");
+      box.className = "aspect-square w-full rounded-lg overflow-hidden border border-white/5 bg-darkblue-200/50 group-hover:border-white/15 transition-colors";
+      if (t.image) {
+        const img = document.createElement("img");
+        img.src = t.image;
+        img.alt = "";
+        img.loading = "lazy";
+        img.className = "w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity";
+        box.appendChild(img);
+      }
+      const name = document.createElement("p");
+      name.className = "mt-1.5 text-[11px] text-primary-opaque/55 line-clamp-1";
+      name.textContent = t.name;
+      const when = document.createElement("p");
+      when.className = "text-[10px] text-primary-opaque/35 line-clamp-1";
+      when.textContent = t.when;
+      a.append(box, name, when);
+      return a;
+    }
+
+    function paintCard(np: LiveTrack) {
+      if (!card) return;
+      card.href = np.url;
+      const dot = card.querySelector<HTMLElement>("[data-np-dot]");
+      const state = card.querySelector<HTMLElement>("[data-np-state]");
+      const meta = card.querySelector<HTMLElement>("[data-np-meta]");
+      const img = card.querySelector<HTMLImageElement>("[data-np-img]");
+      dot?.classList.toggle("hidden", !np.live);
+      if (state) state.textContent = np.live ? "now playing" : `last played · ${np.when}`;
+      if (meta) meta.textContent = `${np.name} · ${np.artist}`;
+      if (img) {
+        if (np.image) { img.src = np.image; img.classList.remove("hidden"); }
+        else img.classList.add("hidden");
+      }
+    }
+
+    poll(async () => {
+      const tracks = await fetchTracks(20);
+      if (!tracks || !tracks.length) return;
+      const np = tracks.find((t) => t.live) ?? tracks[0];
+      paintCard(np);
+      if (recent) {
+        const feed = tracks.filter((t) => t !== np).slice(0, 16);
+        recent.replaceChildren(...feed.map(buildItem));
+      }
+    }, 30000);
+
     const chips = document.querySelector("[data-chips]");
     chips?.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).closest<HTMLElement>("button[data-chip]");
