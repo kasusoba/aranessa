@@ -5,7 +5,7 @@ export const userConfig = {
 	socials: [
 		{
 			name: "github",
-			url: "https://github.com/faishalirwn",
+			url: "https://github.com/kasusoba",
 		},
 		{
 			name: "anilist",
