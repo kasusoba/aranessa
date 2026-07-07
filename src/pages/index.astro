@@ -36,8 +36,7 @@ const rows = [quad.listening, quad.watching, quad.reading, quad.playing].filter(
             return (
               <>
                 {idx > 0 && <span class="text-primary-opaque/25"> · </span>}
-                <a href={r.url} target="_blank" rel="noreferrer" class="group whitespace-nowrap" data-np={isNp ? "" : undefined} data-nw={isNw ? "" : undefined}>
-                  {live && <span data-live-dot class="hidden w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse align-middle mr-1.5 group-[.is-live]:inline-block" />}
+                <a href={r.url} target="_blank" rel="noreferrer" class="group whitespace-nowrap" data-np={isNp ? "" : undefined} data-nw={isNw ? "" : undefined}>                  
                   {r.image && <img src={r.image} alt="" data-live-img={live ? "" : undefined} class="inline-block w-5 h-5 rounded object-cover align-middle mr-1.5 opacity-80 group-hover:opacity-100 transition-opacity" />}
                   <span data-live-label={live ? "" : undefined} class="text-primary-opaque/45 lowercase">{r.label} </span>
                   <span data-live-title={live ? "" : undefined} class="text-primary-opaque/90 group-hover:text-accent-blue transition-colors">{r.title}</span>
