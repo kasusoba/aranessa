@@ -57,12 +57,4 @@ export const userConfig = {
 			image: null,
 		},
 	],
-	// half-thoughts that cycle when you click the 今 line in the sidebar. add more.
-	thoughts: [
-		"don't really know what i'm doing",
-		"don't know what to play",
-		"don't know what to watch",
-		"don't know what to read",
-		"how to get more doubloons",
-	],
 };
