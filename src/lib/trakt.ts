@@ -387,17 +387,16 @@ export async function getTraktFinished(): Promise<TraktFinished[]> {
 		// biome-ignore lint/suspicious/noExplicitAny: trakt payload is loosely typed
 		const watchedShows: any[] = watchedShowsRes.ok ? await watchedShowsRes.json() : [];
 
-		// A show counts as finished once watched episodes (excluding specials)
-		// reach its aired-episode count.
+		// A show counts as finished once its watched-episode count reaches the
+		// aired-episode count. The public watched/shows endpoint doesn't return a
+		// per-season episode breakdown (even with extended=full), so rely on the
+		// top-level `plays` total — it equals aired_episodes for a fully-watched
+		// show (and only exceeds it on rewatches, which `>=` tolerates).
 		// biome-ignore lint/suspicious/noExplicitAny: trakt payload is loosely typed
 		const finishedShows = watchedShows.filter((it: any) => {
 			const aired = it.show?.aired_episodes ?? 0;
-			const watched = (it.seasons ?? [])
-				// biome-ignore lint/suspicious/noExplicitAny: trakt payload is loosely typed
-				.filter((s: any) => s.number > 0)
-				// biome-ignore lint/suspicious/noExplicitAny: trakt payload is loosely typed
-				.reduce((sum: number, s: any) => sum + (s.episodes?.length ?? 0), 0);
-			return aired > 0 && watched >= aired;
+			const plays = it.plays ?? 0;
+			return aired > 0 && plays >= aired;
 		});
 
 		// biome-ignore lint/suspicious/noExplicitAny: trakt payload is loosely typed
