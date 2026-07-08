@@ -24,6 +24,10 @@ export const userConfig = {
 			url: "https://letterboxd.com/kasusoba/",
 		},
 		{
+			name: "hardcover",
+			url: "https://hardcover.app/@kasusoba",
+		},
+		{
 			name: "ib",
 			url: "https://infinitebacklog.net/users/kasusoba",
 		},
