@@ -37,8 +37,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache
-          key: api-cache-${{ github.run_id }}
-          restore-keys: api-cache-
+          # v2- prefix intentionally abandons the pre-fix cache, whose kv.json
+          # had rate-limited TMDB posters poisoned to "". The build re-fetches
+          # them cleanly (concurrency-gated + 429 retry) and repopulates.
+          key: api-cache-v2-${{ github.run_id }}
+          restore-keys: api-cache-v2-
       - name: Build project
         run: pnpm build
         env:

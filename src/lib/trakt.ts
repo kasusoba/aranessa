@@ -53,6 +53,60 @@ function traktHeaders(clientId: string) {
 	};
 }
 
+// TMDB rate-limits bursts, and a full build resolves hundreds of posters at
+// once. Cap concurrency so we don't trip the limiter in the first place, and
+// retry on 429 so transient limiting is never mistaken for a posterless title
+// (which we'd otherwise cache as "" permanently — poisoning every later build).
+const TMDB_CONCURRENCY = 8;
+let tmdbActive = 0;
+const tmdbQueue: Array<() => void> = [];
+
+async function tmdbGate<T>(fn: () => Promise<T>): Promise<T> {
+	if (tmdbActive >= TMDB_CONCURRENCY) {
+		await new Promise<void>((resolve) => tmdbQueue.push(resolve));
+	}
+	tmdbActive++;
+	try {
+		return await fn();
+	} finally {
+		tmdbActive--;
+		tmdbQueue.shift()?.();
+	}
+}
+
+// Resolve a poster path: a real path, "" for a genuinely posterless title
+// (safe to cache forever), or null when the lookup failed or was rate-limited
+// (must NOT be cached, so a later build retries it).
+async function fetchPosterPath(
+	type: "movie" | "tv",
+	tmdbId: number,
+	apiKey: string,
+): Promise<string | null> {
+	const url = `https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${apiKey}`;
+	for (let attempt = 0; attempt < 4; attempt++) {
+		let res: Response;
+		try {
+			res = await fetch(url);
+		} catch (error) {
+			console.error("TMDB fetch error:", error);
+			return null; // network error — retry on a later build
+		}
+		if (res.status === 429) {
+			const retryAfter = Number(res.headers.get("retry-after")) || 2 ** attempt;
+			await new Promise((r) => setTimeout(r, retryAfter * 1000));
+			continue;
+		}
+		if (res.status === 404) return ""; // no such title — legitimately posterless
+		if (!res.ok) {
+			console.error(`TMDB ${type}/${tmdbId} -> ${res.status}`);
+			return null; // 5xx/auth — don't poison the cache
+		}
+		const data = await res.json();
+		return data.poster_path ?? "";
+	}
+	return null; // exhausted retries — leave uncached so it retries next build
+}
+
 // Function to fetch image from TMDB if API key is present
 async function getTmdbImage(
 	type: "movie" | "tv",
@@ -63,21 +117,16 @@ async function getTmdbImage(
 	if (!apiKey) return null;
 
 	// Poster paths are effectively immutable, so cache them across builds.
-	// "" is cached for posterless titles to avoid re-fetching them.
 	const cacheKey = `tmdb:${type}:${tmdbId}`;
-	let path = kvGet(cacheKey);
-	if (path === undefined) {
-		try {
-			const response = await fetch(
-				`https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${apiKey}`,
-			);
-			const data = await response.json();
-			path = data.poster_path ?? "";
-		} catch (error) {
-			console.error("Failed to fetch TMDB image:", error);
-			path = "";
-		}
-		kvSet(cacheKey, path ?? "");
+	const cached = kvGet(cacheKey);
+	let path: string | null;
+	if (cached !== undefined) {
+		path = cached;
+	} else {
+		path = await tmdbGate(() => fetchPosterPath(type, tmdbId, apiKey));
+		// Only cache definitive results (a path or a confirmed miss). Leaving
+		// failures uncached lets a later build recover them.
+		if (path !== null) kvSet(cacheKey, path);
 	}
 
 	return path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
