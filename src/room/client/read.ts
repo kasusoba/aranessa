@@ -40,6 +40,8 @@ export function read() {
 		if (g && el && g.contains(el)) put(g, el, el.dataset);
 	});
 	document.addEventListener("pointerout", (e) => {
+		// a finger leaves the screen right after the tap, so on touch the picked one stays until the next tap
+		if (e.pointerType === "touch") return;
 		const g = (e.target as Element).closest?.<HTMLElement>("[data-lean]");
 		if (!g || g.contains(e.relatedTarget as Node)) return;
 		const d = g.dataset;
