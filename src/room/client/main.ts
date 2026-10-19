@@ -1,6 +1,5 @@
 // The room in the browser. Listeners that react to a view opening go first, so a page that lands with a door open
 // (strip() announces it) gets them too.
-import { egg } from "./egg";
 import { ledge } from "./ledge";
 import { listen } from "./listen";
 import { live } from "./live";
@@ -20,7 +19,6 @@ read();
 pickers(".pd-tune, .sd-tune", ".pv-tune, .shv-tune");
 shows();
 swing();
-egg();
 live();
 keepFresh();
 strip(ledge());
