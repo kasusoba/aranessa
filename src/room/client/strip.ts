@@ -93,6 +93,7 @@ export function strip(onClose: () => boolean) {
 					b,
 					window.setTimeout(() => {
 						b.classList.remove("has-xl", "closing");
+						b.style.transform = b.style.transition = "";
 						stash(b);
 						b.querySelector(".lv-xl")?.remove();
 						b.classList.add("settle");
@@ -121,6 +122,85 @@ export function strip(onClose: () => boolean) {
 	}
 	size();
 	addEventListener("resize", size);
+
+	// on a phone the opened view is a drawer: pull it down to close it. the pull starts from the handle, or from
+	// anywhere once what's under the finger is scrolled to its top. a short pull springs back
+	let pull: { b: HTMLElement; x: number; y: number; t: number; d: number; on: boolean } | null = null;
+	const atTop = (t: Element, b: HTMLElement) => {
+		if (t.closest(".x")) return true;
+		for (let n: Element | null = t; n && n !== b; n = n.parentElement) {
+			if (n.scrollTop > 0 && /auto|scroll/.test(getComputedStyle(n).overflowY)) return false;
+		}
+		return true;
+	};
+	el.addEventListener(
+		"touchstart",
+		(e) => {
+			pull = null;
+			const t = e.target as Element;
+			const b = t.closest<HTMLElement>(".box.on");
+			if (!phone.matches || !b || e.touches.length !== 1 || !atTop(t, b)) return;
+			const p = e.touches[0];
+			pull = { b, x: p.clientX, y: p.clientY, t: performance.now(), d: 0, on: false };
+		},
+		{ passive: true },
+	);
+	el.addEventListener(
+		"touchmove",
+		(e) => {
+			if (!pull) return;
+			const p = e.touches[0];
+			const dx = p.clientX - pull.x;
+			const dy = p.clientY - pull.y;
+			if (!pull.on) {
+				// sideways or upward: it's a scroll, not a pull
+				if (dy < -6 || (Math.abs(dx) > 6 && Math.abs(dx) > dy)) {
+					pull = null;
+					return;
+				}
+				if (dy < 8) return;
+				pull.on = true;
+				pull.y = p.clientY;
+				pull.t = performance.now();
+				pull.b.style.transition = "none";
+			}
+			e.preventDefault();
+			pull.d = Math.max(0, p.clientY - pull.y);
+			pull.b.style.transform = `translateY(${pull.d}px)`;
+		},
+		{ passive: false },
+	);
+	const letGo = () => {
+		const p = pull;
+		pull = null;
+		if (!p?.on) return;
+		const fast = p.d / (performance.now() - p.t) > 0.6;
+		if (p.d > 110 || (fast && p.d > 30)) {
+			p.b.style.transition = "transform .2s var(--ease), opacity .18s";
+			p.b.style.transform = `translateY(${p.d + 80}px)`;
+			go(null);
+		} else {
+			p.b.style.transition = "transform .25s var(--ease)";
+			p.b.style.transform = "";
+			window.setTimeout(() => {
+				if (!p.b.style.transform) p.b.style.transition = "";
+			}, 260);
+		}
+	};
+	el.addEventListener("touchend", letGo);
+	el.addEventListener("touchcancel", letGo);
+
+	// on a phone the ledge sits under the opened view: tapping any of it closes the view, and its pills stay shut
+	document.getElementById("ledge")?.addEventListener(
+		"click",
+		(e) => {
+			if (!cur || !phone.matches) return;
+			e.stopPropagation();
+			e.preventDefault();
+			go(null);
+		},
+		true,
+	);
 
 	// a page like /listen lands with that door open and centred
 	const open = cur && el.querySelector(`.box[data-k="${cur}"]`);

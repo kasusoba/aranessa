@@ -939,5 +939,11 @@
     .strip .box.on { animation: shelf-up .35s var(--ease) both; }
     .strip .box.closing { opacity: 0; translate: 0 16px; transition: opacity .18s, translate .18s var(--ease); }
     .strip.has-on .box:not(.on) { opacity: .25; }
+    /* the opened view is a drawer: a grab handle on top in place of esc, pulled down to close (strip.ts) */
+    .strip .box.on .x { inset: 0 0 auto; height: 26px; padding: 0; border: 0; border-radius: 0; background: none; font-size: 0; }
+    .strip .box.on .x::before { content: ""; position: absolute; top: 9px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 99px; background: var(--muted); opacity: .5; }
+    /* the ledge under an opened view only closes it */
+    .strip.has-on ~ .ledge { cursor: pointer; }
+    .strip.has-on ~ .ledge > * { pointer-events: none; opacity: .4; transition: opacity .2s; }
   }
   @keyframes shelf-up { from { opacity: 0; translate: 0 24px; } }
