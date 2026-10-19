@@ -1,51 +1,60 @@
 const STEAM_IDS = ["76561198238407266", "76561198205996123"];
+const API = "https://api.steampowered.com/IPlayerService";
 
 export interface SteamGame {
 	appid: number;
 	name: string;
 	playtime_forever: number; // minutes
+	playtime_2weeks: number; // minutes
 	last_played: number; // unix timestamp
 	img_icon_url: string;
 }
 
-interface SteamRecentGame {
+interface SteamApiGame {
 	appid: number;
 	name: string;
-	playtime_forever: number;
-	img_icon_url: string;
+	playtime_forever?: number;
+	playtime_2weeks?: number;
+	rtime_last_played?: number;
+	img_icon_url?: string;
 }
 
 export function getHeaderImage(appid: number): string {
 	return `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`;
 }
 
-async function fetchAccountTop3(apiKey: string, steamId: string): Promise<SteamGame[]> {
+async function call(apiKey: string, method: string, params: Record<string, string>): Promise<SteamApiGame[]> {
 	try {
-		const params = new URLSearchParams({
-			key: apiKey,
-			steamid: steamId,
-			count: "3",
-			format: "json",
-		});
-		const res = await fetch(
-			`https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?${params}`,
-		);
+		const q = new URLSearchParams({ key: apiKey, format: "json", ...params });
+		const res = await fetch(`${API}/${method}/v1/?${q}`);
 		if (!res.ok) return [];
 		const data = await res.json();
-		const games: SteamRecentGame[] = data.response?.games ?? [];
-		const now = Math.floor(Date.now() / 1000);
-		// Steam returns games most-recent-first; assign synthetic timestamps to
-		// preserve that order when merging across accounts.
-		return games.map((g, i) => ({
-			appid: g.appid,
-			name: g.name,
-			playtime_forever: g.playtime_forever,
-			last_played: now - i * 3600,
-			img_icon_url: g.img_icon_url,
-		}));
+		return data.response?.games ?? [];
 	} catch {
 		return [];
 	}
+}
+
+// One account's recently played games, newest first, with real last-played times.
+// GetRecentlyPlayedGames has the order and 2-week playtime but no timestamps;
+// GetOwnedGames has rtime_last_played. Family-shared games aren't owned, so they
+// have no timestamp: they borrow the next older game's time (a lower bound).
+async function fetchAccountRecent(apiKey: string, steamId: string): Promise<SteamGame[]> {
+	const [recent, owned] = await Promise.all([
+		call(apiKey, "GetRecentlyPlayedGames", { steamid: steamId }),
+		call(apiKey, "GetOwnedGames", { steamid: steamId, include_played_free_games: "1" }),
+	]);
+	const lastPlayed = new Map(owned.map((g) => [g.appid, g.rtime_last_played ?? 0]));
+	const known = recent.map((g) => lastPlayed.get(g.appid) || 0);
+	const twoWeeksAgo = Math.floor(Date.now() / 1000) - 14 * 86400;
+	return recent.map((g, i) => ({
+		appid: g.appid,
+		name: g.name,
+		playtime_forever: g.playtime_forever ?? 0,
+		playtime_2weeks: g.playtime_2weeks ?? 0,
+		last_played: known[i] || (known.slice(i + 1).find((t) => t) ?? twoWeeksAgo) + 1,
+		img_icon_url: g.img_icon_url ?? "",
+	}));
 }
 
 export async function getRecentGames(count: number = 2): Promise<SteamGame[]> {
@@ -53,23 +62,25 @@ export async function getRecentGames(count: number = 2): Promise<SteamGame[]> {
 	if (!apiKey) return [];
 
 	const results = await Promise.all(
-		STEAM_IDS.map((id) => fetchAccountTop3(apiKey, id).catch(() => [])),
+		STEAM_IDS.map((id) => fetchAccountRecent(apiKey, id).catch(() => [])),
 	);
 
 	const merged = new Map<number, SteamGame>();
 
 	for (const games of results) {
 		for (const game of games) {
-			if (merged.has(game.appid)) {
-				const existing = merged.get(game.appid) as SteamGame;
-				merged.set(game.appid, {
-					...existing,
-					playtime_forever: existing.playtime_forever + game.playtime_forever,
-					last_played: Math.max(existing.last_played, game.last_played),
-				});
-			} else {
-				merged.set(game.appid, { ...game });
-			}
+			const existing = merged.get(game.appid);
+			merged.set(
+				game.appid,
+				existing
+					? {
+							...existing,
+							playtime_forever: existing.playtime_forever + game.playtime_forever,
+							playtime_2weeks: existing.playtime_2weeks + game.playtime_2weeks,
+							last_played: Math.max(existing.last_played, game.last_played),
+						}
+					: { ...game },
+			);
 		}
 	}
 
