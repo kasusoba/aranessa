@@ -94,28 +94,4 @@ export function shows() {
 			raf = requestAnimationFrame(step);
 		}
 	});
-	// on a phone the shelves are the only thing that moves the bands: the rail travels with the swipe and the ribbons lag
-	// behind it, the lock end most
-	const strip = document.getElementById("strip");
-	const phone = matchMedia("(max-width: 760px)");
-	let sl = strip?.scrollLeft ?? 0;
-	strip?.addEventListener(
-		"scroll",
-		() => {
-			const d = strip.scrollLeft - sl;
-			sl = strip.scrollLeft;
-			if (!phone.matches || still.matches || !d) return;
-			for (const el of strip.querySelectorAll<HTMLElement>(".box:not(.on) .sd-hang .hb")) {
-				const r = state(el);
-				const len = el.offsetHeight * 1.56 || 300;
-				r.v = Math.max(-2.2, Math.min(2.2, r.v - (d * 0.012) / (len / 300)));
-				live.add(r);
-			}
-			if (live.size && !raf) {
-				last = performance.now();
-				raf = requestAnimationFrame(step);
-			}
-		},
-		{ passive: true },
-	);
 }

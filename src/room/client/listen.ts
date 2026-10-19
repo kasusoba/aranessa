@@ -18,19 +18,16 @@ function lift(svs: HTMLElement[], sv: HTMLElement | undefined, rise: number) {
 	}
 }
 
-// the door's crate with that sleeve up (none: all back down)
-export function peek(stk: HTMLElement, sv?: HTMLElement) {
-	for (const i of stk.querySelectorAll("i")) i.classList.remove("up");
-	lift([...stk.querySelectorAll<HTMLElement>(".sv")], sv, RISE);
-	sv?.querySelector("i")?.classList.add("up");
-}
-
 export function listen() {
 	document.addEventListener("pointerover", (e) => {
 		const t = e.target as Element;
 		// the door
 		const sv = t.closest?.<HTMLElement>(".ld-peek .sv:not(:last-child)") ?? undefined;
-		for (const stk of document.querySelectorAll<HTMLElement>(".ld-peek .stk")) peek(stk, stk.contains(sv ?? null) ? sv : undefined);
+		for (const stk of document.querySelectorAll<HTMLElement>(".ld-peek .stk")) {
+			for (const i of stk.querySelectorAll("i")) i.classList.remove("up");
+			lift([...stk.querySelectorAll<HTMLElement>(".sv")], stk.contains(sv ?? null) ? sv : undefined, RISE);
+		}
+		sv?.querySelector("i")?.classList.add("up");
 		// the opened view: hovering an edge or a line picks that album
 		const h = t.closest?.(".lv-tune");
 		const pick = t.closest?.<HTMLElement>(".lv-tune [data-n]");

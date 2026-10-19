@@ -1,6 +1,6 @@
 // Watch. Hovering a channel (in the door's guide, or the opened view's) tunes the telly to it through a moment of static;
 // leaving goes back to the latest. Each channel carries what it shows in data attributes.
-export function tune(set: HTMLElement, row: HTMLElement) {
+function tune(set: HTMLElement, row: HTMLElement) {
 	const nz = set.querySelector(".nz");
 	for (const c of set.querySelectorAll(".ch")) c.classList.toggle("on", c === row);
 	nz?.classList.add("on");
