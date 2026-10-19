@@ -159,6 +159,10 @@ export async function getTraktHistory(
 				},
 			},
 		);
+		if (!response.ok) {
+			console.error(`Trakt history -> ${response.status}`);
+			return [];
+		}
 		const data: TraktHistoryItem[] = await response.json();
 
 		// Fetch images in parallel if TMDB key exists
