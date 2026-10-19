@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Room Baseline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="box.css" />
+<link rel="stylesheet" href="xl.css" />
+<link rel="stylesheet" href="xl2.css" />
+<link rel="stylesheet" href="xl3.css" />
+<link rel="stylesheet" href="me.css" />
+<link rel="stylesheet" href="listen-doors.css" />
+<link rel="stylesheet" href="listen-views.css" />
+<link rel="stylesheet" href="watch-doors.css" />
+<link rel="stylesheet" href="watch-views.css" />
+<link rel="stylesheet" href="read-doors.css" />
+<link rel="stylesheet" href="read-views.css" />
+<link rel="stylesheet" href="play-doors.css" />
+<link rel="stylesheet" href="play-views.css" />
+<link rel="stylesheet" href="code-doors.css" />
+<link rel="stylesheet" href="code-views.css" />
+<link rel="stylesheet" href="shows-doors.css" />
+<link rel="stylesheet" href="shows-views.css" />
+<link rel="stylesheet" href="end-doors.css" />
+<link rel="stylesheet" href="ledges.css" />
+<style>
+  .concept { padding: 100px 16px 16px; }
+  .bar { background: var(--bg); }
+  .bar .hint { display: none; }
+  body.bare .bar { display: none; }
+  body.bare .concept { padding-top: 26px; }
+  .barbtn { position: fixed; top: 4px; right: 8px; z-index: 101; font: 11px "JetBrains Mono", monospace; letter-spacing: .08em; color: var(--muted); opacity: .35; padding: 2px 6px; transition: opacity .2s; }
+  .barbtn:hover { opacity: 1; }
+  body:not(.bare) .barbtn { top: auto; bottom: 4px; }
+
+  /* ================= B. strip + ledge ================= */
+  #c-strip { display: none; flex-direction: column; gap: 10px; }
+  #c-strip.on { display: flex; }
+  html, body { overscroll-behavior: none; }
+  /* the scroller clips both axes, so pad it for the hover lift and shadow and pull the space back with margins */
+  .strip { flex: 1; min-height: 0; display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: none; scrollbar-width: thin; scrollbar-color: var(--surface) transparent;
+    padding: 8px 0 16px; margin: -8px 0 -10px; }
+  .lv-s .more { flex: none; font: 11px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; padding-top: 2px; }
+  .lv-s .it.cut { display: none; }
+  .strip .box:not(.on) .lv-m, .strip .box:not(.on) .lv-l { display: none !important; }
+  @container (min-width: 140px) and (min-height: 110px) { .strip .box:not(.on) .lv-s { display: flex !important; } }
+  /* every door shares --door, set by the strip so the row always runs past the screen (see size() in the script).
+     no max-width cap: a cap would freeze the closing box at the cap while its basis animates down to it */
+  .strip .box { flex: 0 0 var(--door, 190px); transition: flex-basis .55s var(--ease), border-color .2s, background .5s, translate .25s var(--ease); }
+  .strip .box.on { flex: 0 0 min(900px, 74vw); }
+  .box.has-xl > .lv, .box.has-xl > .head { display: none !important; }
+  .lv-xl { position: absolute; inset: 0; animation: fadein .3s .35s both; }
+  /* closing: the opened view fades out fast and the door's own content waits until the box is narrow again,
+     so its hero never shows at the opened width */
+  .box.closing > .lv, .box.closing > .head { visibility: hidden; }
+  .box.closing > .lv-xl { animation: none; opacity: 0; transition: opacity .15s; pointer-events: none; }
+  .box.settle > .lv, .box.settle > .head { animation: fadein .25s both; }
+  @keyframes fadein { from { opacity: 0; } }
+
+  @media (max-width: 760px) {
+    .strip .box.on { flex-basis: 88vw; }
+    .strip .box, .strip.has-on .box:not(.on) { flex-basis: var(--door, 140px); }
+  }
+</style>
+</head>
+<body>
+
+<button class="barbtn" id="barbtn" title="show / hide the controls (t)">controls</button>
+<div class="bar">
+  <span class="pill on" style="cursor:default">room · baseline</span>
+  <span class="seg">&nbsp; aspects
+    <button class="pill on" data-n="7">7 · today</button><button class="pill" data-n="9">9 · + write, gallery</button><button class="pill" data-n="12">12 · + 3 placeholders</button></span>
+  <span class="sp"></span>
+  <span class="hint"><kbd>←</kbd><kbd>→</kbd> hop &nbsp;<kbd>esc</kbd> back</span>
+  <button class="pill" id="lights">lights: night</button>
+  <div class="note" id="note"></div>
+</div>
+
+
+<section class="concept on" id="c-strip">
+  <div class="strip" id="strip"></div>
+  <div class="ledge" id="ledge"></div>
+</section>
+
+<script src="aspects.js"></script>
+<script src="xl.js"></script>
+<script src="xl2.js"></script>
+<script src="snapshot.js"></script>
+<script src="data2.js"></script>
+<script src="xl3.js"></script>
+<script src="me.js"></script>
+<script src="extra.js"></script>
+<script src="listen-doors.js"></script>
+<script src="listen-views.js"></script>
+<script src="watch-doors.js"></script>
+<script src="watch-views.js"></script>
+<script src="read-doors.js"></script>
+<script src="read-views.js"></script>
+<script src="play-doors.js"></script>
+<script src="play-views.js"></script>
+<script src="code-doors.js"></script>
+<script src="code-views.js"></script>
+<script src="shows-doors.js"></script>
+<script src="shows-views.js"></script>
+<script src="ledges.js"></script>
+<script src="end-doors.js"></script>
+<script>
+let MODE = 3, DOORS = "touch"; // baseline: round 6 views, touch doors
+// the listen door is the "peek" crate; ?listen=<key> swaps in another variant from listen-door.html
+LDOOR.use(new URLSearchParams(location.search).get("listen") ?? "peek");
+// the opened listen view is "the crate, big" (the period's top albums in the door's crate, hover pulls one out); ?listenview=<key> swaps in another from listen-view.html
+LVIEW.use(new URLSearchParams(location.search).get("listenview") ?? "crate");
+// the watch door is the "channels" telly; ?watch=<key> swaps in another variant from watch-door.html
+WDOOR.use(new URLSearchParams(location.search).get("watch") ?? "channels");
+// the opened watch view is "guide blurbs" (the set + reviews as guide rows); ?watchview=<key> swaps in another from watch-view.html
+WVIEW.use(new URLSearchParams(location.search).get("watchview") ?? "blurbs");
+// the read door is the "pull out" bedside stack; ?read=<key> swaps in another variant from read-door.html
+RDOOR.use(new URLSearchParams(location.search).get("read") ?? "pull");
+// the opened read view is "the pile, browsed" (sticky pile, hover anything to put it on top); ?readview=<key> swaps in another from read-view.html
+RVIEW.use(new URLSearchParams(location.search).get("readview") ?? "lean");
+// the play door is "fan, linked" (cases fanned over their list, hover one lights the other); ?play=<key> swaps in another from play-door.html
+PDOOR.use(new URLSearchParams(location.search).get("play") ?? "fanlink");
+// the opened play view is "lately / most played" (the hand, chips switch it between recent and all-time); ?playview=<key> swaps in another from play-view.html
+PVIEW.use(new URLSearchParams(location.search).get("playview") ?? "two");
+// the code door is the "one big, rest in rows" window (first featured project as a full card, the other featured as rows, then lately);
+// ?code=<key> swaps in another variant from code-door.html, ?featured=<n> tries more featured projects
+CDOOR.feature(+(new URLSearchParams(location.search).get("featured") ?? 1));
+CDOOR.use(new URLSearchParams(location.search).get("code") ?? "wlead");
+// the opened code view is "the window, big" (hero + featured cards + the rest as rows + lately in plain words); ?codeview=<key> swaps in another from code-view.html
+CVIEW.use(new URLSearchParams(location.search).get("codeview") ?? "win");
+// the shows door is "mixed" hanging bands (each night as the band it came with, swinging off a rail, the caption follows the hovered band);
+// ?shows=<key> swaps in another variant from shows-door.html
+SDOOR.use(new URLSearchParams(location.search).get("shows") ?? "hmix");
+// the opened shows view is "rail + the box" (the latest six bands at wristband scale, older nights in a box under the rail, the picked night's setlists beside);
+// ?showsview=<key> swaps in another from shows-view.html
+SVIEW.use(new URLSearchParams(location.search).get("showsview") ?? "bbox");
+// the placeholder that always ends the strip is "room beyond" (the floor plan opening into a dashed room with a "?");
+// ?end=<key> swaps in another take from end-door.html
+EDOOR.use(new URLSearchParams(location.search).get("end") ?? "beyond");
+// ?nights=<n>&fest=1 pads the shows with sample nights / a big sample festival day, to see how a view grows
+if (new URLSearchParams(location.search).has("nights") || new URLSearchParams(location.search).has("fest")) SVIEW.more(+(new URLSearchParams(location.search).get("nights") ?? 5), new URLSearchParams(location.search).has("fest"));
+const hintFor = k => DOORS === "touch" ? TOUCH[k]?.() : DOORS === "hint" ? HINT[k]?.() : null;
+// // 3 = round 6, 2 = round 5, 0 = uniform
+const PV = () => MODE === 3 ? XL3 : MODE === 2 ? XL2 : XL;
+const SMALL = ["now", "elsewhere", "uses"];
+
+const AREAS = {
+  6: ["me me listen listen listen watch", "me me listen listen listen watch", "read read play play play watch", "read read code code code code"],
+  9: ["me me listen listen watch read", "me me listen listen watch read", "play play code code watch read", "write write write gallery gallery shows", "write write write gallery gallery shows"],
+  12: ["me me listen listen watch read", "me me listen listen watch read", "play play code code watch read", "write write write gallery gallery shows", "write write write gallery gallery shows", "now now elsewhere uses uses shows"],
+};
+const SPAN = { me: [2, 2], listen: [2, 2], watch: [1, 2], read: [1, 2], play: [2, 1], code: [2, 1], write: [2, 2], gallery: [2, 2], shows: [2, 1], now: [2, 1], elsewhere: [1, 1], uses: [1, 1] };
+const narrow = () => innerWidth < 760;
+
+/* ---------------- B. strip + ledge ---------------- */
+const strip = (() => {
+  const el = document.getElementById("strip"), ledge = document.getElementById("ledge"); let keys = [], cur = null;
+  LEDGE.mount(ledge);
+  // css eases the flex-basis change; this follows it with the scroll so the opened box glides to the middle
+  // in one motion instead of the old one collapsing under it first. closing keeps the box where it is.
+  const ease = (x1, y1, x2, y2) => t => {
+    let lo = 0, hi = 1, u = t;
+    for (let i = 0; i < 24; i++) { u = (lo + hi) / 2; (3 * (1 - u) ** 2 * u * x1 + 3 * (1 - u) * u * u * x2 + u ** 3) < t ? lo = u : hi = u; }
+    return 3 * (1 - u) ** 2 * u * y1 + 3 * (1 - u) * u * u * y2 + u ** 3;
+  };
+  const curve = ease(.2, .8, .2, 1), DUR = 550;
+  let raf = 0;
+  const mid = b => { const r = b.getBoundingClientRect(), s = el.getBoundingClientRect(); return r.left + r.width / 2 - s.left; };
+  function follow(box, from, to) {
+    cancelAnimationFrame(raf);
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / DUR);
+      el.scrollLeft += mid(box) - (from + (to - from) * curve(p));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  const stopFollow = () => cancelAnimationFrame(raf);
+  el.addEventListener("pointerdown", stopFollow);
+  function go(k) {
+    const anchor = el.querySelector(`.box[data-k="${k ?? cur}"]`), from = anchor && mid(anchor);
+    el.querySelectorAll(".box").forEach(b => {
+      const on = b.dataset.k === k;
+      b.classList.toggle("on", on);
+      if (on && MODE && b.dataset.k !== cur) {
+        clearTimeout(b._t); b.classList.remove("closing", "settle"); b.querySelector(".lv-xl")?.remove();
+        b.classList.add("has-xl"); b.insertAdjacentHTML("beforeend", `<div class="lv-xl">${PV()[k]()}</div>`);
+      } else if (!on && b.classList.contains("has-xl") && !b.classList.contains("closing")) {
+        b.classList.add("closing");
+        b._t = setTimeout(() => {
+          b.classList.remove("has-xl", "closing"); b.querySelector(".lv-xl")?.remove();
+          b.classList.add("settle"); fit(b);
+          b._t = setTimeout(() => b.classList.remove("settle"), 300);
+        }, 560);
+      }
+    });
+    cur = k;
+    el.classList.toggle("has-on", !!k);
+    if (anchor) follow(anchor, from, k ? el.clientWidth / 2 : from);
+  }
+  // a door shows only the thumbnails that fit whole, then says how many more are inside
+  function fit(b) {
+    const lv = b.querySelector(".lv-s"); if (!lv || b.classList.contains("on")) return;
+    const its = [...lv.querySelectorAll(".it")];
+    lv.querySelector(".more")?.remove(); its.forEach(i => i.classList.remove("cut"));
+    if (getComputedStyle(lv).display === "none" || lv.scrollHeight <= lv.clientHeight + 1) return;
+    lv.insertAdjacentHTML("beforeend", `<div class="more"></div>`);
+    const more = lv.lastElementChild;
+    let n = 0;
+    for (let i = its.length - 1; i >= 0 && lv.scrollHeight > lv.clientHeight + 1; i--) { its[i].classList.add("cut"); n++; more.textContent = `+ ${n} more`; }
+    if (n === its.length) more.remove();
+  }
+  const fitter = new ResizeObserver(es => es.forEach(e => fit(e.target)));
+  // doors grow with the screen until the row overflows with the end door half in view, so the strip always reads as scrollable.
+  // when the real doors already overflow at the smallest width, they stay at the smallest width.
+  function size() {
+    const min = narrow() ? 140 : 190, gap = 10, n = keys.length, w = el.clientWidth;
+    const door = n * min + (n - 1) * gap > w ? min : Math.max(min, (w - n * gap) / (n + .5));
+    el.style.setProperty("--door", door + "px");
+  }
+  function build(k) {
+    keys = k.filter(x => !SMALL.includes(x)); cur = null; el.classList.remove("has-on");
+    el.innerHTML = keys.map(x => box(x)).join("") + EDOOR.box();
+    size();
+    fitter.disconnect(); el.querySelectorAll(".box:not(.end-box)").forEach(b => fitter.observe(b));
+  }
+  el.addEventListener("wheel", e => {
+    stopFollow();
+    if (e.target.closest(".box.on")) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { el.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, { passive: false });
+  el.addEventListener("click", e => {
+    if (e.target.closest("[data-close]")) { e.stopPropagation(); return go(null); }
+    // a verb in the "i" door or view opens its own door
+    const v = e.target.closest("[data-go]");
+    if (v && keys.includes(v.dataset.go)) { e.stopPropagation(); return go(v.dataset.go); }
+    const b = e.target.closest(".box:not(.end-box)"); if (b && b.dataset.k !== cur) go(b.dataset.k);
+  });
+  const close = () => { if (!LEDGE.close()) go(null); };
+  return { build, open: go, close, get cur() { return cur; }, get keys() { return keys; } };
+})();
+
+/* ---------------- shell ---------------- */
+// ?n=9 or ?n=12 starts with more aspects in the strip
+let N = [7, 9, 12].includes(+new URLSearchParams(location.search).get("n")) ? +new URLSearchParams(location.search).get("n") : 7;
+const rebuild = () => strip.build(BIG.slice(0, N));
+document.querySelectorAll(".pill[data-n]").forEach(b => b.classList.toggle("on", +b.dataset.n === N));
+document.getElementById("note").innerHTML = "<b>baseline.</b> 7 is what the site has today (shows included). 9 adds write and gallery. 12 adds three placeholder aspects (draw, places, links) just to see how the strip copes. now and elsewhere always live on the ledge. the end door is always last, a placeholder that keeps the strip scrolling (takes in end-door.html).";
+document.querySelector(".bar").addEventListener("click", e => {
+  const n = e.target.closest("[data-n]");
+  if (n) { N = +n.dataset.n; document.querySelectorAll("[data-n]").forEach(b => b.classList.toggle("on", b === n)); rebuild(); }
+  const h = e.target.closest("[data-h]");
+  if (h) { DOORS = h.dataset.h; document.querySelectorAll("[data-h]").forEach(b => b.classList.toggle("on", b === h)); rebuild(); }
+  const p = e.target.closest("[data-p]");
+  if (p) { const k = strip.cur; MODE = +p.dataset.p; document.querySelectorAll("[data-p]").forEach(b => b.classList.toggle("on", b === p)); rebuild(); if (k) strip.open(k); }
+});
+document.getElementById("lights").addEventListener("click", () => {
+  const r = document.documentElement, lamp = r.dataset.light !== "lamp";
+  r.dataset.light = lamp ? "lamp" : "night";
+  document.getElementById("lights").textContent = "lights: " + (lamp ? "lamp" : "night");
+});
+// the control panel is prototype-only; hide it by default to see the room as the real site would
+const setBare = on => { document.body.classList.toggle("bare", on); try { localStorage.setItem("room-bare", on ? "1" : "0"); } catch {} setTimeout(rebuild, 0); };
+let bare = true; try { bare = localStorage.getItem("room-bare") !== "0"; } catch {}
+document.body.classList.toggle("bare", bare);
+document.getElementById("barbtn").addEventListener("click", () => setBare(!document.body.classList.contains("bare")));
+document.addEventListener("keydown", e => {
+  if (e.key === "t" && !e.metaKey && !e.ctrlKey && !e.altKey) return setBare(!document.body.classList.contains("bare"));
+  if (e.key === "Escape") return strip.close();
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    const ks = strip.keys, i = strip.cur ? ks.indexOf(strip.cur) : -1, d = e.key === "ArrowRight" ? 1 : -1;
+    strip.open(ks[(i + d + ks.length) % ks.length]);
+  }
+});
+// a resize rebuilds the strip; whatever door was open opens again
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { const k = strip.cur; rebuild(); if (k) strip.open(k); }, 200); });
+setInterval(() => document.querySelectorAll("[data-clock]").forEach(n => n.textContent = clock()), 30000);
+rebuild();
+// ?open=<aspect> lands with that door already open
+{ const o = new URLSearchParams(location.search).get("open"); if (o) setTimeout(() => strip.open(o), 50); }
+</script>
+</body>
+</html>

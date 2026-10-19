@@ -1,0 +1,51 @@
+/* the "i" aspect (me.js) */
+.m-photo { display: block; aspect-ratio: 1; border-radius: 12px; background: center/cover no-repeat; flex: none; }
+[data-go] { cursor: pointer; }
+
+/* ---------- the id card with the verbs stamped on it ---------- */
+.m-badge { position: relative; padding-top: 26px; }
+.clip { position: absolute; left: 50%; top: 0; width: 34px; height: 30px; translate: -50% 0; z-index: 1;
+  border-radius: 6px 6px 3px 3px; background: linear-gradient(#9aa0ad, #6c717d); box-shadow: 0 3px 6px rgba(0,0,0,.4); }
+.clip::after { content: ""; position: absolute; left: 9px; right: 9px; top: 18px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.35); }
+.card { border-radius: 10px; overflow: hidden; padding-bottom: 12px; }
+.m-badge .card { transform-origin: 50% 0; }
+.card .top { display: flex; justify-content: space-between; background: var(--ink); color: #dfe6f5; font: 500 8px "JetBrains Mono", monospace; letter-spacing: .2em; padding: 22px 12px 7px; }
+.card .m-photo { margin: 12px 14px 0; border-radius: 6px; }
+.card b { display: block; font: 400 30px/1 var(--serif); color: var(--paper-ink); margin: 10px 14px 0; }
+.card small { display: block; font: 500 8.5px "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--paper-muted); margin: 8px 14px 0; }
+.card .does { font: italic 400 20px var(--serif); color: var(--paper-ink); margin: 0 14px; }
+.card .tm { font: 500 13px var(--sans); color: var(--paper-ink); margin: 1px 14px 0; }
+.card .sig { display: block; width: 84%; margin: -10px 4px -8px auto; rotate: -6deg; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+/* the signature writes itself when the desk opens */
+.mo .card .sig path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: sign 1.4s .5s cubic-bezier(.5,0,.3,1) forwards; }
+@keyframes sign { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .mo .card .sig path { animation: none; stroke-dashoffset: 0; } }
+.card .code { height: 18px; margin: 4px 14px 0; opacity: .7; background: repeating-linear-gradient(90deg, var(--paper-ink) 0 1px, transparent 1px 3px, var(--paper-ink) 3px 5px, transparent 5px 6px, var(--paper-ink) 6px 7px, transparent 7px 10px); }
+.card .stk { display: flex; flex-wrap: wrap; gap: 5px 4px; margin: 6px 12px 2px; }
+.card .stk .s { display: inline-block; font: 600 8.5px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; padding: 2px 5px; border-radius: 2px;
+  color: var(--stamp); border: 1.2px solid var(--stamp); opacity: .85; mix-blend-mode: multiply; transition: rotate .2s, opacity .2s; }
+.card .stk .s:nth-child(3n) { rotate: -4deg; } .card .stk .s:nth-child(3n+1) { rotate: 3deg; } .card .stk .s:nth-child(4n) { rotate: -1deg; }
+.card .stk .s:not([data-go]) { opacity: .4; }
+.card .stk .s[data-go]:hover { opacity: 1; rotate: 0deg; }
+
+/* the door: the card hangs straight; when it swings (me.js) it may tip past the frame, so nothing clips it */
+.box:not(.on):has(.m-badge) { overflow: visible; z-index: 2; }
+.box:not(.on):has(.m-badge) > .lv { overflow: visible; }
+
+/* ---------- opened views ---------- */
+.mo .u-title { margin-top: 4px; }
+.mo-line { font: 400 22px/1.45 var(--serif); color: var(--muted); margin: 18px 0 0; max-width: 30em; }
+.mo-line .v { color: var(--strong); }
+.mo .v[data-go] { text-decoration: underline 1.5px color-mix(in srgb, var(--stamp) 70%, transparent); text-underline-offset: 4px; }
+.mo .v[data-go]:hover { color: var(--accent); }
+.mo .notes .u-label { margin: 30px 0 12px; } .mo .notes .u-label:first-child { margin-top: 0; }
+.mo-pres { font: 400 26px var(--serif); color: var(--strong); }
+
+/* desk: big badge left, notes right */
+.mo-desk { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: start; }
+@container (max-width: 680px) { .mo-desk { grid-template-columns: 1fr; } }
+.mo-desk .obj { display: grid; place-items: start center; padding-top: 10px; }
+.m-badge.big { width: 230px; zoom: 1.25; }
+.m-badge.big .card { rotate: -4deg; }
+.mo-desk .notes { padding-top: 34px; }
+

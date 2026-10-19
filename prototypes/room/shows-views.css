@@ -1,0 +1,147 @@
+/* shows opened views (shows-views.js). scoped under .shv; the bands reuse the door's .sd-hang look from shows-doors.css */
+.shv-tune .sw > :not(.on) { display: none !important; }
+.shv .shv-head .u-sub { font: 11px "JetBrains Mono", monospace; letter-spacing: .04em; }
+
+/* the rail, in the view: a fixed height so the ribbons' % lengths resolve, the bands gathered in the middle instead of spread */
+.shv .sd-hang.hero { display: flex; flex-direction: column; margin-top: 26px; }
+.shv .sd-hang .rb { flex: none; height: 300px; justify-content: center; gap: 46px; }
+.shv .sd-hang .rod { margin: 4px 8% 0; }
+.shv .sd-hang .hb { transition: filter .25s, opacity .3s; }
+
+/* a night: the date and venue, then its setlists */
+.shv-night { margin-top: 30px; }
+.shv-night .nh b { display: block; font: 400 30px/1.05 var(--serif); color: var(--strong); }
+.shv-night .nh span { display: block; margin-top: 6px; font: 10.5px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
+.shv-night .sheets { display: flex; flex-wrap: wrap; gap: 30px 28px; align-items: flex-start; margin-top: 26px; padding-left: 4px; }
+
+/* a stage setlist: printed on white, gaffer tape at the top, the artist print pinned in the corner */
+.shv-sheet { position: relative; width: 224px; padding: 20px 16px 14px; background: #f1ede4; color: #1a1814; rotate: var(--r); transition: rotate .35s var(--ease); }
+.shv-sheet:hover { rotate: 0deg; }
+.shv-sheet .tp { position: absolute; top: -9px; left: 10%; width: 34%; height: 20px; background: rgba(120,122,128,.78); rotate: -4deg; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.shv-sheet .tp.b { left: auto; right: 30%; width: 22%; rotate: 5deg; }
+.shv-sheet .ph { position: absolute; top: -14px; right: -14px; width: 60px; height: 60px; border: 4px solid #fbfaf6; box-shadow: 0 6px 12px -4px rgba(0,0,0,.6); rotate: 7deg; }
+.shv-sheet .hd { display: flex; justify-content: space-between; gap: 8px; padding-right: 44px; font: 600 9.5px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; }
+.shv-sheet .hd b { color: var(--stamp); font-weight: 600; }
+.shv-sheet .vn { font: 9px "JetBrains Mono", monospace; color: #8a8478; margin: 4px 0 12px; padding: 0 44px 9px 0; border-bottom: 1.5px solid #1a1814; }
+.shv-sheet ol { list-style: none; margin: 0; padding: 0; font: 800 14.5px/1.22 var(--sans); text-transform: uppercase; letter-spacing: -.01em; }
+.shv-sheet ol li { padding: 2.5px 0; }
+.shv-sheet .sf { display: block; margin-top: 12px; padding-top: 8px; border-top: 1px dashed #b9b2a4; font: 9px "JetBrains Mono", monospace; letter-spacing: .08em; color: #8a8478; text-decoration: none; }
+.shv-sheet .sf:hover { color: var(--stamp); }
+.shv .none { font: 10px "JetBrains Mono", monospace; color: #8a8478; margin: 0; }
+
+/* one band lying flat: the ribbon rotated onto its side from its top end, so its lock end points right. --t is its slight skew */
+.shv-lay { position: relative; height: 30px; container-type: inline-size; z-index: 3; }
+.shv-lay.sd-hang .hb { position: absolute; left: calc(3% - 12px); top: 50%; height: min(330px, 56cqw); rotate: var(--t); cursor: default; }
+.shv-lay.wide .hb { height: min(420px, 60cqw); }
+
+/* taken down: a short rail, the picked band's spot empty, the band lying across the top of its setlists */
+.shv-down .sd-hang .rb { height: 170px; gap: 40px; }
+.shv-down .sd-hang:not(.shv-lay) .hb.on { opacity: 0; }
+.shv-down .shv-night { margin-top: 18px; }
+.shv-down .shv-lay { height: 36px; margin-bottom: 18px; }
+
+/* rail at the side */
+.shv-side .grid { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 40px; align-items: start; }
+.shv-side .stick { position: sticky; top: 0; }
+.shv-side .sd-hang .rb { height: 280px; gap: 22px; }
+.shv-side .ix { list-style: none; margin: 18px 0 0; padding: 0; }
+.shv-side .ix li { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 8px; padding: 7px 8px; border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--muted); }
+.shv-side .ix li b { font: 500 10.5px "JetBrains Mono", monospace; color: var(--text); }
+.shv-side .ix li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shv-side .ix li.on { background: var(--surface); color: var(--strong); }
+.shv-side .shv-night { margin-top: 26px; padding-left: 14px; border-left: 2px solid transparent; transition: border-color .25s; scroll-margin-top: 10px; }
+.shv-side .shv-night.on { border-color: var(--stamp); }
+@container (max-width: 640px) { .shv-side .grid { grid-template-columns: 1fr; } .shv-side .stick { position: static; } }
+
+/* setlist wall */
+.shv-wall .shv-night { margin-top: 40px; }
+.shv-wall .shv-lay { margin-bottom: 16px; }
+
+/* scrapbook: one paper page per night */
+.shv-book .pg { margin-top: 22px; padding: 30px 32px 34px; border-radius: 3px; rotate: -.4deg; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 34px; }
+.shv-book .l { position: relative; }
+.shv-book .pr { position: relative; padding: 8px 8px 30px; background: #fbfaf6; box-shadow: 0 10px 18px -8px rgba(0,0,0,.5); rotate: var(--r); }
+.shv-book .pr i { display: block; aspect-ratio: 1; }
+.shv-book .pr .tp { position: absolute; top: -9px; left: 34%; width: 32%; height: 18px; background: rgba(214,206,186,.85); rotate: -3deg; }
+.shv-book .shv-lay.tape { margin: -46px -10px 0; height: 30px; }
+.shv-book .shv-lay.tape .hb { height: min(160px, 40cqw); }
+.shv-book .mg { font: 700 22px/1.15 var(--hand); color: var(--ink); rotate: -2deg; margin: 26px 0 0 6px; }
+.shv-book .rt small { display: block; font: 10px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--paper-muted); padding-bottom: 10px; border-bottom: 1.5px solid rgba(178,58,58,.5); }
+.shv-book .act { margin-top: 18px; }
+.shv-book .act b { display: block; font: 400 26px/1.05 var(--serif); color: var(--paper-ink); }
+.shv-book .act span { display: block; margin-top: 3px; font: 9.5px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--paper-muted); }
+.shv-book .act a { color: var(--stamp); text-decoration: none; } .shv-book .act a:hover { text-decoration: underline; }
+.shv-book .act ol { margin: 10px 0 0; padding-left: 22px; columns: 2 150px; column-gap: 26px; font-size: 13px; line-height: 1.55; color: var(--paper-ink); }
+.shv-book .act ol li::marker { font: 10px "JetBrains Mono", monospace; color: var(--paper-muted); }
+@container (max-width: 600px) { .shv-book .pg { grid-template-columns: 1fr; padding: 24px 20px; } .shv-book .l { max-width: 220px; } }
+
+@container (max-width: 480px) {
+  .shv .sd-hang .rb { gap: 20px; }
+  .shv-sheet { width: 100%; }
+}
+
+/* ---------- the rail, big · round 2 ---------- */
+/* tugged: the picked band hangs lower, the door's caption under the rail */
+.shv-tug .sd-hang .hb { transition: filter .25s, translate .4s var(--ease); }
+.shv-tug .sd-hang .hb.on { translate: 0 22px; }
+.shv-tug .sd-hang .cap { margin-top: 26px; padding-top: 0; text-align: center; }
+.shv-tug .sd-hang .cap b { font-size: 30px; margin-bottom: 6px; }
+.shv-tug .shv-night { margin-top: 18px; }
+.shv-tug .shv-night .sheets { justify-content: center; }
+
+/* bigger bands: the whole rail drawn at wristband scale */
+.shv-big .sd-hang .rb { zoom: 1.5; height: 290px; gap: 40px; }
+
+/* setlists beside: rail | night */
+.shv-beside .bs { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: 36px; align-items: start; margin-top: 8px; }
+.shv-beside .sd-hang .rb { height: 380px; gap: 24px; }
+.shv-beside .sd-hang .rod { margin: 4px 0 0; }
+.shv-beside .shv-night { margin-top: 26px; }
+@container (max-width: 640px) { .shv-beside .bs { grid-template-columns: 1fr; } }
+
+/* rail stays up: a shorter rail that sticks while the setlists scroll under it */
+.shv-sticky .st { position: sticky; top: -30px; z-index: 5; margin: 0 -36px; padding: 0 36px 16px; background: linear-gradient(var(--surface) 88%, transparent); }
+.shv-sticky .sd-hang .rb { height: 210px; }
+
+/* festival hand: a day's setlists overlap in one stack, each a little further right and down; hover pulls one forward */
+.shv-fan .sheets.fan { display: grid; justify-content: start; padding-bottom: 30px; }
+.shv-fan .sheets.fan > .shv-sheet { grid-area: 1 / 1; translate: calc(var(--i) * 118px) calc(var(--i) * 12px); transition: rotate .35s var(--ease), translate .35s var(--ease); }
+.shv-fan .sheets.fan > .shv-sheet:hover { z-index: 20 !important; translate: calc(var(--i) * 118px) calc(var(--i) * 12px - 10px); }
+@container (max-width: 480px) { .shv-fan .sheets.fan > .shv-sheet { width: 224px; translate: calc(var(--i) * 40px) calc(var(--i) * 26px); } }
+
+/* ---------- bigger + beside · room to grow ---------- */
+/* rail column | the picked night. the rail is drawn at 1.5x, so its column is sized in rendered px */
+.shv-bb .bs { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 36px; align-items: start; margin-top: 8px; }
+.shv-bb .sd-hang.hero { zoom: 1.5; margin-top: 12px; }
+.shv-bb .sd-hang .rb { height: 290px; gap: 14px; justify-content: flex-start; padding: 0 8px; }
+.shv-bb .sd-hang .rod { margin: 4px 0 0; }
+.shv-bb .shv-night { margin-top: 26px; }
+.shv-bb .rt { position: sticky; top: 0; }
+/* a festival day's hand squeezes to the column: each sheet steps right by at most 118px, less when there are many */
+.shv-bb .sheets.fan { display: grid; justify-content: start; padding-bottom: 30px; container-type: inline-size; }
+.shv-bb .sheets.fan > .shv-sheet { grid-area: 1 / 1; --s: min(118px, (100cqw - 236px) / var(--k)); translate: calc(var(--i) * var(--s)) calc(var(--i) * 10px); transition: rotate .35s var(--ease), translate .35s var(--ease); }
+.shv-bb .sheets.fan > .shv-sheet:hover { z-index: 30 !important; translate: calc(var(--i) * var(--s)) calc(var(--i) * 10px - 12px); }
+@container (max-width: 680px) { .shv-bb .bs { grid-template-columns: 1fr; } .shv-bb .rt { position: static; } }
+
+/* rail scrolls: the rail is as wide as its bands, the column scrolls it sideways and fades out the edge */
+.shv-bscroll .rbox { overflow: auto hidden; scrollbar-width: thin; padding-bottom: 6px; -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); }
+.shv-bscroll .rbox .sd-hang.hero { width: max-content; min-width: calc(100% / 1.5); padding-right: 40px; }
+.shv-bscroll .more, .shv-bbox .bx .u-label { margin: 14px 0 0; font: 10px "JetBrains Mono", monospace; letter-spacing: .1em; color: var(--muted); }
+
+/* a rail a year */
+.shv-byear .chips3 { margin-top: 4px; }
+.shv-byear .sd-hang.hero { margin-top: 18px; }
+
+/* rail + the box: older nights as a list, a strip of each band's colour leading the line */
+.shv-bbox .bx { margin-top: 22px; padding: 14px 14px 10px; border-radius: 10px; background: var(--surface2); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), inset 0 -10px 20px -14px rgba(0,0,0,.6); }
+.shv-bbox .bx .u-label { margin: 0 0 8px; }
+.shv-bbox .bx ul { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; scrollbar-width: thin; }
+.shv-bbox .bx li { display: grid; grid-template-columns: 8px 62px minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--muted); }
+.shv-bbox .bx li i { height: 20px; border-radius: 2px; background: hsl(var(--h) 45% 45%); }
+.shv-bbox .bx li b { font: 500 10.5px "JetBrains Mono", monospace; color: var(--text); }
+.shv-bbox .bx li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shv-bbox .bx li.on { background: var(--surface); color: var(--strong); }
+
+/* the rack: rails stacked with a little air so the longest band clears the next rail */
+.shv-brack .sd-hang.hero + .sd-hang.hero { margin-top: 22px; }
+.shv-b1 .bs > .sd-hang.hero { overflow: hidden; }

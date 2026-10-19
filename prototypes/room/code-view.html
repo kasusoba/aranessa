@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Code Views</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="box.css" />
+<link rel="stylesheet" href="xl2.css" />
+<link rel="stylesheet" href="xl3.css" />
+<link rel="stylesheet" href="me.css" />
+<link rel="stylesheet" href="listen-doors.css" />
+<link rel="stylesheet" href="watch-doors.css" />
+<link rel="stylesheet" href="watch-views.css" />
+<link rel="stylesheet" href="read-doors.css" />
+<link rel="stylesheet" href="read-views.css" />
+<link rel="stylesheet" href="play-doors.css" />
+<link rel="stylesheet" href="play-views.css" />
+<link rel="stylesheet" href="code-doors.css" />
+<link rel="stylesheet" href="code-views.css" />
+<style>
+  body { overflow: hidden; height: 100vh; display: grid; grid-template-columns: 290px minmax(0, 1fr); }
+  .side { overflow-y: auto; padding: 20px 18px 30px 22px; border-right: 1px solid var(--line); scrollbar-width: thin; }
+  .side h1 { font: 400 28px var(--serif); color: var(--strong); margin: 0 0 6px; }
+  .side > p { color: var(--muted); font-size: 12px; margin: 0 0 14px; line-height: 1.5; }
+  .side .seg { flex-wrap: wrap; margin-bottom: 8px; }
+  .side h2 { font: 500 10px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin: 22px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .pick { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 10px; color: var(--muted); transition: background .2s; }
+  .pick:hover { background: var(--surface); }
+  .pick.on { background: var(--surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pick b { display: flex; gap: 8px; font: 500 12px "JetBrains Mono", monospace; color: var(--strong); }
+  .pick b em { font-style: normal; color: var(--muted); }
+  .pick span { display: none; font-size: 12px; line-height: 1.45; margin-top: 4px; }
+  .pick.on span { display: block; }
+  .pick a { display: none; margin-top: 6px; font: 11px "JetBrains Mono", monospace; color: var(--accent); text-decoration: none; }
+  .pick.on a { display: inline-block; } .pick a:hover { text-decoration: underline; }
+  .stage { overflow: auto; display: grid; place-items: center; padding: 24px; }
+  /* the opened box at the same size the strip gives it */
+  .stage .box { width: var(--w, min(900px, 74vw)); height: var(--h, calc(100vh - 48px)); max-width: 100%; transition: width .4s var(--ease); }
+  .keys { color: var(--muted); font-size: 11px; margin-top: 16px; }
+  @media (max-width: 760px) { body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .side { max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--line); } .stage { padding: 12px; } }
+</style>
+</head>
+<body>
+<aside class="side">
+  <h1>code, opened</h1>
+  <p>every take on the opened code view, on the snapshot data, in the opened box at the strip's size. all of them carry what the real /code page has (every featured project big, the rest smaller, each with screenshot, name, kind, description, github link) plus what changed lately on this site, in plain words. featured: how many are featured (3 and 4 add labelled sample projects).</p>
+  <div class="seg">width <button class="pill on" data-w="room">room</button><button class="pill" data-w="620">620</button><button class="pill" data-w="380">phone</button></div>
+  <div class="seg">featured <button class="pill on" data-f="1">1</button><button class="pill" data-f="2">2</button><button class="pill" data-f="3">3</button><button class="pill" data-f="4">4</button></div>
+  <button class="pill" id="lights">lights: night</button>
+  <div id="list"></div>
+  <div class="keys"><kbd>↑</kbd><kbd>↓</kbd> switch</div>
+</aside>
+<main class="stage" id="stage"></main>
+<div id="strip" hidden></div>
+
+<script src="aspects.js"></script>
+<script src="xl.js"></script>
+<script src="xl2.js"></script>
+<script src="snapshot.js"></script>
+<script src="data2.js"></script>
+<script src="xl3.js"></script>
+<script src="me.js"></script>
+<script src="watch-doors.js"></script>
+<script src="watch-views.js"></script>
+<script src="read-doors.js"></script>
+<script src="read-views.js"></script>
+<script src="play-doors.js"></script>
+<script src="play-views.js"></script>
+<script src="code-doors.js"></script>
+<script src="code-views.js"></script>
+<script>
+const hintFor = k => TOUCH[k]?.();
+RDOOR.use("pull");
+const keys = Object.keys(CVIEW.V), listEl = document.getElementById("list"), stage = document.getElementById("stage");
+let feat = 1, cur = new URLSearchParams(location.search).get("v");
+if (!keys.includes(cur)) cur = keys[0];
+
+function side() {
+  const groups = {};
+  keys.forEach((k, i) => (groups[CVIEW.V[k].group] ??= []).push([k, CVIEW.V[k], i]));
+  listEl.innerHTML = Object.entries(groups).map(([g, l]) => `<h2>${g}</h2>${l.map(([k, v, i]) => `<div class="pick${k === cur ? " on" : ""}" data-k="${k}" role="button" tabindex="0">
+    <b><em>${String(i + 1).padStart(2, "0")}</em>${v.name}</b><span>${v.note}</span><a href="index.html?codeview=${k}&open=code${feat > 1 ? `&featured=${feat}` : ""}">try in room ↗</a></div>`).join("")}`).join("");
+}
+function show(k) {
+  cur = k; CVIEW.use(k); side();
+  stage.innerHTML = `<div class="box on has-xl" data-k="code"><div class="lv-xl">${XL3.code()}</div></div>`;
+  history.replaceState(null, "", `?v=${k}`);
+}
+listEl.addEventListener("click", e => { const p = e.target.closest(".pick"); if (p && !e.target.closest("a")) show(p.dataset.k); });
+document.querySelector(".side").addEventListener("click", e => {
+  const f = e.target.closest("[data-f]");
+  if (f) { feat = +f.dataset.f; CDOOR.feature(feat); document.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b === f)); show(cur); }
+  const w = e.target.closest("[data-w]");
+  if (w) { w.dataset.w === "room" ? document.documentElement.style.removeProperty("--w") : document.documentElement.style.setProperty("--w", w.dataset.w + "px"); document.querySelectorAll("[data-w]").forEach(b => b.classList.toggle("on", b === w)); }
+});
+document.getElementById("lights").addEventListener("click", () => {
+  const r = document.documentElement, lamp = r.dataset.light !== "lamp";
+  r.dataset.light = lamp ? "lamp" : "night";
+  document.getElementById("lights").textContent = "lights: " + (lamp ? "lamp" : "night");
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  e.preventDefault();
+  show(keys[(keys.indexOf(cur) + (e.key === "ArrowDown" ? 1 : -1) + keys.length) % keys.length]);
+});
+show(cur);
+</script>
+</body>
+</html>

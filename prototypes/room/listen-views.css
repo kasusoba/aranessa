@@ -1,0 +1,138 @@
+/* listen opened-view explorations (listen-views.js). same language as the other opened views: the room's surface,
+   serif titles, letter-spaced mono labels, paper + ink + stamp red, cover art the only free color. */
+.lsv .pv-foot { margin: 34px 0 0; font: 10px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
+
+/* recently, as sessions: one cover per run of plays from the same album */
+.lv-sess { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 36px; }
+.lv-sess.one { grid-template-columns: 1fr; }
+.lv-sess .dh { grid-column: 1 / -1; font: 500 10px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--stamp); margin-bottom: -6px; }
+.lv-sess .dh:not(:first-child) { margin-top: 8px; }
+.lv-sess .ss { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: start; border-radius: 6px; transition: background .2s; }
+.lv-sess .ss > i { width: 56px; aspect-ratio: 1; border-radius: 3px; }
+.lv-sess .ss b { display: block; font: 400 19px/1.1 var(--serif); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-sess .ss small { display: block; font: 10px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); margin-top: 2px; }
+.lv-sess ol { list-style: none; margin: 6px 0 0; padding: 0; }
+.lv-sess li { display: flex; gap: 10px; justify-content: space-between; font-size: 12.5px; line-height: 1.7; }
+.lv-sess li a { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-sess li a:hover { color: var(--accent); }
+.lv-sess li em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); flex: none; }
+@container (max-width: 640px) { .lv-sess { grid-template-columns: 1fr; } }
+
+/* the crate, big: the door's peek crate at view size. listen-views.js lifts the picked sleeve */
+.lv-crate { width: var(--fw); flex: none; -webkit-mask: linear-gradient(transparent, #000 36px); mask: linear-gradient(transparent, #000 36px); padding-top: 4px; }
+.lv-crate .stk { position: relative; height: calc(var(--fw) + var(--n) * 22px); }
+.lv-crate .sv { cursor: pointer; }
+.lv-crate .sv i { pointer-events: none; transition: translate .3s var(--ease), filter .3s; }
+.lv-crate .sv.on i { filter: none; }
+.box:hover .lv-crate .sv:last-child i { transform: none; }
+.box:hover .lv-crate .sv:nth-last-child(2) { translate: none; }
+
+.lv-big { display: grid; grid-template-columns: var(--fw, 230px) minmax(0, 1fr); gap: 44px; margin-top: 26px; align-items: start; }
+.lv-big .lv-crate { --fw: 230px; }
+@container (max-width: 640px) { .lv-big { grid-template-columns: 1fr; } .lv-big .lv-crate { margin: 0 auto; } }
+
+/* pulled out: the sleeve with its record half out the right side */
+.lv-pull > .pl { display: none; grid-template-columns: 150px minmax(0, 1fr); gap: 76px; align-items: center; }
+.lv-pull > .pl.on { display: grid; animation: fadein .2s both; }
+.lv-pull .sl { position: relative; display: block; width: 150px; aspect-ratio: 1; }
+.lv-pull .sl > i { position: absolute; inset: 0; border-radius: 3px; }
+.lv-pull .rc { position: absolute; inset: 4px; border-radius: 50%; translate: 40% 0; transition: translate .5s var(--ease);
+  background: repeating-radial-gradient(circle, #121212 0 2px, #1d1d1d 2px 4px); box-shadow: 0 10px 20px -10px rgba(0,0,0,.7); }
+.lv-pull .rc i { position: absolute; inset: 32%; border-radius: 50%; }
+.lv-pull .pl.on .rc { animation: lv-slide .6s var(--ease) both; }
+.lv-pull .sl:hover .rc { translate: 50% 0; }
+.lv-pull .sticker { top: -8px; right: auto; left: -8px; }
+.lv-pull .tx { min-width: 0; }
+.lv-pull .u-title { display: block; margin-top: 6px; }
+.lv-pull .u-title:hover { color: var(--accent); }
+.lv-pull .nums { margin-top: 14px; font: 10px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
+.lv-pull .nums b { font: 400 30px/1 var(--serif); color: var(--strong); letter-spacing: 0; }
+@keyframes lv-slide { from { translate: 0 0; } }
+@container (max-width: 460px) { .lv-pull > .pl.on { grid-template-columns: 110px minmax(0, 1fr); gap: 56px; } .lv-pull .sl { width: 110px; } }
+
+/* the chart as rows, linked to the crate */
+.lv-rows { list-style: none; margin: 26px 0 0; padding: 0; }
+.lv-rows li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: baseline; gap: 0 10px; padding: 5px 8px; border-radius: 6px; transition: background .2s; }
+.lv-rows li em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); }
+.lv-rows li b { font: 400 17px/1.2 var(--serif); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-rows li > span { grid-column: 2; font: 10px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
+.lv-rows li i { grid-column: 3; grid-row: 1; font: 11px "JetBrains Mono", monospace; font-style: normal; color: var(--gold); }
+.lv-rows li a { min-width: 0; display: block; overflow: hidden; }
+.lv-tune .lv-rows li { cursor: pointer; }
+.lv-rows li.on { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.lv-rows li.on b { color: var(--stamp); }
+.lv-big .lv-rows { columns: 2; column-gap: 24px; }
+.lv-big .lv-rows li { break-inside: avoid; }
+@container (max-width: 760px) { .lv-big .lv-rows { columns: 1; } }
+
+/* browsed: the crate sticks on the left, everything on the right puts its cover in front */
+.lv-browse .lay { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 44px; align-items: start; margin-top: 10px; }
+.lv-browse .lay > .sd { position: sticky; top: 0; padding-top: 10px; }
+.lv-browse .cap { margin-top: 18px; min-height: 80px; }
+.lv-browse .cap .u-title { font-size: 28px; }
+.lv-browse .main > .sec:first-child { margin-top: 18px; }
+.lv-browse [data-c] { transition: background .2s; border-radius: 6px; }
+.lv-browse [data-c].on { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.lv-browse .lv-rows { margin-top: 0; }
+.lv-browse .lv-crate .sv { cursor: default; }
+@container (max-width: 640px) { .lv-browse .lay { grid-template-columns: 1fr; } .lv-browse .lay > .sd { position: static; } .lv-browse .lv-crate { --fw: 180px !important; } }
+
+/* on the deck: a turntable from above, the session as its tracklist */
+.lv-deck { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 44px; align-items: center; margin-top: 18px; }
+.lv-deck .tt { position: relative; display: block; aspect-ratio: 1 / .9; border-radius: 12px;
+  background: linear-gradient(160deg, #2a2621, #1a1815); box-shadow: 0 26px 40px -18px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.06); }
+.lv-deck .plat { position: absolute; left: 6%; top: 7%; width: 76%; aspect-ratio: 1; border-radius: 50%; background: #0c0c0c; box-shadow: 0 0 0 3px #34302a; }
+.lv-deck .rec { position: absolute; inset: 3%; border-radius: 50%; background: repeating-radial-gradient(circle, #121212 0 2px, #1d1d1d 2px 4px); animation: spin 1.8s linear infinite paused; }
+.lv-deck .rec i { position: absolute; inset: 33%; border-radius: 50%; }
+.lv-deck .rec::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #0c0c0c; }
+.lv-deck .tt.live .rec, .lv-deck .tt:hover .rec { animation-play-state: running; }
+.lv-deck .arm { position: absolute; right: 7%; top: 8%; width: 18px; height: 18px; border-radius: 50%; background: #4a453d; }
+.lv-deck .arm b { position: absolute; left: 7px; top: 9px; width: 4px; background: #8d867a; border-radius: 2px; transform-origin: 50% 0; rotate: 4deg; transition: rotate .6s var(--ease); }
+.lv-deck .arm b { height: 560%; }
+.lv-deck .arm b::after { content: ""; position: absolute; left: -4px; bottom: -6px; width: 12px; height: 16px; border-radius: 2px; background: #6b655b; }
+.lv-deck .tt.live .arm b, .lv-deck .tt:hover .arm b { rotate: 24deg; }
+.lv-deck .rpm { position: absolute; right: 6%; bottom: 7%; font: 600 9px "JetBrains Mono", monospace; color: var(--muted); border: 1px solid currentColor; border-radius: 3px; padding: 1px 4px; }
+.lv-deck .tt.live .rpm { color: var(--gold); }
+.lv-tl { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: t; }
+.lv-tl li { counter-increment: t; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+.lv-tl li::before { content: counter(t, decimal-leading-zero); font: 10px "JetBrains Mono", monospace; color: var(--muted); }
+.lv-tl li a { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-tl li a:hover { color: var(--accent); }
+.lv-tl li em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); }
+.lv-tl li.on a { color: var(--stamp); }
+@container (max-width: 640px) { .lv-deck { grid-template-columns: 1fr; } .lv-deck .tt { width: min(290px, 100%); } }
+
+/* the wall: face out, sized by rank */
+.lv-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); grid-auto-flow: dense; gap: 18px 14px; }
+.lv-wall a { position: relative; display: block; min-width: 0; }
+.lv-wall a.big { grid-column: span 2; grid-row: span 2; }
+.lv-wall i { display: block; aspect-ratio: 1; border-radius: 3px; transition: translate .2s; }
+.lv-wall a:hover i { translate: 0 -4px; }
+.lv-wall small { display: block; margin-top: 6px; font: 10px "JetBrains Mono", monospace; letter-spacing: .04em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-wall small b { display: block; font: 500 11.5px var(--sans); letter-spacing: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.lv-wall a.big small b { font: 400 20px var(--serif); color: var(--strong); }
+.lv-wall a.big .sticker { min-width: 34px; height: 34px; font-size: 12px; }
+.lv-pins { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: thin; }
+.lv-pins a { flex: none; width: 76px; text-align: center; }
+.lv-pins i { display: block; width: 64px; aspect-ratio: 1; margin: 0 auto; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--line), 0 12px 20px -10px rgba(0,0,0,.7); transition: translate .2s; }
+.lv-pins a:hover i { translate: 0 -3px; }
+.lv-pins b { display: block; margin-top: 8px; font: 500 11px var(--sans); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-pins em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--gold); }
+
+/* the log */
+.lv-tb { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12.5px; }
+.lv-tb td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+.lv-tb td:first-child { width: 110px; font: 10px "JetBrains Mono", monospace; color: var(--muted); }
+.lv-tb td:nth-child(2) { color: var(--strong); width: 38%; }
+.lv-tb td:nth-child(n+3) { color: var(--muted); }
+.lv-tb a:hover { color: var(--accent); }
+.lv-log { list-style: none; margin: 0; padding: 0; }
+.lv-log li { display: grid; grid-template-columns: 22px minmax(0, 1fr) 30% 34px; gap: 10px; align-items: center; padding: 5px 0; }
+.lv-log li em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); }
+.lv-log li a { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.lv-log li a b { font-weight: 500; color: var(--strong); }
+.lv-log li a span { color: var(--muted); font-size: 12px; }
+.lv-log li a:hover b { color: var(--accent); }
+.lv-log .bar { display: block; height: 3px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.lv-log .bar s { display: block; height: 100%; background: var(--stamp); }
+.lv-log li i { font: 11px "JetBrains Mono", monospace; font-style: normal; color: var(--gold); text-align: right; }

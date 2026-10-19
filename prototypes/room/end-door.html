@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>End Doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="box.css" />
+<link rel="stylesheet" href="xl2.css" />
+<link rel="stylesheet" href="xl3.css" />
+<link rel="stylesheet" href="end-doors.css" />
+<style>
+  body { overflow: auto; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 18px 24px 4px; }
+  .top h1 { font: 400 28px var(--serif); color: var(--strong); margin: 0 18px 0 0; }
+  .top p { width: 100%; margin: 6px 0 0; color: var(--muted); font-size: 12.5px; max-width: 70em; }
+  .wall { display: flex; gap: 40px; overflow-x: auto; padding: 20px 24px 30px; scrollbar-width: thin; scrollbar-color: var(--surface) transparent; }
+  .grp { flex: none; }
+  .grp > h2 { font: 500 10px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .doors { display: flex; gap: 14px; }
+  .door { width: 190px; flex: none; }
+  .door .lbl { font: 500 11px "JetBrains Mono", monospace; color: var(--strong); margin-bottom: 8px; display: flex; gap: 8px; }
+  .door .lbl em { font-style: normal; color: var(--muted); }
+  .door .box { width: 190px; height: var(--door-h, max(360px, calc(100vh - 260px))); transition: height .4s var(--ease), border-color .2s, translate .25s var(--ease), box-shadow .25s; }
+  .door .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.45; min-height: 4.4em; }
+  .door a.try { display: inline-block; margin-top: 6px; font: 11px "JetBrains Mono", monospace; color: var(--accent); text-decoration: none; }
+  .door a.try:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>end door</h1>
+  <span class="seg">height <button class="pill on" data-h="fit">fit window</button><button class="pill" data-h="760">760</button><button class="pill" data-h="640">640</button><button class="pill" data-h="500">500</button><button class="pill" data-h="360">360</button></span>
+  <span class="sp"></span>
+  <button class="pill" id="lights">lights: night</button>
+  <p>takes on the placeholder door that always ends the strip. it has nothing inside and doesn't open; it's there so the strip always runs past the screen. quiet on purpose: slow or still. "try in room" opens the room with that take at the end (index.html?end=…).</p>
+</div>
+<div class="wall" id="wall"></div>
+
+<script src="aspects.js"></script>
+<script src="end-doors.js"></script>
+<script>
+const wallEl = document.getElementById("wall");
+function render() {
+  const groups = {};
+  Object.entries(EDOOR.V).forEach(([k, v]) => (groups[v.group] ??= []).push([k, v]));
+  let n = 0;
+  wallEl.innerHTML = Object.entries(groups).map(([g, list]) => `<section class="grp"><h2>${g}</h2><div class="doors">${list.map(([k, v]) => `<div class="door"><div class="lbl"><em>${String(++n).padStart(2, "0")}</em>${v.name}</div>${EDOOR.box(k)}
+      <div class="note">${v.note}</div><a class="try" href="index.html?end=${k}">try in room ↗</a></div>`).join("")}</div></section>`).join("");
+}
+document.querySelector(".top").addEventListener("click", e => {
+  const h = e.target.closest("[data-h]");
+  if (h) { h.dataset.h === "fit" ? document.documentElement.style.removeProperty("--door-h") : document.documentElement.style.setProperty("--door-h", h.dataset.h + "px"); document.querySelectorAll("[data-h]").forEach(b => b.classList.toggle("on", b === h)); }
+});
+document.getElementById("lights").addEventListener("click", () => {
+  const r = document.documentElement, lamp = r.dataset.light !== "lamp";
+  r.dataset.light = lamp ? "lamp" : "night";
+  document.getElementById("lights").textContent = "lights: " + (lamp ? "lamp" : "night");
+});
+wallEl.addEventListener("wheel", e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wallEl.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+render();
+</script>
+</body>
+</html>

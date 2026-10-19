@@ -1,0 +1,18 @@
+/* the ledge under the strip (ledges.js). it's a size container, so a narrow one drops its socials. */
+.ledge { flex: none; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface2);
+  position: relative; font-size: 13px; white-space: nowrap; container: ledge / inline-size; }
+.ledge .sp { flex: 1; }
+.ledge .lg { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 99px; color: var(--muted); transition: .2s; min-width: 0; }
+.ledge button.lg:hover, .ledge button.lg.on { background: var(--surface); color: var(--strong); }
+.ledge .lg i { font-family: var(--serif); font-size: 16px; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.ledge .links { overflow: hidden; }
+.ledge .links a { color: var(--text); font-style: italic; text-decoration: none; }
+.ledge .links a:hover { color: var(--accent); }
+@container ledge (max-width: 700px) { .ledge .links { display: none; } }
+
+/* the now sticky note, bare at its own size */
+.pop { position: absolute; bottom: 58px; width: min(400px, calc(100vw - 32px)); border-radius: 16px; background: var(--surface); border: 1px solid var(--line);
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,.6); white-space: normal; opacity: 0; translate: 0 8px; pointer-events: none; transition: opacity .25s var(--ease), translate .25s var(--ease); z-index: 10; padding: 20px 22px; }
+.pop.bare { background: transparent; border-color: transparent; box-shadow: none; padding: 0; }
+.pop.on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.pop .big { font-size: 28px; }
