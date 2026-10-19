@@ -168,8 +168,8 @@
 .v3 a { color: inherit; text-decoration: none; }
 .v3 .u-list a:hover b { color: var(--accent); }
 [data-archive]:not(.all) .extra { display: none !important; }
-.cols3 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 36px; }
-@container (max-width: 620px) { .cols3 { grid-template-columns: 1fr; } }
+.cols3 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 36px; }
+@container (max-width: 620px) { .cols3 { grid-template-columns: minmax(0, 1fr); } }
 
 /* chips: the active one is a slip of paper */
 .chips3 { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -549,7 +549,7 @@
 .rv-lean .cap .u-title { font-size: 30px; }
 .rv-lean .main > .sec:first-child { margin-top: 18px; }
 .rv-lean .bls { grid-template-columns: 1fr; }
-@container (max-width: 640px) { .rv-lean .lay { grid-template-columns: 1fr; } .rv-lean .lay > .sd { position: static; } }
+@container (max-width: 640px) { .rv-lean .lay { grid-template-columns: minmax(0, 1fr); } .rv-lean .lay > .sd { position: static; } }
 
 /* play-doors.css */
 /* play door explorations (play-doors.js). same materials as the rest of the room: paper, ink, stamp red, cover art. */
