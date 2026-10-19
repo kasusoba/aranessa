@@ -495,11 +495,11 @@
 
 /* pull out: the hovered book slides out with its full title on a paper tag above it */
 .rd-pull .bk { cursor: pointer; transition: translate .3s var(--ease); }
-.rd-pull .bk:hover { translate: 22px 0; z-index: 5; }
+.rd-pull .bk:hover, .rd-pull .bk.out { translate: 22px 0; z-index: 5; }
 .rd-pull .tg { position: absolute; left: 0; bottom: calc(100% + 4px); width: max-content; max-width: 140px; padding: 5px 8px 6px; border-radius: 2px; font: 400 12.5px/1.15 var(--serif); white-space: normal;
   box-shadow: 0 6px 14px -4px rgba(0,0,0,.6); opacity: 0; translate: 0 4px; transition: opacity .2s, translate .2s; pointer-events: none; }
 .rd-pull .tg small { display: block; margin-top: 3px; font: 600 7px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--stamp); }
-.rd-pull .bk:hover .tg { opacity: 1; translate: 0 0; }
+.rd-pull .bk:hover .tg, .rd-pull .bk.out .tg { opacity: 1; translate: 0 0; }
 .rd-pull { -webkit-mask: none; mask: none; }
 
 /* read-views.css */
