@@ -1,0 +1,291 @@
+/* watch door explorations (watch-doors.js). same materials as the rest of the room: paper, ink, stamp red, cover art. */
+.lv-s .hero.wd-full { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+/* the notched ticket edge, a bite out of each side */
+.wd-stubs .pp, .wd-tuck .old {
+  -webkit-mask: radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left/51% 100% no-repeat, radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right/51% 100% no-repeat;
+          mask: radial-gradient(circle at 0 50%, transparent 4px, #000 4.5px) left/51% 100% no-repeat, radial-gradient(circle at 100% 50%, transparent 4px, #000 4.5px) right/51% 100% no-repeat; }
+.wd-full .stp { position: absolute; right: 8px; top: 6px; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--stamp); color: var(--stamp); display: grid; place-items: center;
+  font: 600 8.5px "JetBrains Mono", monospace; font-style: normal; rotate: 14deg; opacity: .85; }
+
+/* tucked stubs */
+.wd-tuck { margin-top: 30px; isolation: isolate; }
+.wd-tuck .old { position: absolute; z-index: -1; top: -26px; left: calc(14% + var(--n) * 30%); width: 96px; padding: 5px 10px 14px; border-radius: 2px; rotate: calc(-9deg + var(--n) * 15deg);
+  font: 600 7.5px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; filter: brightness(.88); }
+.box:hover .wd-tuck .old { translate: calc(-6px + var(--n) * 12px) -8px; rotate: calc(-14deg + var(--n) * 25deg); }
+
+/* stub pile */
+.wd-stubs { overflow: hidden; padding: 4px 4px 0;
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+.wd-stubs .sb { flex: none; position: relative; margin-bottom: -10px; rotate: var(--r); translate: var(--x) 0; filter: drop-shadow(0 4px 5px rgba(0,0,0,.5)); }
+.wd-stubs .pp { display: flex; gap: 9px; align-items: center; padding: 8px 14px; border-radius: 3px; position: relative; }
+.wd-stubs .pp > i { width: 20px; aspect-ratio: 2/3; border-radius: 2px; flex: none; }
+.wd-stubs .tx { min-width: 0; flex: 1; }
+.wd-stubs small, .wd-stubs span { display: block; font: 500 7px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--paper-muted); }
+.wd-stubs span { color: var(--paper-ink); letter-spacing: .1em; margin-top: 1px; }
+.wd-stubs b { display: block; font: 400 14px/1.1 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-stubs .sb:first-child { margin-bottom: -6px; }
+.wd-stubs .sb:first-child .pp { padding: 12px 16px; }
+.wd-stubs .sb:first-child .pp > i { width: 34px; }
+.wd-stubs .sb:first-child b { font-size: 18px; }
+.wd-stubs .sb:first-child .stp { top: auto; bottom: 4px; right: 12px; width: 28px; height: 28px; font-size: 7.5px; }
+.wd-stubs.live .sb:first-child small { color: var(--stamp); }
+.box:hover .wd-stubs .sb:first-child { rotate: 0deg; translate: 0 -3px; }
+
+/* ticket roll: tickets hang off the spool; the strip is bottom-anchored, so the oldest are lost under the roll */
+.wd-roll { position: relative; }
+.wd-roll .spool { flex: none; height: 34px; position: relative; z-index: 2; border-radius: 9px / 17px;
+  background: linear-gradient(rgba(0,0,0,.3), transparent 32%, rgba(255,255,255,.25) 45%, transparent 58%, rgba(0,0,0,.45)), var(--paper);
+  box-shadow: 0 10px 14px -8px rgba(0,0,0,.7); }
+.wd-roll .spool::before, .wd-roll .spool::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14px; border-radius: 50%;
+  background: radial-gradient(closest-side, #3a3530 0 26%, transparent 30%), repeating-radial-gradient(closest-side, #d9d2c4 0 1px, #c8bfae 1px 2px); }
+.wd-roll .spool::before { left: -4px; } .wd-roll .spool::after { right: -4px; }
+.wd-roll .strip { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; margin: -10px 10px 0;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / 9px 6px repeat-x;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / 9px 6px repeat-x; }
+.wd-roll .tk { flex: none; position: relative; padding: 9px 11px 10px; border-top: 1.5px dashed rgba(42,38,32,.32); }
+.wd-roll .tk:last-child { padding-bottom: 16px; transform-origin: 0 0; }
+.wd-roll .tk small { display: block; font: 600 7px "JetBrains Mono", monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--paper-muted); }
+.wd-roll.live .tk:last-child small { color: var(--stamp); }
+.wd-roll .tk b { display: block; font: 400 16px/1.15 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0 1px; }
+.wd-roll .tk span { display: block; font: 8px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--paper-ink); }
+.wd-roll .tk em { position: absolute; right: 10px; top: 9px; font: 600 7px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .08em; color: var(--stamp); }
+.box:hover .wd-roll .tk:last-child { rotate: 3deg; translate: 1px 1px; }
+
+/* film strip */
+.wd-film { background: #0b0b0e; border-radius: 3px; padding: 0 20px; overflow: hidden; position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+/* sprocket holes down both edges */
+.wd-film::before, .wd-film::after { content: ""; position: absolute; top: 0; bottom: 0; width: 7px; z-index: 1;
+  background: repeating-linear-gradient(transparent 0 4px, var(--surface) 4px 10px, transparent 10px 12px); }
+.wd-film::before { left: 6px; } .wd-film::after { right: 6px; }
+.wd-film .run { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; animation: wd-run 14s linear infinite paused; }
+.wd-film.live .run, .live .wd-film .run, .box:hover .wd-film .run { animation-play-state: running; }
+@keyframes wd-run { to { translate: 0 calc(-50% - 4px); } }
+.wd-film .fr { flex: none; aspect-ratio: 1.38; position: relative; border-radius: 2px; overflow: hidden; }
+.wd-film .fr i { position: absolute; inset: 0; background-size: cover !important; background-position: center 30% !important; }
+.wd-film .fr span { position: absolute; left: 4px; bottom: 4px; padding: 0 4px; border-radius: 2px; background: rgba(7,8,13,.85); color: var(--strong); font: 500 8.5px/14px "JetBrains Mono", monospace; }
+
+/* reel: the wound film's radius follows progress; the strip hangs off with an edge-printed log beside it */
+.wd-reel { gap: 0; }
+.wd-reel .rl { flex: none; position: relative; width: 128px; aspect-ratio: 1; margin: 0 auto 0 0; animation: spin 6s linear infinite paused; }
+.wd-reel.live .rl, .box:hover .wd-reel .rl { animation-play-state: running; }
+.wd-reel .wound { position: absolute; inset: calc(50% - 17% - var(--p) * 31%); border-radius: 50%; background: repeating-radial-gradient(circle, #4a392b 0 1px, #3a2c21 1px 2px); }
+.wd-reel .plate { position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(from 10deg, #b6bac3 0 22deg, transparent 22deg 60deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 16%, #000 16.5% 92%, transparent 92.5%); mask: radial-gradient(circle, transparent 0 16%, #000 16.5% 92%, transparent 92.5%); }
+.wd-reel .rl::after { content: ""; position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 4px #b6bac3, 0 12px 20px -10px rgba(0,0,0,.8); }
+.wd-reel .hub { position: absolute; inset: 34%; border-radius: 50%; background: radial-gradient(circle, #16171b 0 22%, #b6bac3 23% 64%, #8d929e 65%); }
+.wd-reel .hub::after { content: ""; position: absolute; left: 50%; top: 18%; width: 5px; height: 12%; margin-left: -2.5px; background: #16171b; border-radius: 1px; }
+.wd-reel .hang { flex: 1; min-height: 0; overflow: hidden; margin-top: -10px; position: relative;
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+.wd-reel .hang::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 60px; background: #0b0b0e; border-radius: 2px;
+  background: repeating-linear-gradient(transparent 0 3px, var(--surface) 3px 7px, transparent 7px 9px) 3px 0 / 4px 100% no-repeat, repeating-linear-gradient(transparent 0 3px, var(--surface) 3px 7px, transparent 7px 9px) 53px 0 / 4px 100% no-repeat, #0b0b0e; }
+.wd-reel .row { position: relative; display: flex; gap: 12px; align-items: center; padding: 6px 0 0; }
+.wd-reel .row:first-child { padding-top: 16px; }
+.wd-reel .fr { flex: none; width: 60px; padding: 0 10px; }
+.wd-reel .fr i { display: block; aspect-ratio: 1.3; border-radius: 1.5px; background-size: cover !important; background-position: center 30% !important; }
+.wd-reel .tx { min-width: 0; flex: 1; }
+.wd-reel .tx b { display: block; font: 500 11.5px var(--sans); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-reel .tx span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 8.5px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
+.wd-reel.live .row:first-child span { color: var(--gold); }
+
+/* marquee */
+.wd-marq { gap: 12px; }
+.wd-marq .board { flex: none; position: relative; padding: 14px 12px 12px; border-radius: 6px; background: linear-gradient(#17181d, #0e0f13); text-align: center;
+  box-shadow: 0 14px 24px -12px rgba(0,0,0,.8); }
+.wd-marq .bulbs { position: absolute; inset: 0; padding: 5px; border-radius: 6px; pointer-events: none;
+  background: radial-gradient(circle, var(--gold) 0 1.6px, color-mix(in srgb, var(--gold) 30%, transparent) 2.2px, transparent 3px) 0 0 / 9px 9px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: wd-chase 1.2s steps(3) infinite paused; opacity: .55; }
+.wd-marq.live .bulbs, .box:hover .wd-marq .bulbs { animation-play-state: running; opacity: 1; }
+@keyframes wd-chase { to { background-position: 9px 0; } }
+.wd-marq small { display: block; font: 600 7px "JetBrains Mono", monospace; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
+.wd-marq small.ep { color: var(--muted); margin-top: 7px; letter-spacing: .16em; }
+.wd-marq .ltr { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px 6px; margin-top: 7px; }
+.wd-marq .ltr span { display: flex; gap: 1px; }
+.wd-marq .ltr i { width: 11px; height: 15px; display: grid; place-items: center; background: #ede8de; color: #16171b; border-radius: 1px; font: 700 10px "JetBrains Mono", monospace; font-style: normal;
+  box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.wd-marq .ltr span:nth-child(odd) i:nth-child(3n+2) { translate: 0 1px; }
+.wd-marq .lbx { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; align-content: start;
+  -webkit-mask: linear-gradient(#000 calc(100% - 40px), transparent); mask: linear-gradient(#000 calc(100% - 40px), transparent); }
+.wd-marq .lbx i { aspect-ratio: 2/3; border-radius: 2px; box-shadow: 0 0 0 2px #1a1b20, 0 0 0 3px rgba(255,255,255,.08), 0 0 14px -2px color-mix(in srgb, var(--gold) 25%, transparent); }
+
+/* poster wall */
+.wd-wall { position: relative; overflow: hidden;
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+.wd-wall .ps { position: absolute; width: 62%; rotate: var(--r); }
+.wd-wall .ps i { display: block; aspect-ratio: 2/3; border-radius: 1px; box-shadow: 0 10px 16px -8px rgba(0,0,0,.8); }
+.wd-wall .ps::before { content: ""; position: absolute; left: 50%; top: -6px; width: 34px; height: 13px; margin-left: -17px; z-index: 1; rotate: -4deg;
+  background: color-mix(in srgb, var(--paper) 70%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.wd-wall .ps:nth-child(even)::before { rotate: 5deg; }
+.box:hover .wd-wall .ps:first-child { rotate: 0deg; translate: 0 -4px; }
+
+/* tape stack: the pile sits on the floor of the door; the oldest wrap into a clipped second column */
+.lv-s .hero.wd-tapes { justify-content: flex-end; flex-wrap: wrap; align-content: flex-start; gap: 3px 200px; overflow: hidden; }
+.vh { flex: none; width: 100%; height: 26px; border-radius: 2px; position: relative; display: flex; align-items: center; gap: 6px; padding: 0 7px;
+  background: linear-gradient(#2e2f35, #1b1c21 60%, #141519); translate: var(--x) 0; rotate: var(--r);
+  box-shadow: 0 2px 3px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+.vh .lb { flex: 1; min-width: 0; height: 15px; padding: 0 6px; border-radius: 1px; display: flex; align-items: center; }
+.vh .lb b { font: 600 7.5px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vh i { flex: none; width: 10px; height: 15px; border-radius: 1px; }
+.vh small { flex: none; min-width: 26px; text-align: right; font: 500 7.5px "JetBrains Mono", monospace; color: rgba(242,237,228,.55); text-transform: uppercase; letter-spacing: .06em; }
+.vh.top small { color: var(--gold); }
+.box:hover .wd-tapes .vh.top { translate: calc(var(--x) + 16px) -2px; rotate: -1deg; }
+
+/* the tape: reels wound by progress */
+.wd-tape { aspect-ratio: 1.6; border-radius: 6px; padding: 6% 6% 0; background: linear-gradient(#2e2f35, #1a1b20);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 24px -12px rgba(0,0,0,.8); }
+.wd-tape .lab { display: block; border-radius: 2px; padding: 3px 8px 4px; position: relative; }
+.wd-tape .lab b { display: block; font: 400 14px/1.15 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-tape .lab span { display: block; font: 600 7.5px "JetBrains Mono", monospace; color: var(--stamp); text-transform: uppercase; letter-spacing: .08em; }
+.wd-tape .win { position: absolute; left: 12%; right: 12%; bottom: 11%; height: 46%; border-radius: 3px; background: rgba(8,8,10,.85); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  display: flex; justify-content: space-between; align-items: center; padding: 0 6%; }
+/* the tape wound on each reel: a full reel fills the window height, an empty one is just the hub */
+.wd-tape .rl { position: relative; height: 96%; aspect-ratio: 1; animation: spin 2.4s linear infinite paused; }
+.wd-tape .rl::before { content: ""; position: absolute; inset: calc(38% - var(--s) * 38%); border-radius: 50%; background: repeating-radial-gradient(circle, #6a523e 0 1px, #56412f 1px 2px); }
+.wd-tape .rl::after { content: ""; position: absolute; inset: 36%; border-radius: 50%; background: radial-gradient(circle, #16171b 0 34%, #ede8de 35%);
+  -webkit-mask: radial-gradient(circle, #000 0 58%, transparent 59%), repeating-conic-gradient(#000 0 16deg, transparent 16deg 60deg);
+          mask: radial-gradient(circle, #000 0 58%, transparent 59%), repeating-conic-gradient(#000 0 16deg, transparent 16deg 60deg); }
+.wd-tape.live .rl, .box:hover .wd-tape .rl { animation-play-state: running; }
+.wd-tape small { position: absolute; left: 7%; bottom: 3%; font: 500 6.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: rgba(242,237,228,.35); }
+
+/* rental bin: the listen crate with 2:3 cases */
+.lv-s .hero.wd-bin { justify-content: flex-end; overflow: hidden; -webkit-mask: linear-gradient(transparent, #000 40px); mask: linear-gradient(transparent, #000 40px); }
+.wd-bin .stk { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+.wd-bin .sv { flex: 1 1 0; min-height: 12px; max-height: 40px; position: relative; display: flex; justify-content: center; cursor: pointer; }
+.wd-bin .sv:last-child { flex: none; max-height: none; cursor: inherit; }
+.wd-bin .sv i { position: absolute; top: 0; width: calc(100% - var(--d) * 2px); aspect-ratio: 2/3; border-radius: 3px; pointer-events: none;
+  box-shadow: 0 -3px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 2px rgba(255,255,255,.07);
+  filter: brightness(calc(1 - var(--d) * .04)); transition: translate .3s var(--ease), filter .3s; }
+.wd-bin .sv i.up { filter: none; }
+.wd-bin .sv:last-child i { position: relative; width: 100%; }
+
+/* telly: a crt (.tvb). the screen is dim on "stop" until it's on: while watching, on hover, or always (.on) */
+.tvb { flex: none; position: relative; padding: 9px 9px 0; border-radius: 12px; background: linear-gradient(#36373d, #24252a); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 24px -12px rgba(0,0,0,.8); }
+.tvb .scr { position: relative; aspect-ratio: 4/3; border-radius: 16px / 20px; overflow: hidden; background: #0c0d10; box-shadow: inset 0 0 0 3px #16171b; }
+.tvb .scr i { position: absolute; inset: 0; background-size: cover !important; background-position: center 25% !important; filter: brightness(.35) saturate(.4); transition: filter .5s; }
+.tvb .scr::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.22) 2px 3px), radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0,0,0,.55)); }
+.tvb .osd, .tvb .off { position: absolute; left: 10px; top: 8px; z-index: 1; font: 600 9px "JetBrains Mono", monospace; letter-spacing: .1em; color: #f2ede4; text-transform: uppercase; text-shadow: 0 0 6px rgba(255,255,255,.4);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 20px); }
+.tvb .osd, .tvb .pb { opacity: 0; transition: opacity .3s; }
+.tvb .off { color: rgba(242,237,228,.5); text-shadow: none; transition: opacity .3s; }
+.tvb .pb { position: absolute; left: 10px; right: 10px; bottom: 9px; z-index: 1; height: 3px; background: rgba(255,255,255,.2); }
+.tvb .pb s { display: block; height: 100%; background: #f2ede4; }
+.tvb .ctl { display: flex; align-items: center; gap: 6px; height: 22px; padding: 0 4px; }
+.tvb .ctl b { width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #6b6d75, #26272c); }
+.tvb .led { margin-left: auto; width: 5px; height: 5px; border-radius: 50%; background: #3a2222; transition: .3s; }
+.tvb.on .scr i, .live .tvb .scr i, .box:hover .tvb .scr i { filter: none; }
+.tvb.on .osd, .tvb.on .pb, .live .tvb .osd, .live .tvb .pb, .box:hover .tvb .osd, .box:hover .tvb .pb { opacity: 1; }
+.tvb.on .off, .live .tvb .off, .box:hover .tvb .off { opacity: 0; }
+.tvb.on .led, .live .tvb .led, .box:hover .tvb .led { background: var(--stamp); box-shadow: 0 0 6px var(--stamp); }
+/* static: tv noise that jumps around while it's showing */
+.tvb .nz { position: absolute; inset: -40px; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .25s; animation: wd-noise .3s steps(3) infinite;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='.33 .33 .33 0 0 .33 .33 .33 0 0 .33 .33 .33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+@keyframes wd-noise { 33% { translate: -23px 11px; } 66% { translate: 17px -29px; } }
+.tvb .nz.on { opacity: .85; }
+
+/* off air: static on the screen instead of a dim picture, until it tunes in */
+.wd-air .tvb .nz { opacity: .55; }
+.tvb .nz { filter: contrast(1.8) brightness(.75); }
+.wd-air .tvb .off { opacity: 0; }
+.wd-air .tvb .scr i { filter: none; }
+.wd-air.live .tvb .nz, .box:hover .wd-air .tvb .nz { opacity: 0; transition-delay: .25s; }
+.wd-air .tvb .scr::before { content: "no signal"; position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 3; padding: 2px 6px; background: rgba(7,8,13,.85); color: #f2ede4;
+  font: 600 8px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; transition: opacity .2s; }
+.wd-air.live .tvb .scr::before, .box:hover .wd-air .tvb .scr::before { opacity: 0; }
+
+/* channels: the recent list is a channel guide; hovering a row tunes the set to it (watch-doors.js) */
+.wd-chan { gap: 10px; }
+.wd-chan .gd { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1px;
+  -webkit-mask: linear-gradient(#000 calc(100% - 40px), transparent); mask: linear-gradient(#000 calc(100% - 40px), transparent); }
+.wd-chan .ch { flex: none; display: flex; align-items: baseline; gap: 8px; padding: 5px 6px; border-radius: 4px; cursor: pointer; transition: background .15s; }
+.wd-chan .ch:hover, .wd-chan .ch.on { background: var(--line); }
+.wd-chan .ch em { flex: none; font: 600 9px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); }
+.wd-chan .ch.on em, .wd-chan .ch:hover em { color: var(--gold); }
+.wd-chan .ch b { flex: 1; min-width: 0; font: 500 11.5px var(--sans); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-chan .ch span { flex: none; font: 8.5px "JetBrains Mono", monospace; color: var(--muted); text-transform: uppercase; }
+
+/* tv + strip: the set up top, the recent frames running below it */
+.wd-tvs { gap: 12px; }
+.wd-tvs .wd-film { flex: 1; min-height: 0; }
+
+/* tv wall: a shop window of sets, the latest big, all of them on */
+.wd-twall { overflow: hidden; display: grid !important; grid-template-columns: 1fr 1fr; gap: 7px; align-content: start;
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+.wd-twall .tvb:first-child { grid-column: 1 / -1; }
+.wd-twall .tvb:not(:first-child) { padding: 4px 4px 0; border-radius: 7px; }
+.wd-twall .tvb:not(:first-child) .scr { border-radius: 8px / 10px; box-shadow: inset 0 0 0 2px #16171b; }
+.wd-twall .tvb:not(:first-child) .ctl { height: 10px; gap: 3px; }
+.wd-twall .tvb:not(:first-child) .ctl b { width: 4px; height: 4px; }
+.wd-twall .tvb:not(:first-child) .led { width: 3px; height: 3px; }
+.wd-twall .tvb:not(:first-child) .osd { left: 5px; top: 4px; font-size: 6.5px; }
+.wd-twall .tvb:not(:first-child) .pb { display: none; }
+.wd-twall .tvb:not(:first-child) .scr i { filter: brightness(.8); }
+.box:hover .wd-twall .tvb:not(:first-child) .scr i { filter: none; }
+
+/* tv on tapes: the set sits on the vhs pile; the oldest tapes fall off the bottom */
+.wd-tvt { gap: 0; }
+.wd-tvt .tvb { z-index: 1; margin: 0 6px; }
+.wd-tvt .pile { flex: 1; min-height: 0; display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; gap: 3px 200px; overflow: hidden; padding-top: 3px;
+  -webkit-mask: linear-gradient(#000 calc(100% - 40px), transparent); mask: linear-gradient(#000 calc(100% - 40px), transparent); }
+.wd-tvt .pile .vh { flex: none; width: 100%; }
+
+/* progress */
+.wd-prog { gap: 10px; }
+.wd-prog .sum { flex: none; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.wd-prog .sum b { display: block; font: 400 52px/.95 var(--serif); color: var(--strong); }
+.wd-prog .sum span { font: 500 8.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.wd-prog .ar { flex: none; display: flex; align-items: center; gap: 8px; }
+.wd-prog .ar > i { width: 22px; aspect-ratio: 2/3; border-radius: 2px; flex: none; }
+.wd-prog .ar div { flex: 1; min-width: 0; }
+.wd-prog .ar b { display: block; font: 500 11.5px var(--sans); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-prog .bar { display: block; height: 3px; border-radius: 3px; background: var(--line); margin-top: 4px; overflow: hidden; }
+.wd-prog .bar s { display: block; height: 100%; background: var(--gold); border-radius: 3px; }
+.wd-prog .ar em { font: 9.5px "JetBrains Mono", monospace; font-style: normal; color: var(--gold); }
+.wd-prog .u-label { flex: none; font-size: 8.5px; margin-top: 6px; }
+.wd-prog .fl { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-content: start; }
+.wd-prog .fl i { aspect-ratio: 2/3; border-radius: 2px; }
+
+/* ---------- film strip, more takes ---------- */
+/* edge print: the rails carry the title and frame numbers, like stock edge printing */
+.wd-edge { background: #0b0b0e; border-radius: 3px; overflow: hidden; position: relative; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+  -webkit-mask: linear-gradient(#000 calc(100% - 50px), transparent); mask: linear-gradient(#000 calc(100% - 50px), transparent); }
+.wd-edge::before, .wd-edge::after { content: ""; position: absolute; top: 0; bottom: 0; width: 6px; z-index: 1;
+  background: repeating-linear-gradient(transparent 0 4px, var(--surface) 4px 10px, transparent 10px 12px); }
+.wd-edge::before { left: 4px; } .wd-edge::after { right: 4px; }
+.wd-edge .run { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; }
+.wd-edge .fr { flex: none; display: flex; align-items: stretch; cursor: default; }
+.wd-edge .fr em { flex: none; width: 13px; margin: 0 1px 0 11px; writing-mode: vertical-rl; rotate: 180deg; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: 600 6.5px/13px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--gold) 65%, transparent); }
+.wd-edge .fr em.n { margin: 0 11px 0 1px; rotate: none; letter-spacing: .1em; }
+.wd-edge .pic { flex: 1; min-width: 0; position: relative; }
+.wd-edge .pic i { display: block; aspect-ratio: 1.38; border-radius: 2px; background-size: cover !important; background-position: center 30% !important; transition: filter .2s; }
+.wd-edge .pic b { position: absolute; left: 6px; right: 6px; bottom: 6px; padding: 3px 6px; border-radius: 2px; rotate: -2deg; opacity: 0; translate: 0 4px; transition: opacity .2s, translate .2s var(--ease);
+  font: 400 13px/1.1 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 3px 6px rgba(0,0,0,.4); }
+.wd-edge .fr:hover .pic b { opacity: 1; translate: 0 0; }
+.wd-edge .fr:hover .pic i { filter: brightness(1.15); }
+
+/* hanging: one short strip clipped up to dry, cut off at the end. hover sways it */
+.wd-hang { align-items: center; }
+.wd-hang .bclip { flex: none; position: relative; z-index: 2; width: 44px; height: 20px; margin-top: 14px; border-radius: 2px 2px 5px 5px; background: linear-gradient(#34353b, #141519);
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+.wd-hang .bwire { position: absolute; top: 0; left: 50%; width: 30px; height: 18px; margin-left: -15px; border: 2px solid #b6bac3; border-bottom: 0; border-radius: 14px 14px 0 0; z-index: 1; }
+.wd-hang .sw { flex: 1; min-height: 0; width: 80%; margin-top: -6px; transform-origin: 50% 0; rotate: 1.5deg; transition: rotate .8s var(--ease); display: flex; flex-direction: column; }
+.box:hover .wd-hang .sw { rotate: -1.5deg; }
+.wd-hang .wd-film { flex: 0 1 auto; padding: 0 15px; -webkit-mask: none; mask: none; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 0 100%); }
+.wd-hang .wd-film::before { left: 4px; } .wd-hang .wd-film::after { right: 4px; }
+.wd-hang .wd-film .run { animation: none; gap: 6px; padding-bottom: 22px; }
+.wd-hang .wd-film .fr span { font-size: 7.5px; line-height: 12px; }
+
+/* in the gate: the latest frame lit as if in the projector, the rest of the strip dark. it flickers while watching, or on hover */
+.wd-gate .run { animation: none; }
+.wd-gate .fr:not(:first-child) i { filter: brightness(.4) saturate(.5); transition: filter .3s; }
+.wd-gate .fr:not(:first-child):hover i { filter: none; }
+.wd-gate .fr:first-child { overflow: visible; }
+.wd-gate .fr:first-child i { border-radius: 2px; box-shadow: 0 0 0 2px rgba(255,236,200,.35), 0 0 26px 2px rgba(255,214,150,.35); }
+.wd-gate .fr:first-child span { color: var(--gold); }
+.wd-gate.live .fr:first-child i, .box:hover .wd-gate .fr:first-child i { animation: wd-flick .18s steps(2) infinite; }
+@keyframes wd-flick { 50% { filter: brightness(1.12); } }
+.wd-gate { padding-top: 10px; }

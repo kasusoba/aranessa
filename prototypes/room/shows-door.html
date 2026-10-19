@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shows Doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="box.css" />
+<link rel="stylesheet" href="xl2.css" />
+<link rel="stylesheet" href="xl3.css" />
+<link rel="stylesheet" href="me.css" />
+<link rel="stylesheet" href="listen-doors.css" />
+<link rel="stylesheet" href="watch-doors.css" />
+<link rel="stylesheet" href="read-doors.css" />
+<link rel="stylesheet" href="play-doors.css" />
+<link rel="stylesheet" href="shows-doors.css" />
+<style>
+  body { overflow: auto; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 18px 24px 4px; }
+  .top h1 { font: 400 28px var(--serif); color: var(--strong); margin: 0 18px 0 0; }
+  .top p { width: 100%; margin: 6px 0 0; color: var(--muted); font-size: 12.5px; max-width: 70em; }
+  /* the same door rules the strip uses */
+  .lv-s .more { flex: none; font: 11px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; padding-top: 2px; }
+  .lv-s .it.cut { display: none; }
+  .wall .box:not(.on) .lv-m, .wall .box:not(.on) .lv-l { display: none !important; }
+  @container (min-width: 140px) and (min-height: 110px) { .wall .box:not(.on) .lv-s { display: flex !important; } }
+
+  .wall { display: flex; gap: 40px; overflow-x: auto; padding: 20px 24px 30px; scrollbar-width: thin; scrollbar-color: var(--surface) transparent; }
+  .grp { flex: none; }
+  .grp > h2 { font: 500 10px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .doors { display: flex; gap: 14px; }
+  .door { width: 190px; flex: none; }
+  .door .lbl { font: 500 11px "JetBrains Mono", monospace; color: var(--strong); margin-bottom: 8px; display: flex; gap: 8px; }
+  .door .lbl em { font-style: normal; color: var(--muted); }
+  .door .box { width: 190px; height: var(--door-h, max(360px, calc(100vh - 260px))); transition: height .4s var(--ease), border-color .2s, translate .25s var(--ease), box-shadow .25s; }
+  .door .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.45; min-height: 4.4em; }
+  .door a.try { display: inline-block; margin-top: 6px; font: 11px "JetBrains Mono", monospace; color: var(--accent); text-decoration: none; }
+  .door a.try:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>shows door</h1>
+  <span class="seg">height <button class="pill on" data-h="fit">fit window</button><button class="pill" data-h="760">760</button><button class="pill" data-h="640">640</button><button class="pill" data-h="500">500</button><button class="pill" data-h="360">360</button></span>
+  <span class="sp"></span>
+  <button class="pill" id="lights">lights: night</button>
+  <p>every take on the shows door, same 190px frame as the strip, on the snapshot data. hover a door for its motion. "try in room" opens the room with that door swapped in (index.html?shows=…).</p>
+</div>
+<div class="wall" id="wall"></div>
+<div id="strip" hidden></div>
+
+<script src="aspects.js"></script>
+<script src="xl.js"></script>
+<script src="xl2.js"></script>
+<script src="snapshot.js"></script>
+<script src="data2.js"></script>
+<script src="xl3.js"></script>
+<script src="me.js"></script>
+<script src="listen-doors.js"></script>
+<script src="watch-doors.js"></script>
+<script src="read-doors.js"></script>
+<script src="play-doors.js"></script>
+<script src="shows-doors.js"></script>
+<script>
+const hintFor = k => TOUCH[k]?.();
+const wallEl = document.getElementById("wall");
+
+// same as the strip: show only the thumbnails that fit whole, then say how many more are inside
+function fit(b) {
+  const lv = b.querySelector(".lv-s"); if (!lv) return;
+  const its = [...lv.querySelectorAll(".it")];
+  lv.querySelector(".more")?.remove(); its.forEach(i => i.classList.remove("cut"));
+  if (getComputedStyle(lv).display === "none" || lv.scrollHeight <= lv.clientHeight + 1) return;
+  lv.insertAdjacentHTML("beforeend", `<div class="more"></div>`);
+  const more = lv.lastElementChild;
+  let n = 0;
+  for (let i = its.length - 1; i >= 0 && lv.scrollHeight > lv.clientHeight + 1; i--) { its[i].classList.add("cut"); n++; more.textContent = `+ ${n} more`; }
+  if (n === its.length) more.remove();
+}
+const fitter = new ResizeObserver(es => es.forEach(e => fit(e.target)));
+
+function render() {
+  const groups = {};
+  Object.entries(SDOOR.V).forEach(([k, v]) => (groups[v.group] ??= []).push([k, v]));
+  let n = 0;
+  Object.values(groups).forEach(list => list.forEach(e => e.push(n++)));
+  wallEl.innerHTML = Object.entries(groups).map(([g, list]) => `<section class="grp"><h2>${g}</h2><div class="doors">${list.map(([k, v, i]) => {
+    SDOOR.use(k);
+    return `<div class="door"><div class="lbl"><em>${String(i + 1).padStart(2, "0")}</em>${v.name}</div>${box("shows")}
+      <div class="note">${v.note}</div><a class="try" href="index.html?shows=${k}&n=9">try in room ↗</a></div>`;
+  }).join("")}</div></section>`).join("");
+  SDOOR.use("touch");
+  fitter.disconnect(); wallEl.querySelectorAll(".box").forEach(b => fitter.observe(b));
+}
+
+document.querySelector(".top").addEventListener("click", e => {
+  const h = e.target.closest("[data-h]");
+  if (h) { h.dataset.h === "fit" ? document.documentElement.style.removeProperty("--door-h") : document.documentElement.style.setProperty("--door-h", h.dataset.h + "px"); document.querySelectorAll("[data-h]").forEach(b => b.classList.toggle("on", b === h)); }
+});
+document.getElementById("lights").addEventListener("click", () => {
+  const r = document.documentElement, lamp = r.dataset.light !== "lamp";
+  r.dataset.light = lamp ? "lamp" : "night";
+  document.getElementById("lights").textContent = "lights: " + (lamp ? "lamp" : "night");
+});
+wallEl.addEventListener("wheel", e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wallEl.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+render();
+</script>
+</body>
+</html>

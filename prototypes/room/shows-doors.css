@@ -1,0 +1,353 @@
+/* shows door explorations (shows-doors.js). same materials as the rest of the room: paper, ink, stamp red, cover art. */
+.lv-s .hero.sd-full { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.sd-full .cap { margin-top: auto; padding-top: 12px; font: 9.5px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; }
+.sd-full .cap b { display: block; font: 400 20px/1.05 var(--serif); color: var(--strong); letter-spacing: 0; margin-bottom: 3px; }
+/* a printed barcode */
+.sd-full .bc { display: block; height: 18px; background: repeating-linear-gradient(90deg, var(--paper-ink) 0 1px, transparent 1px 3px, var(--paper-ink) 3px 5px, transparent 5px 6px, var(--paper-ink) 6px 7px, transparent 7px 10px); opacity: .8; }
+
+/* ---------- ticket stubs ---------- */
+.sd-stub { display: flex; height: 62px; flex: none; border-radius: 3px 0 0 3px; rotate: var(--r); translate: var(--x) 0; position: relative; }
+.sd-stub .m { flex: 1; min-width: 0; padding: 8px 6px 0 12px; display: flex; flex-direction: column; }
+.sd-stub small { font: 600 6.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--stamp); }
+.sd-stub b { font: 400 19px/1 var(--serif); color: var(--paper-ink); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-stub .m span { font: 7.5px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the perforated end: a dashed line with a notch top and bottom */
+.sd-stub .st { width: 40px; flex: none; border-left: 1.5px dashed rgba(42,38,32,.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding-right: 4px;
+  -webkit-mask: radial-gradient(circle at 0 0, transparent 5px, #000 5.5px) top / 100% 51% no-repeat, radial-gradient(circle at 0 100%, transparent 5px, #000 5.5px) bottom / 100% 51% no-repeat; }
+.sd-stub .st em { font: 400 22px/1 var(--serif); font-style: normal; color: var(--paper-ink); }
+.sd-stub .st span { font: 600 6.5px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-muted); margin-top: 2px; }
+
+.sd-stubs .pile { display: flex; flex-direction: column; padding: 8px 2px 0; }
+.sd-stubs .sd-stub + .sd-stub { margin-top: -20px; }
+/* in the pile only the bottom of each stub shows, so its day sits low */
+.sd-stubs .sd-stub .st { justify-content: flex-end; padding-bottom: 7px; }
+.sd-stubs .sd-stub:hover { translate: calc(var(--x) + 14px) -4px; rotate: 0deg; z-index: 40 !important; }
+
+/* the ticket: tall, photo on top, the stub torn off below */
+.sd-ticket .tk { width: 84%; margin: 10px auto 0; padding: 8px 8px 14px; border-radius: 4px 4px 0 0; rotate: -2deg; display: flex; flex-direction: column; position: relative; }
+.sd-ticket .tk i { display: block; aspect-ratio: 1; border-radius: 2px; filter: saturate(.85); }
+.sd-ticket .tk small { font: 600 7px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--stamp); margin-top: 10px; }
+.sd-ticket .tk b { font: 400 30px/.95 var(--serif); color: var(--paper-ink); margin-top: 4px; overflow-wrap: anywhere; }
+.sd-ticket .tk span { font: 8px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 5px; line-height: 1.3; }
+.sd-ticket .tk::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 6px; background: radial-gradient(circle at 3px 6px, var(--surface) 2.6px, transparent 3px) 0 0 / 7px 6px repeat-x; }
+.sd-ticket .sb { width: 84%; margin: 0 auto; padding: 8px; border-radius: 0 0 4px 4px; translate: 6px 10px; rotate: 5deg; display: flex; flex-direction: column; gap: 6px; }
+.sd-ticket .sb span { font: 600 7px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--paper-ink); }
+.box:hover .sd-ticket .sb { translate: 0 0; rotate: -2deg; }
+.sd-ticket .cap { padding-top: 22px; }
+
+/* the stage setlist: big bold print, two strips of gaffer tape */
+.sd-sheet { position: relative; padding: 16px 12px 12px; background: #f1ede4; color: #1a1814; rotate: -1.5deg; box-shadow: 0 22px 34px -18px rgba(0,0,0,.75); display: flex; flex-direction: column; min-height: 0; }
+.sd-sheet .tp { position: absolute; top: -8px; left: 10%; width: 38%; height: 18px; background: rgba(120,122,128,.78); rotate: -4deg; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+  -webkit-mask: linear-gradient(90deg, transparent 0 1px, #000 1px calc(100% - 2px), transparent calc(100% - 2px)); }
+.sd-sheet .tp.b { left: auto; right: 8%; width: 30%; rotate: 5deg; }
+.sd-sheet .hd { display: flex; justify-content: space-between; gap: 8px; font: 600 7.5px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; }
+.sd-sheet .hd span:first-child { color: var(--stamp); }
+.sd-sheet .vn { font: 7px "JetBrains Mono", monospace; color: #8a8478; margin: 3px 0 10px; padding-bottom: 8px; border-bottom: 1.5px solid #1a1814; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-sheet ol { list-style: none; margin: 0; padding: 0; font: 800 14px/1.22 var(--sans); text-transform: uppercase; letter-spacing: -.01em; overflow: hidden; min-height: 0;
+  -webkit-mask: linear-gradient(#000 calc(100% - 26px), transparent); }
+.sd-sheet ol li { padding: 2px 0; }
+.sd-setlist .sd-sheet { flex: 1; margin-top: 12px; }
+.box:hover .sd-setlist .sd-sheet { rotate: 0deg; }
+
+/* stub on the setlist */
+.sd-stubset { position: relative; }
+.sd-stubset .sd-sheet { flex: 1; margin-top: 12px; rotate: 1.5deg; }
+.sd-stubset .sd-stub { position: absolute; left: -8px; right: 2px; bottom: 16%; --r: -9deg; --x: 0px; }
+.box:hover .sd-stubset .sd-stub { translate: 10px -18px; rotate: -4deg; }
+
+/* gig poster: the photo printed in ink until hovered */
+.sd-poster .po { flex: 1; margin-top: 8px; padding: 8px 8px 12px; display: flex; flex-direction: column; min-height: 0; }
+.sd-poster .po i { display: block; flex: 1; min-height: 80px; border-radius: 1px; filter: grayscale(1) contrast(1.25) sepia(.35) hue-rotate(-30deg) saturate(1.6); transition: filter .5s var(--ease); }
+.box:hover .sd-poster .po i { filter: none; }
+.sd-poster .po em { font: 700 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .3em; text-transform: uppercase; color: var(--stamp); margin-top: 10px; }
+.sd-poster .po b { font: 400 34px/.9 var(--serif); color: var(--paper-ink); margin-top: 4px; overflow-wrap: anywhere; }
+.sd-poster .po span { font: 8px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 6px; }
+.sd-poster .po span + span { margin-top: 2px; }
+
+/* flyer wall */
+.sd-flyers { padding-top: 6px; }
+.sd-flyers .fl { width: 72%; padding: 6px 6px 8px; rotate: var(--r); margin-left: var(--x); position: relative; flex: none; }
+.sd-flyers .fl + .fl { margin-top: -38px; }
+.sd-flyers .fl i { display: block; aspect-ratio: 5/3; filter: grayscale(.6) contrast(1.1); }
+.sd-flyers .fl b { display: block; font: 400 15px/1 var(--serif); color: var(--paper-ink); margin-top: 5px; }
+.sd-flyers .fl span { display: block; font: 7px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 3px; }
+.sd-flyers .fl:hover { rotate: 0deg; z-index: 40 !important; translate: 0 -4px; }
+.sd-flyers .fl:hover i { filter: none; }
+
+/* ---------- worn ---------- */
+/* woven band: twill weave, lighter selvedge edges, name woven in, frayed cut end, ridged plastic lock with its pull tab */
+.sd-bands { padding-top: 18px; }
+.sd-bands .wv { --c: hsl(var(--h) 38% 34%); position: relative; height: 40px; margin: 0 -16px 0 -8px; display: flex; align-items: center; rotate: var(--r); flex: none;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px),
+    linear-gradient(rgba(255,255,255,.12), transparent 30%, transparent 70%, rgba(0,0,0,.25)), var(--c);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.22), inset 0 -2px 0 rgba(255,255,255,.14), 0 12px 18px -10px rgba(0,0,0,.8); }
+.sd-bands .wv + .wv { margin-top: 14px; }
+.sd-bands .wv .fr { position: absolute; left: -5px; top: 0; bottom: 0; width: 7px; background: repeating-linear-gradient(var(--c) 0 1.5px, transparent 1.5px 3px); }
+.sd-bands .wv .tx { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; padding-left: 12px; font: 600 8.5px "JetBrains Mono", monospace; letter-spacing: .26em; text-transform: uppercase;
+  color: hsl(var(--h) 60% 88%); opacity: .85; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.sd-bands .wv .lk { position: relative; width: 30px; height: 28px; flex: none; margin-right: 26px; border-radius: 3px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.25) 0 1px, transparent 1px 3px), linear-gradient(#d9dbe0, #8e929c);
+  box-shadow: 0 2px 3px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.6); }
+.sd-bands .wv .lk i { position: absolute; left: 8px; right: 8px; top: 11px; height: 6px; border-radius: 2px; background: #5a5e68; }
+.sd-bands .wv .tl { position: absolute; right: 0; width: 26px; height: 18px; background: linear-gradient(90deg, #b7bac2, #d8dadf); clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 80%); }
+.sd-bands .wv:hover { translate: -12px 0; rotate: 0deg; }
+
+/* lanyard: a printed strap down from the top, a clip, passes hung on it */
+.sd-pass { align-items: center; }
+.sd-pass .strap { display: flex; gap: 14px; height: 120px; margin-top: -14px; }
+.sd-pass .strap span { writing-mode: vertical-rl; width: 14px; overflow: hidden; background: var(--stamp); color: rgba(255,255,255,.75); font: 600 6.5px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; text-align: center; white-space: nowrap; }
+.sd-pass .strap span:first-child { rotate: 12deg; translate: 6px 0; } .sd-pass .strap span:last-child { rotate: -12deg; translate: -6px 0; }
+.sd-pass .sd-clip { width: 14px; height: 18px; margin-top: -4px; border-radius: 3px 3px 5px 5px; background: linear-gradient(#cfd2d8, #8b8f99); box-shadow: 0 2px 3px rgba(0,0,0,.4); position: relative; z-index: 5; }
+.sd-pass .cards { position: relative; width: 82%; margin-top: -4px; transform-origin: 50% 0; }
+.box:hover .sd-pass .cards { animation: sd-swing 1.4s var(--ease); }
+@keyframes sd-swing { 25% { rotate: 4deg; } 55% { rotate: -2.5deg; } 80% { rotate: 1deg; } }
+.sd-pass .lam { padding: 5px; border-radius: 8px; background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.06) 40%, rgba(255,255,255,.14)); box-shadow: 0 20px 30px -16px rgba(0,0,0,.8);
+  rotate: var(--r); transform-origin: 50% 0; }
+.sd-pass .lam:not(.front) { position: absolute; inset: 0 0 auto; opacity: .9; }
+.sd-pass .lam .in { border-radius: 4px; padding: 14px 8px 8px; display: flex; flex-direction: column; position: relative; }
+.sd-pass .lam .in::before { content: ""; position: absolute; top: 4px; left: 50%; width: 22px; height: 4px; margin-left: -11px; border-radius: 2px; background: rgba(0,0,0,.35); }
+.sd-pass .lam .in > i:first-child { display: block; aspect-ratio: 4/3; border-radius: 2px; }
+.sd-pass .lam em { align-self: flex-start; margin-top: 8px; padding: 2px 6px; background: var(--stamp); color: #fff; font: 700 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .2em; text-transform: uppercase; }
+.sd-pass .lam b { font: 400 24px/.95 var(--serif); color: var(--paper-ink); margin-top: 6px; overflow-wrap: anywhere; }
+.sd-pass .lam span { font: 7.5px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-pass .lam .bc { margin-top: 8px; height: 14px; }
+
+/* ---------- keepsake ---------- */
+/* tour tee: a shirt back, the print in off-white with "tour" in stamp red */
+.sd-tee .sh { margin: 10px -12px 0; padding: 36% 25% 34px; background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.06), transparent 60%), #1d1d22;
+  clip-path: polygon(30% 0, 70% 0, 100% 12%, 92% 30%, 80% 26%, 80% 100%, 20% 100%, 20% 26%, 8% 30%, 0 12%); }
+.sd-tee .pr { color: #e9e3d6; text-align: center; }
+.sd-tee .pr b { display: block; font: 800 17px/1 var(--sans); text-transform: uppercase; letter-spacing: .02em; }
+.sd-tee .pr em { display: block; font: 400 italic 26px/1 var(--serif); color: var(--stamp); margin-top: 1px; }
+.sd-tee ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; text-align: left; }
+.sd-tee li { display: grid; grid-template-columns: auto 1fr; column-gap: 6px; font: 600 7.5px "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.sd-tee li span:first-child { color: rgba(233,227,214,.6); }
+.sd-tee li small { grid-column: 2; font: 400 7px "JetBrains Mono", monospace; color: rgba(233,227,214,.55); text-transform: none; letter-spacing: .02em; margin-top: 1px; }
+
+/* camera roll: a phone, shots tinted by stage light, a header per night */
+.sd-roll .ph { flex: 1; min-height: 0; margin-top: 8px; padding: 8px 6px; border-radius: 22px; background: #0a0a0c; box-shadow: inset 0 0 0 1.5px #2b2c33, 0 20px 30px -16px rgba(0,0,0,.8); display: flex; }
+.sd-roll .sc { flex: 1; min-height: 0; overflow: hidden; border-radius: 16px; background: #000; padding: 22px 4px 0; -webkit-mask: linear-gradient(#000 calc(100% - 30px), transparent); }
+.sd-roll .dy { display: flex; flex-direction: column; padding: 8px 4px 4px; }
+.sd-roll .dy span { font: 600 10px var(--sans); color: #f2f2f2; }
+.sd-roll .dy small { font: 8px var(--sans); color: #8c8c92; }
+.sd-roll .gr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.sd-roll .gr i { aspect-ratio: 1; position: relative; filter: blur(.5px) saturate(1.3) brightness(.85); }
+.sd-roll .gr i::after { content: ""; position: absolute; inset: 0; mix-blend-mode: screen;
+  background: radial-gradient(circle at 70% 10%, hsl(var(--h) 90% 55% / .55), transparent 55%), radial-gradient(circle at 20% 90%, rgba(255,255,255,.18) 0 2px, transparent 3px); }
+
+/* the log */
+.sd-log .ct { padding: 8px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.sd-log .ct b { font: 400 44px/1 var(--serif); color: var(--strong); }
+.sd-log .ct span { display: block; font: 9.5px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; margin-top: 2px; }
+.sd-log .rw { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.sd-log .rw em { font: 9px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); }
+.sd-log .rw span { font: 9px "JetBrains Mono", monospace; color: var(--muted); text-align: right; }
+.sd-log .rw b { grid-column: 1 / -1; font: 400 16px/1.1 var(--serif); color: var(--strong); margin-top: 3px; }
+.sd-pass .cap { align-self: stretch; }
+
+/* ================= round 2 ================= */
+/* anything switched by hovering (.sd-tune): only the .on child of a .sw shows */
+.sd-tune .sw > :not(.on) { display: none !important; }
+
+/* the bill: one poster, every act, biggest first */
+.sd-bill .bl { flex: 1; margin-top: 8px; padding: 8px 8px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 0; overflow: hidden; }
+.sd-bill .ps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; align-self: stretch; }
+.sd-bill .ps i { aspect-ratio: 3/4; filter: grayscale(1) contrast(1.2); }
+.sd-bill em { font: 700 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .3em; text-transform: uppercase; color: var(--stamp); margin: 12px 0 4px; }
+.sd-bill .ln { padding: 6px 0; border-bottom: 1px solid rgba(42,38,32,.15); align-self: stretch; }
+.sd-bill .ln b { display: block; font: 400 var(--fs)/.95 var(--serif); color: var(--paper-ink); overflow-wrap: anywhere; }
+.sd-bill .ln span { display: block; font: 6.5px "JetBrains Mono", monospace; letter-spacing: .1em; color: var(--paper-muted); margin-top: 3px; }
+.sd-bill small { margin-top: auto; padding-top: 10px; font: 6.5px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-muted); }
+
+/* pasted over: older posters underneath, the top one's corner peeling */
+.sd-pasted .stk { position: relative; flex: 1; margin-top: 12px; }
+.sd-pasted .stk .po { position: absolute; inset: 0; margin: 0; }
+.sd-pasted .po.u1 { translate: -7px 10px; rotate: -3deg; }
+.sd-pasted .po.u2 { translate: 6px -6px; rotate: 2.5deg; }
+.sd-pasted .po.under { filter: brightness(.86) sepia(.15); }
+.sd-pasted .po.lead { --f: 16px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--f)), calc(100% - var(--f)) 100%, 0 100%); transition: clip-path .5s var(--ease); }
+.sd-pasted .fold { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; z-index: 3; clip-path: polygon(0 0, 100% 0, 0 100%);
+  background: linear-gradient(135deg, #cfc7b6, #f2ecdf 60%, #bdb4a2); filter: drop-shadow(-2px -2px 3px rgba(0,0,0,.35)); transition: width .5s var(--ease), height .5s var(--ease); }
+.box:hover .sd-pasted .po.lead { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 92px), calc(100% - 92px) 100%, 0 100%); }
+.box:hover .sd-pasted .fold { width: 92px; height: 92px; }
+
+/* tear-off tabs */
+.sd-tabs .pw { flex: 1; min-height: 0; display: flex; }
+.sd-tabs .pw .po { flex: 1; margin-top: 8px; border-radius: 0; }
+.sd-tabs .tb { display: flex; height: 74px; flex: none; box-shadow: 0 18px 24px -14px rgba(0,0,0,.7); }
+.sd-tabs .tb span { flex: 1; min-width: 0; writing-mode: vertical-rl; rotate: 180deg; border-left: 1px dashed rgba(42,38,32,.35); padding: 6px 0; cursor: pointer;
+  font: 600 6.5px "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--paper-muted); overflow: hidden; white-space: nowrap; text-align: right; }
+.sd-tabs .tb span.on { color: var(--stamp); }
+.sd-tabs .tb span:hover { translate: 0 3px; }
+/* the torn-off tab: a gap with a ragged top */
+.sd-tabs .tb span.gone { flex: .9; background: var(--surface); border: 0; clip-path: polygon(0 0, 20% 6%, 45% 2%, 70% 8%, 100% 3%, 100% 100%, 0 100%); }
+
+/* riso: red duotone with a halftone screen, the name off register */
+.sd-riso .po .rs { flex: 1; min-height: 80px; position: relative; isolation: isolate; overflow: hidden; }
+.sd-riso .po .rs i { position: absolute; inset: 0; filter: grayscale(1) contrast(1.5) brightness(1.05); }
+.sd-riso .po .rs::before { content: ""; position: absolute; inset: 0; z-index: 1; background: var(--stamp); mix-blend-mode: lighten; }
+.sd-riso .po .rs::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(circle, transparent 0 .7px, rgba(236,230,218,.55) 1.2px) 0 0 / 3px 3px; }
+.sd-riso .po b { color: var(--stamp); text-shadow: 2px 1.5px 0 rgba(47,61,92,.55); }
+.sd-riso .po em { color: var(--ink); }
+.box:hover .sd-riso .po b { text-shadow: 0 0 0 rgba(47,61,92,.55); transition: text-shadow .4s var(--ease); }
+
+/* flip: front and back of one pass */
+.sd-flip .cards { perspective: 800px; }
+.sd-flip .flp { position: relative; transform-style: preserve-3d; transition: transform .7s var(--ease); }
+.box:hover .sd-flip .flp { transform: rotateY(180deg); }
+.box:hover .sd-flip .cards { animation: none; }
+.sd-flip .lam { backface-visibility: hidden; }
+.sd-flip .lam.bk { position: absolute; inset: 0; transform: rotateY(180deg); }
+.sd-flip .lam.bk .in { height: 100%; overflow: hidden; }
+.sd-flip .lam.bk .rw { padding: 5px 0; border-bottom: 1px solid rgba(42,38,32,.15); }
+.sd-flip .lam.bk .rw span { display: block; font: 6.5px "JetBrains Mono", monospace; color: var(--paper-muted); white-space: normal; margin: 0; }
+.sd-flip .lam.bk .rw b { display: block; font: 400 12px/1.05 var(--serif); color: var(--paper-ink); margin-top: 2px; }
+.sd-flip .lam.bk em { margin: 0 0 4px; }
+
+/* the hook: one strap per night, all from one hook */
+.sd-hook { position: relative; }
+.sd-hook .hk { position: absolute; left: 50%; top: -6px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: linear-gradient(#cfd2d8, #7d818b); z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+.sd-hook .st { position: absolute; top: 0; width: 9px; margin-left: -4.5px; transform-origin: 50% 0; background: hsl(var(--h) 45% 38%);
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 6px, transparent 6px 12px); box-shadow: 0 4px 8px rgba(0,0,0,.4); }
+.sd-hook .lam { position: absolute; width: 94px; padding: 4px; border-radius: 7px; background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.06) 40%, rgba(255,255,255,.14));
+  box-shadow: 0 16px 24px -12px rgba(0,0,0,.85); rotate: var(--r); transform-origin: 50% 0; transition: translate .3s var(--ease), rotate .3s var(--ease); }
+.sd-hook .lam:hover { z-index: 30 !important; rotate: 0deg; translate: 0 -6px; }
+.sd-hook .lam .in { border-radius: 4px; padding: 10px 6px 6px; display: flex; flex-direction: column; position: relative; }
+.sd-hook .lam .in::before { content: ""; position: absolute; top: 3px; left: 50%; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: rgba(0,0,0,.35); }
+.sd-hook .lam .in > i:first-child { display: block; aspect-ratio: 4/3; border-radius: 2px; }
+.sd-hook .lam em { align-self: flex-start; margin-top: 5px; padding: 1px 4px; background: var(--stamp); color: #fff; font: 700 6px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .2em; text-transform: uppercase; }
+.sd-hook .lam b { font: 400 15px/.95 var(--serif); color: var(--paper-ink); margin-top: 4px; overflow-wrap: anywhere; }
+.sd-hook .lam span { font: 6px "JetBrains Mono", monospace; color: var(--paper-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-hook .lam .bc { margin-top: 5px; height: 10px; }
+
+/* pass, tuned */
+.sd-passtune .strap { height: 80px; }
+.sd-passtune .cards { width: 76%; }
+.sd-passtune ul { list-style: none; margin: auto 0 0; padding: 14px 0 0; align-self: stretch; display: flex; flex-direction: column; gap: 2px; }
+.sd-passtune li { padding: 4px 0 4px 8px; border-left: 2px solid transparent; cursor: pointer; }
+.sd-passtune li.on { border-left-color: var(--stamp); }
+.sd-passtune li b { display: block; font: 400 13px/1.05 var(--serif); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-passtune li span { display: block; font: 8px "JetBrains Mono", monospace; color: var(--muted); margin-top: 2px; }
+
+/* lanyard + bands: woven bands wrapped round the strap */
+.sd-lanbands .lw { position: relative; display: flex; flex-direction: column; align-items: center; align-self: stretch; }
+.sd-lanbands .strap { height: 150px; }
+.sd-lanbands .wr { position: absolute; left: 22%; right: 22%; top: 0; height: 150px; }
+.sd-lanbands .wv { position: absolute; left: 0; right: 0; height: 18px; margin: 0; }
+.sd-lanbands .wv .tx { font-size: 6px; padding-left: 6px; }
+.sd-lanbands .wv .lk { width: 16px; height: 14px; margin-right: 10px; } .sd-lanbands .wv .lk i { left: 4px; right: 4px; top: 5px; height: 4px; }
+.sd-lanbands .wv .tl { width: 10px; height: 9px; } .sd-lanbands .wv .fr { left: -3px; width: 4px; }
+.box:hover .sd-lanbands .wv { translate: 0 -3px; }
+
+/* hanging: ribbons off a rail */
+.sd-hang .rod { height: 6px; margin: 4px -6px 0; border-radius: 3px; background: linear-gradient(#d4d7dd, #7e828c); box-shadow: 0 3px 6px rgba(0,0,0,.5); position: relative; z-index: 2; }
+.sd-hang .rb { flex: 1; min-height: 0; display: flex; justify-content: space-between; padding: 0 6px; margin-top: -3px; }
+/* a ribbon is two segments: .hb (from the rail, holds most of the weave) and .lo (hinged at its bottom, holds the lock and the cut end).
+   shows-doors.js swings them; there is no css motion on them */
+.sd-hang .hb { --c: hsl(var(--h) 38% 34%); --weave: repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, rgba(255,255,255,.12), transparent 30%, transparent 70%, rgba(0,0,0,.25)), var(--c);
+  width: 24px; height: calc(var(--l) * .64); position: relative; display: flex; flex-direction: column; transform-origin: 50% 0; cursor: pointer;
+  background: var(--weave); box-shadow: inset 2px 0 0 rgba(255,255,255,.22), inset -2px 0 0 rgba(255,255,255,.14), 6px 10px 14px -8px rgba(0,0,0,.8); }
+.lv-s .hero.t.sd-hang .hb, .lv-s .hero.t.sd-hang .hb * { transition: filter .25s; }
+.sd-hang .hb.on { filter: brightness(1.18) saturate(1.1); }
+.sd-hang .hb .tx { flex: 1; min-height: 0; overflow: hidden; writing-mode: vertical-rl; white-space: nowrap; padding-top: 10px; font: 600 8px "JetBrains Mono", monospace; letter-spacing: .26em; text-transform: uppercase;
+  color: hsl(var(--h) 60% 88%); opacity: .85; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.sd-hang .lo { position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: 56%; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 0;
+  background: var(--weave); box-shadow: inset 2px 0 0 rgba(255,255,255,.22), inset -2px 0 0 rgba(255,255,255,.14), 6px 10px 14px -8px rgba(0,0,0,.8); }
+.sd-hang .lo .tx { padding-top: 0; align-self: stretch; text-align: center; }
+.sd-hang .lo .lk { width: 30px; height: 24px; flex: none; margin: 6px 0 14px; border-radius: 3px; position: relative; background: repeating-linear-gradient(0deg, rgba(255,255,255,.25) 0 1px, transparent 1px 3px), linear-gradient(90deg, #d9dbe0, #8e929c); box-shadow: 0 2px 3px rgba(0,0,0,.45); }
+.sd-hang .lo .lk i { position: absolute; top: 7px; bottom: 7px; left: 11px; width: 6px; border-radius: 2px; background: #5a5e68; }
+.sd-hang .lo .fr { position: absolute; bottom: -6px; left: 0; right: 0; height: 7px; background: repeating-linear-gradient(90deg, var(--c) 0 1.5px, transparent 1.5px 3px); }
+.sd-hang .cap { padding-top: 18px; }
+
+/* tagged: a paper tag tied to each lock */
+.sd-tagged { padding-top: 18px; }
+.sd-tagged .wv + .wv { margin-top: 44px; }
+.sd-tagged .tg { position: absolute; right: 30px; top: calc(100% + 8px); padding: 4px 7px; border-radius: 2px 8px 8px 2px; rotate: var(--tr); transform-origin: 100% 0; z-index: 30;
+  font: 7px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--paper-muted); box-shadow: 0 4px 6px rgba(0,0,0,.4); white-space: nowrap; }
+.sd-tagged .tg b { display: block; font: 600 9px "JetBrains Mono", monospace; color: var(--paper-ink); }
+.sd-tagged .tg::before { content: ""; position: absolute; right: 12px; top: -9px; width: 1px; height: 10px; background: rgba(236,230,218,.7); }
+
+/* worn in: older bands fray more */
+.sd-aged .wv .fr { width: calc(7px + var(--age) * 12px); left: calc(-5px - var(--age) * 10px); opacity: calc(1 - var(--age) * .3); }
+.sd-aged .wv .tx { opacity: calc(.85 - var(--age) * .35); }
+
+/* tuned bands: a card for the hovered band's night */
+.sd-bandtune { padding-top: 12px; }
+.sd-bandtune .wv { height: 28px; cursor: pointer; }
+.sd-bandtune .wv + .wv { margin-top: 8px; }
+.sd-bandtune .wv .tx { font-size: 7px; }
+.sd-bandtune .wv.on { translate: -10px 0; rotate: 0deg; }
+.sd-bandtune .wv .lk { width: 24px; height: 20px; } .sd-bandtune .wv .lk i { left: 6px; right: 6px; top: 7px; height: 5px; }
+.sd-bandtune .cd { margin-top: auto; padding-top: 14px; }
+.sd-bandtune .cd > div { display: flex; flex-direction: column; }
+.sd-bandtune .cd i { display: block; aspect-ratio: 16/10; border-radius: 6px; margin-bottom: 8px; }
+.sd-bandtune .cd b { font: 400 19px/1.02 var(--serif); color: var(--strong); }
+.sd-bandtune .cd span { font: 8.5px "JetBrains Mono", monospace; color: var(--muted); margin-top: 3px; }
+
+/* loops: bands closed into rings, piled */
+.sd-loops { padding-top: 14px; }
+.sd-loops .lw { position: relative; width: 92%; aspect-ratio: 2.3; flex: none; rotate: var(--r); translate: var(--x) 0; margin-left: 4%; }
+.sd-loops .lw + .lw { margin-top: -18%; }
+.sd-loops .lp { position: absolute; inset: 0; --c: hsl(var(--h) 38% 34%);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
+    linear-gradient(rgba(0,0,0,.35), transparent 35%, transparent 65%, rgba(255,255,255,.12)), var(--c);
+  -webkit-mask: radial-gradient(closest-side, transparent 74%, #000 76% 97%, transparent 99%); filter: drop-shadow(0 8px 8px rgba(0,0,0,.6)); }
+.sd-loops .lk { position: absolute; left: 50%; bottom: -2px; width: 22px; height: 15px; margin-left: -11px; border-radius: 3px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.25) 0 1px, transparent 1px 3px), linear-gradient(#d9dbe0, #8e929c); box-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.sd-loops .lk i { position: absolute; left: 6px; right: 6px; top: 5px; height: 4px; border-radius: 2px; background: #5a5e68; }
+.sd-loops .tg { position: absolute; left: calc(50% + 14px); bottom: -14px; padding: 3px 6px; border-radius: 2px 7px 7px 2px; rotate: 8deg; font: 6.5px "JetBrains Mono", monospace; color: var(--paper-muted); white-space: nowrap; box-shadow: 0 3px 5px rgba(0,0,0,.4); z-index: 2; }
+.sd-loops .tg b { display: block; font: 400 12px/1 var(--serif); color: var(--paper-ink); }
+.sd-loops .lw:hover { translate: var(--x) -10px; rotate: 0deg; z-index: 40 !important; }
+.sd-lanbands.sd-bands { padding-top: 0; }
+.sd-lanbands .wv + .wv { margin-top: 0; }
+
+/* ---------- hanging · the band itself: one class per band kind (.k-*), set on .hb so .lo inherits the look ---------- */
+.sd-hang .k-sat .fr, .sd-hang .k-tyv .fr, .sd-hang .k-sil .fr { display: none; }
+
+/* jacquard: diamond border knitted down both edges, bolder letters, the lock stamped with the year */
+.sd-hang .k-jac { width: 26px; --edge: hsl(var(--h) 55% 78% / .7);
+  --weave: conic-gradient(from 45deg, var(--edge) 0 25%, transparent 0 50%, var(--edge) 0 75%, transparent 0) 0 0 / 5px 5px repeat-y,
+    conic-gradient(from 45deg, var(--edge) 0 25%, transparent 0 50%, var(--edge) 0 75%, transparent 0) 100% 0 / 5px 5px repeat-y,
+    repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 1px, transparent 1px 2px), repeating-linear-gradient(-45deg, rgba(0,0,0,.16) 0 1px, transparent 1px 2px),
+    linear-gradient(90deg, rgba(0,0,0,.2), transparent 30%, transparent 70%, rgba(0,0,0,.3)), var(--c); }
+.sd-hang .k-jac .tx { font: 700 8px var(--sans); letter-spacing: .3em; padding-top: 14px; color: hsl(var(--h) 70% 92%); opacity: .95; }
+.sd-hang .lo .lk b { position: absolute; left: 0; right: 0; bottom: 1px; text-align: center; font: 700 5.5px "JetBrains Mono", monospace; color: #3c3f47; }
+.sd-hang .k-jac .lo .lk i { top: 5px; bottom: 10px; }
+
+/* satin: glossy printed ribbon, a date box up top, a v-cut sealed end */
+.sd-hang .k-sat { --c: hsl(var(--h) 55% 40%);
+  --weave: linear-gradient(90deg, rgba(255,255,255,0) 15%, rgba(255,255,255,.42) 42%, rgba(255,255,255,.08) 55%, rgba(255,255,255,0) 70%, rgba(0,0,0,.18)), var(--c); }
+.sd-hang .k-sat .tx { font: 600 8px var(--sans); letter-spacing: .14em; color: #fff; opacity: 1; text-shadow: 0 1px 1px rgba(0,0,0,.3); padding-top: 6px; }
+.sd-hang .k-sat .db { margin: 12px 3px 0; padding: 4px 0; border: 1px solid rgba(255,255,255,.85); writing-mode: vertical-rl; text-align: center; font: 600 7px "JetBrains Mono", monospace; letter-spacing: .1em; color: #fff; }
+.sd-hang .k-sat .lo { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 9px), 0 100%); }
+
+/* tyvek: flat bright paper, black print with a serial, creases, an adhesive tab with tear slits */
+.sd-hang .k-tyv { width: 22px; --c: hsl(var(--h) 42% 60%);
+  --weave: linear-gradient(transparent 28%, rgba(0,0,0,.14) 29%, transparent 33%, transparent 61%, rgba(255,255,255,.18) 62%, transparent 66%),
+    repeating-linear-gradient(17deg, rgba(255,255,255,.1) 0 1px, transparent 1px 7px), repeating-linear-gradient(-71deg, rgba(0,0,0,.05) 0 1px, transparent 1px 9px), var(--c);
+  box-shadow: 4px 8px 12px -8px rgba(0,0,0,.8); }
+.sd-hang .k-tyv .lo { box-shadow: 4px 8px 12px -8px rgba(0,0,0,.8); }
+.sd-hang .k-tyv .tx { font: 600 7px "JetBrains Mono", monospace; letter-spacing: .14em; color: #15130f; opacity: .78; text-shadow: none; }
+.sd-hang .lo .ad { width: 100%; height: 34px; flex: none; position: relative; background: linear-gradient(#f3f1ea, #dcd8cc); box-shadow: inset 0 1px 0 rgba(0,0,0,.15);
+  display: flex; flex-direction: column; justify-content: center; gap: 5px; padding: 0 4px; }
+.sd-hang .lo .ad i { height: 1px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.45) 0 2px, transparent 2px 4px); }
+
+/* silicone: matte rubber, debossed name, rounded end */
+.sd-hang .k-sil { width: 20px; border-radius: 0; --c: hsl(var(--h) 45% 42%);
+  --weave: linear-gradient(90deg, rgba(0,0,0,.28), rgba(255,255,255,.14) 30%, rgba(255,255,255,.04) 55%, rgba(0,0,0,.32)), var(--c);
+  box-shadow: 4px 10px 14px -8px rgba(0,0,0,.8); }
+.sd-hang .k-sil .lo { border-radius: 0 0 10px 10px; box-shadow: 4px 10px 14px -8px rgba(0,0,0,.8); padding-bottom: 8px; }
+.sd-hang .k-sil .tx { font: 800 8px var(--sans); letter-spacing: .16em; color: rgba(0,0,0,.5); opacity: 1; text-shadow: 0 1px 0 rgba(255,255,255,.28); }
+
+/* photo print: the artist photo under the weave */
+.sd-hang .k-pho { --weave: repeating-linear-gradient(45deg, rgba(255,255,255,.08) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, rgba(0,0,0,.35), transparent 35%, transparent 65%, rgba(0,0,0,.4)), var(--ph); }
+.sd-hang .k-pho .tx { font: 800 8px var(--sans); letter-spacing: .16em; color: #fff; opacity: 1; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
+
+/* rfid: a plastic chip tag at the end instead of the slide lock */
+.sd-hang .lo .rf { width: 32px; height: 46px; flex: none; margin: 4px 0 12px; border-radius: 6px; position: relative; background: linear-gradient(135deg, #f6f5f1, #d4d3cd);
+  box-shadow: 0 3px 5px rgba(0,0,0,.5), inset 0 1px 0 #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; padding: 0 4px 5px; }
+.sd-hang .lo .rf::before { content: ""; position: absolute; top: 4px; left: 8px; right: 8px; height: 5px; border-radius: 3px; background: #43464e; }
+.sd-hang .lo .rf b { font: 600 5.5px "JetBrains Mono", monospace; color: #2a2620; letter-spacing: .02em; }
+.sd-hang .lo .rf .bc { width: 100%; height: 12px; }

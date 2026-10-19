@@ -1,0 +1,106 @@
+/* read opened-view explorations (read-views.js). same language as the other opened views: the room's surface,
+   serif titles, letter-spaced mono labels, paper + ink + stamp red, cover art the only free color. */
+.rv .rv-yr { display: block; font-size: 20px; margin-top: 18px; }
+
+/* on the go as rows: cover, title, where it's up to, a stamp-red progress line */
+.rv .rgs { display: flex; flex-direction: column; gap: 4px; }
+.rv .rgs.two { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+@container (max-width: 640px) { .rv .rgs.two { grid-template-columns: 1fr; } }
+.rv .rg { display: flex; gap: 12px; align-items: center; padding: 8px 8px; border-radius: 6px; transition: background .2s; }
+.rv .rg:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.rv .rg > i { width: 34px; aspect-ratio: 2/3; border-radius: 2px; flex: none; }
+.rv .rg > div { flex: 1; min-width: 0; }
+.rv .rg b { display: block; font: 400 18px/1.15 var(--serif); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv .rg small { display: block; font: 10px "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.rv .mtr { display: block; height: 2px; background: var(--line); margin-top: 7px; border-radius: 2px; overflow: hidden; }
+.rv .mtr s { display: block; height: 100%; background: var(--stamp); }
+
+/* ---------- the pile ---------- */
+.rv .pl { display: flex; flex-direction: column; justify-content: flex-end; }
+.rv .stand { position: relative; width: 62%; aspect-ratio: 2/3; margin: 26px 0 4px 14%; rotate: -2deg; isolation: isolate; transition: rotate .4s var(--ease); }
+.rv .stand .cv { position: absolute; inset: 0; border-radius: 2px 7px 7px 2px; transition: opacity .12s, translate .3s var(--ease); }
+.rv .stand .cv::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 9px; background: rgba(0,0,0,.3); }
+.rv .stand .cv.swap { opacity: 0; translate: 0 -6px; }
+.rv .stand .mk { position: absolute; z-index: -1; top: -20px; right: 16%; padding: 4px 7px 20px; border-radius: 2px 2px 0 0; color: var(--stamp); font: 600 10px "JetBrains Mono", monospace; }
+.rv .stand:hover { rotate: 0deg; }
+.rv .bk { flex: none; position: relative; display: flex; align-items: center; border-radius: 2px; cursor: pointer; transition: translate .3s var(--ease);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 0 rgba(0,0,0,.35), 0 1px 0 rgba(0,0,0,.4); }
+.rv .bk span { flex: 1; min-width: 0; padding: 0 10px; color: #f2ede4; font: 500 9px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+.rv .bk em { position: absolute; left: 100%; top: 3px; bottom: 3px; display: flex; align-items: center; padding: 0 6px 0 5px; border-radius: 0 2px 2px 0; white-space: nowrap;
+  color: var(--stamp); font: 600 9px "JetBrains Mono", monospace; font-style: normal; }
+.rv .bk em.rt { position: static; padding: 0 9px 0 0; color: var(--gold); }
+.rv .bk:hover { translate: 26px 0; z-index: 5; }
+.rv .bk .tg { position: absolute; left: 0; bottom: calc(100% + 5px); width: max-content; max-width: 240px; padding: 6px 10px 7px; border-radius: 2px; font: 400 14px/1.15 var(--serif); white-space: normal;
+  box-shadow: 0 8px 16px -4px rgba(0,0,0,.6); opacity: 0; translate: 0 4px; transition: opacity .2s, translate .2s; pointer-events: none; }
+.rv .bk .tg small { display: block; margin-top: 3px; font: 600 8px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--stamp); }
+.rv .bk:hover .tg { opacity: 1; translate: 0 0; }
+.rv .floor { height: 1px; margin-top: 3px; background: var(--line); }
+/* the filter thins the pile too; a filtered-out book just leaves it */
+.rv-pile .top { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 40px; align-items: end; margin-top: 18px; }
+.rv-pile .sd { padding-bottom: 6px; }
+.rv-pile .sd .sec { margin-top: 22px; }
+@container (max-width: 640px) { .rv-pile .top { grid-template-columns: 1fr; gap: 10px; } }
+
+/* the pile, browsed: the pile sticks on the left while the rest scrolls */
+.rv-lean .lay { display: grid; grid-template-columns: minmax(0, 270px) minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 10px; }
+.rv-lean .lay > .sd { position: sticky; top: 0; }
+.rv-lean .cap { margin-top: 16px; min-height: 80px; }
+.rv-lean .cap .u-title { font-size: 30px; }
+.rv-lean .main > .sec:first-child { margin-top: 18px; }
+.rv-lean .bls { grid-template-columns: 1fr; }
+@container (max-width: 640px) { .rv-lean .lay { grid-template-columns: 1fr; } .rv-lean .lay > .sd { position: static; } }
+
+/* ---------- open books: cover on the left page, the mark on the right; the page edge is thicker on the read side ---------- */
+.rv-spread .sps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 26px 30px; }
+.rv-spread .sp2 { position: relative; display: grid; grid-template-columns: 1fr 1fr; border-radius: 3px; aspect-ratio: 4/3; }
+.rv-spread .sp2 .lp { border-radius: 3px 0 0 3px; box-shadow: inset -14px 0 18px -10px rgba(0,0,0,.6); }
+.rv-spread .sp2 .rp { position: relative; padding: 16px 14px 14px; border-radius: 0 3px 3px 0; display: flex; flex-direction: column; min-width: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,.16), transparent 18px), repeating-linear-gradient(transparent 0 17px, rgba(47,61,92,.12) 17px 18px), var(--paper); }
+.rv-spread .rp small { font: 600 8px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--paper-muted); }
+.rv-spread .rp b { font: 400 17px/1.15 var(--serif); color: var(--paper-ink); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.rv-spread .rp em { margin-top: auto; font: 400 34px/1 var(--serif); font-style: normal; color: var(--stamp); }
+.rv-spread .rp .mtr { background: rgba(42,38,32,.12); }
+/* page edges under the spread: the left stack (read) grows with progress */
+.rv-spread .pe { position: absolute; left: 1%; right: 1%; bottom: -6px; height: 6px; z-index: -1; border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, #d8d0c0 calc(var(--p) * 50%), #cfc7b6 calc(var(--p) * 50%) 50%, #e2dbcd 50%); }
+.rv-spread .sp2:hover { translate: 0 -3px; }
+.rv-spread .ixs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; align-items: start; }
+@container (max-width: 640px) { .rv-spread .ixs, .rv-card .ixs { grid-template-columns: 1fr; } }
+
+/* index cards for reviews: a red rule under the heading, faint ruled lines */
+.rv .ixs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; align-items: start; }
+.rv .ixc { position: relative; border-radius: 3px; padding: 12px 16px 16px;
+  background: linear-gradient(transparent 52px, rgba(178,58,58,.75) 52px 53px, transparent 53px), repeating-linear-gradient(transparent 0 22px, rgba(47,61,92,.16) 22px 23px) 0 53px / 100% 100% no-repeat, var(--paper); }
+.rv .ixc:nth-child(odd) { rotate: -.4deg; } .rv .ixc:nth-child(even) { rotate: .3deg; }
+.rv .ixc .hd { display: flex; gap: 10px; align-items: baseline; }
+.rv .ixc .hd b { flex: 1; min-width: 0; font: 400 20px/1.1 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv .ixc .hd em { font: 600 11px "JetBrains Mono", monospace; font-style: normal; color: var(--stamp); }
+.rv .ixc small { display: block; height: 18px; font: 10px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-muted); margin-top: 2px; }
+.rv .ixc .note3 { margin-top: 8px; line-height: 23px; max-height: 92px; }
+.rv .ixc .note3.open { max-height: none; }
+.rv .ixc:not(.spoil) .reveal { display: none; }
+.rv .ixc.spoil .reveal { left: 16px; right: 16px; bottom: 40px; }
+
+/* ---------- library card ---------- */
+.rv-card .top { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 34px; align-items: start; margin-top: 18px; }
+.rv-card .top > .sec { margin-top: 0; }
+.rv-card [data-card] .body { border-radius: 3px; padding: 14px 18px 16px; rotate: -.4deg; background: var(--paper); box-shadow: 0 26px 40px -18px rgba(0,0,0,.75); }
+.rv-card .cdr { background: repeating-linear-gradient(transparent 0 27px, rgba(47,61,92,.2) 27px 28px); }
+.rv-card .r { display: grid; grid-template-columns: 78px minmax(0, 1fr) 60px; height: 28px; align-items: center; }
+.rv-card .r.hd { font: 600 8px "JetBrains Mono", monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--paper-muted); border-bottom: 1.5px solid var(--stamp); }
+.rv-card .r > :nth-child(2) { padding-left: 10px; border-left: 1px solid rgba(178,58,58,.35); align-self: stretch; display: flex; align-items: center; }
+.rv-card .r em { font: 600 9.5px "JetBrains Mono", monospace; font-style: normal; color: var(--stamp); text-transform: uppercase; rotate: var(--r); }
+.rv-card .r b { font: 400 17px var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-card .r span { text-align: right; font: 600 9.5px "JetBrains Mono", monospace; color: var(--stamp); }
+.rv-card a.r:hover b { color: var(--stamp); }
+.rv-card .more3 { color: var(--paper-muted); }
+.rv-card .pk { position: sticky; top: 0; border-radius: 3px; padding: 18px 16px 18px; background: linear-gradient(rgba(0,0,0,.08), transparent 20px), #ddd5c4; rotate: 1deg; }
+.rv-card .pk small { display: block; font: 600 8px "JetBrains Mono", monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--paper-muted); }
+.rv-card .pk .cv { display: block; width: 60%; aspect-ratio: 2/3; border-radius: 2px 5px 5px 2px; margin: 12px 0; box-shadow: 0 10px 18px -8px rgba(0,0,0,.6); }
+.rv-card .pk b { display: block; font: 400 24px/1.05 var(--serif); color: var(--paper-ink); }
+.rv-card .pk span { display: block; margin-top: 6px; font: 600 9px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--stamp); text-transform: uppercase; }
+@container (max-width: 640px) { .rv-card .top { grid-template-columns: 1fr; } .rv-card .pk { position: static; } }
+
+/* ---------- the log ---------- */
+.rv-log .grp .u-list li em { width: 52px; }

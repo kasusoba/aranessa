@@ -1,0 +1,232 @@
+/* listen door explorations (listen-doors.js). same materials as the rest of the room: grooves, paper, ink, stamp red, cover art. */
+.lv-s .hero.ld-full { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.ld-grooves, .ld-rec .rec, .ld-tt .rec, .ld-45 .rec, .ld-shelf .disc {
+  background: repeating-radial-gradient(circle, #121212 0 2px, #1d1d1d 2px 4px); }
+.rec { border-radius: 50%; position: relative; animation: spin 1.8s linear infinite paused; }
+.rec i { position: absolute; inset: 31%; border-radius: 50%; }
+.live .rec, .box:hover .rec { animation-play-state: running; }
+
+/* touch, lit: the cover's own color glows out behind it */
+.ld-amb .glow { position: absolute; left: -16px; right: -16px; top: -72px; height: 320px; z-index: -2; pointer-events: none;
+  filter: blur(36px) saturate(1.4); opacity: .4; -webkit-mask: linear-gradient(#000 45%, transparent); mask: linear-gradient(#000 45%, transparent); }
+.box:has(.ld-amb) > .lv-s { overflow: visible; }
+
+/* the record */
+.ld-rec { aspect-ratio: 1; margin: 2px 4px 4px; }
+.ld-rec .rec { position: absolute; inset: 0; box-shadow: 0 14px 24px -12px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.04); }
+.ld-rec::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.08) 12%, transparent 17% 58%, rgba(255,255,255,.06) 62%, transparent 67%); }
+.ld-rec .hole { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: var(--surface); z-index: 1; }
+
+/* deck */
+.ld-tt { aspect-ratio: 1 / .92; border-radius: 10px; background: linear-gradient(160deg, #2b2c32, #1a1b20); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 14px 24px -12px rgba(0,0,0,.7); }
+.ld-tt .plat { position: absolute; left: 7%; top: 7%; width: 74%; aspect-ratio: 1; border-radius: 50%; background: #0b0b0d; padding: 3%; box-shadow: 0 0 0 1px rgba(255,255,255,.05); }
+.ld-tt .rec { width: 100%; height: 100%; }
+.ld-tt .arm { position: absolute; right: 8%; top: 8%; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, #555a64 0 3px, #9aa0ad 3.5px); box-shadow: 0 3px 6px rgba(0,0,0,.5); }
+.ld-tt .arm b { position: absolute; left: 5.5px; top: 7px; width: 3px; height: 92px; border-radius: 2px; background: linear-gradient(90deg, #c9cdd6, #8d929e);
+  transform-origin: 1.5px 0; rotate: 6deg; transition: rotate .6s var(--ease); box-shadow: 2px 3px 4px rgba(0,0,0,.4); }
+.ld-tt .arm b::after { content: ""; position: absolute; left: -3px; bottom: -10px; width: 9px; height: 13px; border-radius: 2px; background: #9aa0ad; rotate: 20deg; }
+.ld-tt.live .arm b, .box:hover .ld-tt .arm b { rotate: 24deg; }
+.ld-tt .rpm { position: absolute; right: 7%; bottom: 7%; font: 600 8px "JetBrains Mono", monospace; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 1px 6px; }
+.ld-tt.live .rpm { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
+
+/* die-cut single */
+.ld-45 { aspect-ratio: 1; margin-top: 30px; isolation: isolate; }
+.ld-45 .rec { position: absolute; inset: 3%; z-index: -1; animation-duration: 2.4s; }
+.ld-45 .rec i { inset: 30%; }
+.box:hover .ld-45 .rec { translate: 0 -24%; }
+.ld-45 .slv { position: absolute; inset: 0; border-radius: 2px; padding: 9px 10px; display: flex; flex-direction: column; justify-content: space-between;
+  -webkit-mask: radial-gradient(circle closest-side, transparent 43%, #000 43.6%); mask: radial-gradient(circle closest-side, transparent 43%, #000 43.6%); }
+.ld-45 .slv::after { content: ""; position: absolute; left: 50%; top: 50%; width: 52%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; border: 1px solid rgba(42,38,32,.18); }
+.ld-45 .slv span { font: 500 7.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--paper-muted); }
+.ld-45.live .slv span { color: var(--stamp); }
+.ld-45 .slv b { font: 400 14px/1.02 var(--serif); color: var(--paper-ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* mixtape */
+.ld-tape { gap: 12px; }
+.ld-tape .shell { flex: none; aspect-ratio: 1.58; border-radius: 7px; position: relative; padding: 7% 6% 17%; background: linear-gradient(#36373e, #23242a);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 24px -12px rgba(0,0,0,.7); }
+.ld-tape .shell::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 0; height: 13%; background: #1b1c21; clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%); }
+.ld-tape .lab { height: 100%; border-radius: 3px; position: relative; padding: 2px 8px; }
+.ld-tape .hd { display: block; font: 700 15px/1.3 var(--hand); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld-tape .lab small { position: absolute; left: 7px; bottom: 4px; font: 700 9px "JetBrains Mono", monospace; color: var(--paper-ink); }
+.ld-tape .win { position: absolute; left: 17%; right: 17%; bottom: 12%; height: 44%; border-radius: 99px; background: #16171b; display: flex; justify-content: space-between; align-items: center; padding: 0 5%; }
+.ld-tape .reel { height: 80%; aspect-ratio: 1; border-radius: 50%; animation: spin 3s linear infinite paused;
+  background: radial-gradient(circle, #16171b 0 24%, transparent 25%), repeating-conic-gradient(#d9d3c6 0 14deg, transparent 14deg 60deg); }
+.ld-tape.live .reel, .box:hover .ld-tape .reel { animation-play-state: running; }
+.ld-tape .jcard { flex: 1; min-height: 0; display: flex; border-radius: 2px; overflow: hidden; }
+.ld-tape .jcard .sp { width: 12px; flex: none; }
+.ld-tape .tl { flex: 1; min-width: 0; padding: 9px 9px 0; -webkit-mask: linear-gradient(#000 calc(100% - 30px), transparent); mask: linear-gradient(#000 calc(100% - 30px), transparent); }
+.ld-tape .hh { font: 500 7.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--paper-muted); padding-bottom: 5px; border-bottom: 1px solid rgba(42,38,32,.2); }
+.ld-tape ol { list-style: none; margin: 5px 0 0; padding: 0; counter-reset: t; }
+.ld-tape li { display: flex; gap: 6px; font: 9.5px/1.8 "JetBrains Mono", monospace; color: var(--paper-ink); counter-increment: t; }
+.ld-tape li::before { content: counter(t, decimal-leading-zero); color: var(--paper-muted); }
+.ld-tape li b { flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld-tape li span { color: var(--paper-muted); }
+.ld-tape.live li:first-child span { color: var(--stamp); }
+
+/* receipt */
+.ld-rcpt { align-items: stretch; }
+.ld-rcpt .pp { display: flex; flex-direction: column; min-height: 0; padding: 12px 11px 20px; font: 9px/1.65 "JetBrains Mono", monospace; color: var(--paper-ink); rotate: -.6deg; transform-origin: 50% 0;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 7px) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / 10px 7px repeat-x;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - 7px) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / 10px 7px repeat-x; }
+.box:hover .ld-rcpt .pp { rotate: .4deg; }
+.ld-rcpt .c { text-align: center; font-size: 7.5px; letter-spacing: .2em; text-transform: uppercase; }
+.ld-rcpt hr { flex: none; width: 100%; border: 0; border-top: 1px dashed rgba(42,38,32,.4); margin: 7px 0; }
+.ld-rcpt .rows { flex: 0 1 auto; min-height: 0; overflow: hidden; }
+.ld-rcpt .grp { margin-top: 6px; font-size: 7.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--paper-muted); }
+.ld-rcpt .grp:first-child { margin-top: 0; }
+.ld-rcpt .r { display: flex; gap: 7px; }
+.ld-rcpt .r em { font-style: normal; color: var(--paper-muted); flex: none; }
+.ld-rcpt .r b { font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld-rcpt .r s { text-decoration: none; color: var(--stamp); }
+.ld-rcpt .tot { font-weight: 600; text-transform: uppercase; letter-spacing: .12em; }
+.ld-rcpt .tot em { color: var(--paper-ink); }
+.ld-rcpt .bc { flex: none; height: 20px; margin-top: 8px; opacity: .8;
+  background: repeating-linear-gradient(90deg, var(--paper-ink) 0 1px, transparent 1px 3px, var(--paper-ink) 3px 5px, transparent 5px 6px, var(--paper-ink) 6px 7px, transparent 7px 10px); }
+
+/* crate: every sleeve but the front one shows only its top edge; the edge grows when the door is tall */
+.lv-s .hero.ld-crate { justify-content: flex-end; overflow: hidden; -webkit-mask: linear-gradient(transparent, #000 40px); mask: linear-gradient(transparent, #000 40px); }
+/* each sleeve behind the front one is a slot that flexbox sizes, so a taller door shows more of every edge */
+.ld-crate .stk { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+.ld-crate .sv { flex: 1 1 0; min-height: 12px; max-height: 44px; position: relative; display: flex; justify-content: center; transition: translate .35s var(--ease); }
+.ld-crate .sv:last-child { flex: none; max-height: none; }
+.ld-crate .sv i { position: absolute; top: 0; width: calc(100% - var(--d) * 2px); aspect-ratio: 1; border-radius: 3px;
+  box-shadow: 0 -3px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.14); filter: brightness(calc(1 - var(--d) * .04)); transition: transform .35s var(--ease); }
+.ld-crate .sv:last-child i { position: relative; width: 100%; transform-origin: 50% 100%; }
+.box:hover .ld-crate .sv:last-child i { transform: perspective(500px) rotateX(-16deg); }
+.box:hover .ld-crate .sv:nth-last-child(2) { translate: 0 -10px; }
+.ld-crate .tag { position: absolute; right: 8px; bottom: 10px; padding: 2px 6px; border-radius: 2px; rotate: 5deg; font: 600 8px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 3px 6px rgba(0,0,0,.35); }
+
+/* cd stack: the pile sits on the floor of the door, last played on top */
+/* cases that don't fit wrap into a second column, which is clipped: the oldest drop off, the top of the pile always shows */
+.lv-s .hero.ld-cds { justify-content: flex-end; flex-wrap: wrap; align-content: flex-start; gap: 2px 200px; overflow: hidden; }
+.ld-cds .cd { flex: none; width: 100%; height: 24px; border-radius: 2px; position: relative; overflow: hidden; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 11px;
+  background-size: 160% auto !important; background-position: center !important; translate: var(--x) 0; rotate: var(--r);
+  box-shadow: 0 2px 3px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(0,0,0,.4); transition: translate .35s var(--ease), rotate .35s var(--ease); }
+.ld-cds .cd::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,10,12,.8), rgba(10,10,12,.35)); }
+.ld-cds .cd::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: rgba(255,255,255,.12); border-right: 1px solid rgba(0,0,0,.3); }
+.ld-cds .cd span, .ld-cds .cd small { position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: "JetBrains Mono", monospace; text-transform: uppercase; }
+.ld-cds .cd span { flex: 1; min-width: 0; font-weight: 600; font-size: 8px; letter-spacing: .12em; color: #f2ede4; }
+.ld-cds .cd small { flex: none; max-width: 42%; font-size: 7px; letter-spacing: .08em; color: rgba(242,237,228,.55); }
+.box:hover .ld-cds .cd.top { translate: calc(var(--x) + 14px) -3px; rotate: -1.5deg; }
+
+/* shelf, face-out */
+.ld-shelf { position: relative; }
+.ld-shelf .row { position: absolute; inset: 0; display: flex; gap: 2px; }
+.ld-shelf .sp { flex: 1; min-width: 0; border-radius: 2px; position: relative; overflow: hidden; background-size: auto 260% !important; background-position: center !important;
+  box-shadow: inset 1px 0 0 rgba(255,255,255,.12), inset -1px 0 0 rgba(0,0,0,.4); }
+.ld-shelf .sp::before { content: ""; position: absolute; inset: 0; background: rgba(10,10,12,.55); }
+.ld-shelf .sp span { position: relative; display: block; margin: 0 auto; padding: 10px 0; max-height: 100%; writing-mode: vertical-rl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: 600 8.5px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: #f2ede4; }
+.ld-shelf .face { position: absolute; left: 4%; right: 16%; bottom: 0; aspect-ratio: 1; rotate: -4deg; transform-origin: 0 100%; isolation: isolate; transition: rotate .4s var(--ease); }
+.ld-shelf .face i { position: absolute; inset: 0; border-radius: 3px; box-shadow: 0 16px 28px -6px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.15); }
+.ld-shelf .face .disc { position: absolute; inset: 4%; border-radius: 50%; z-index: -1; translate: 12% 0; transition: translate .5s var(--ease); }
+.box:hover .ld-shelf .face { rotate: -8deg; }
+.ld-shelf .face.live .disc, .box:hover .ld-shelf .face .disc { translate: 26% 0; }
+
+/* this week's crate */
+.ld-grid .u-label { font-size: 8.5px; flex: none; }
+.ld-grid .g { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; align-content: start; padding: 10px 6px 0 0;
+  -webkit-mask: linear-gradient(#000 calc(100% - 40px), transparent); mask: linear-gradient(#000 calc(100% - 40px), transparent); }
+.ld-grid i { aspect-ratio: 1; border-radius: 3px; position: relative; box-shadow: 0 8px 14px -8px rgba(0,0,0,.7); transition: translate .3s var(--ease); }
+.box:hover .ld-grid i:nth-child(odd) { translate: 0 -3px; }
+.ld-grid b { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 99px; display: grid; place-items: center; rotate: 10deg;
+  font: 600 8.5px "JetBrains Mono", monospace; background: var(--paper); color: var(--paper-ink); box-shadow: 0 2px 5px rgba(0,0,0,.4); }
+
+/* chart */
+.ld-chart { gap: 10px; }
+.ld-chart .sum { flex: none; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.ld-chart .sum b { display: block; font: 400 52px/.95 var(--serif); color: var(--strong); }
+.ld-chart .sum span { font: 500 8.5px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.ld-chart .ar { flex: none; display: flex; align-items: center; gap: 8px; }
+.ld-chart .ar i { width: 26px; height: 26px; border-radius: 50%; flex: none; }
+.ld-chart .ar div { flex: 1; min-width: 0; }
+.ld-chart .ar b { display: block; font: 500 11.5px var(--sans); color: var(--strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld-chart .bar { display: block; height: 3px; border-radius: 3px; background: var(--line); margin-top: 4px; overflow: hidden; }
+.ld-chart .bar s { display: block; height: 100%; background: var(--gold); border-radius: 3px; }
+.ld-chart .ar em { font: 10px "JetBrains Mono", monospace; font-style: normal; color: var(--gold); }
+
+/* ---------- crate, more takes ---------- */
+/* bin: a stamped paper front panel; hover lifts the front sleeve out of it */
+.ld-bin .bin { position: absolute; left: -2px; right: -2px; bottom: 0; height: 96px; border-radius: 3px 3px 6px 6px; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.ld-bin .bin::before { content: ""; position: absolute; top: 12px; left: 50%; width: 46px; height: 11px; translate: -50% 0; border-radius: 99px; background: var(--surface2); box-shadow: inset 0 2px 3px rgba(0,0,0,.6); }
+.ld-bin .stp { margin-top: 14px; padding: 2px 8px; border: 1.5px solid var(--stamp); color: var(--stamp); border-radius: 2px; rotate: -4deg; mix-blend-mode: multiply;
+  font: 600 10px "JetBrains Mono", monospace; letter-spacing: .24em; text-transform: uppercase; }
+.ld-bin .bin small { font: 500 7.5px "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--paper-muted); }
+.ld-bin ~ .tag, .ld-bin .tag { display: none; }
+.box:hover .ld-bin .sv:last-child i { transform: none; translate: 0 -70px; transition: translate .45s var(--ease); }
+.ld-bin .sv:last-child i { transition: translate .45s var(--ease); }
+
+/* dividers: paper cards with tabs above the sleeves */
+.ld-div .dv i { box-shadow: 0 -2px 6px rgba(0,0,0,.35); filter: none; }
+.ld-div .dv b { position: absolute; top: -13px; padding: 1px 8px 2px; border-radius: 4px 4px 0 0; background: var(--paper); color: var(--paper-ink);
+  font: 600 7.5px/12px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; }
+.ld-div .sv.dv { max-height: 30px; }
+.ld-div .stk { padding-top: 26px; }
+
+/* labelled edges */
+.ld-lab .sv i b { position: absolute; top: 3px; left: 5px; max-width: calc(100% - 10px); padding: 0 5px; border-radius: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: 500 7.5px/11px "JetBrains Mono", monospace; letter-spacing: .04em; box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.ld-lab .sv:nth-child(odd) i b { left: auto; right: 5px; }
+.ld-lab .sv:last-child i b { display: none; }
+
+/* flipping through: every sleeve leans back, the front one leans toward you */
+.ld-flip .sv i { transform: perspective(700px) rotateX(24deg); transform-origin: 50% 100%; }
+.ld-flip .sv:last-child i { transform: perspective(700px) rotateX(-12deg); }
+.box:hover .ld-flip .sv:last-child i { transform: perspective(700px) rotateX(-30deg); }
+.box:hover .ld-flip .sv:nth-last-child(2) i { transform: perspective(700px) rotateX(8deg); }
+
+/* ---------- cd stack, more takes ---------- */
+.ld-cds .cd small.nw { color: var(--gold); }
+
+/* rack: slotted between rails from the top, the last played pulled out */
+.lv-s .hero.ld-tower { justify-content: flex-start; position: relative; padding-top: 6px;
+  -webkit-mask: linear-gradient(#000 calc(100% - 30px), transparent); mask: linear-gradient(#000 calc(100% - 30px), transparent); }
+.ld-tower .rails { position: absolute; inset: 0; border-top: 4px solid #2c2e35; border-radius: 3px 3px 0 0;
+  background: linear-gradient(90deg, #2c2e35 0 7px, transparent 7px calc(100% - 7px), #2c2e35 calc(100% - 7px)),
+              repeating-linear-gradient(transparent 0 4px, rgba(0,0,0,.55) 4px 6px, transparent 6px 26px); }
+.ld-tower .cd { margin: 0 8px; translate: 0 0; rotate: 0deg; }
+.ld-tower .cd.top { translate: 18px 0; }
+.box:hover .ld-tower .cd.top { translate: 30px 0; rotate: 0deg; }
+
+/* weighed: thickness is play count. built bottom up, heaviest first, so the light ones are what falls off */
+.lv-s .hero.ld-heavy { flex-direction: column-reverse; flex-wrap: wrap; justify-content: flex-start; }
+.ld-heavy .cd span { font-size: 8.5px; }
+.ld-heavy .cd small { color: var(--gold); font-size: 8px; }
+
+/* disc on top */
+.ld-ontop .cdisc { flex: none; width: 100%; height: 50px; position: relative; margin-bottom: -10px; z-index: 1; }
+.ld-ontop .cdisc::after { content: ""; position: absolute; left: 14%; right: 14%; bottom: 8px; height: 10px; border-radius: 50%; background: rgba(0,0,0,.5); filter: blur(4px); z-index: -1; }
+.ld-ontop .d { position: absolute; left: 10%; right: 10%; top: 50%; aspect-ratio: 1; transform: translateY(-50%) scaleY(.3); }
+.ld-ontop .s { position: absolute; inset: 0; border-radius: 50%; animation: spin 2.4s linear infinite paused;
+  background: radial-gradient(circle closest-side, transparent 0 12%, rgba(255,255,255,.55) 12.5% 15%, transparent 15.5%),
+              conic-gradient(from 0deg, #cfd6df, #f1d9e6, #d3efe6, #f3edcf, #d6def5, #e9d3ee, #cfd6df); }
+.ld-ontop .s i { position: absolute; inset: 22%; border-radius: 50%; opacity: .9;
+  -webkit-mask: radial-gradient(circle closest-side, transparent 30%, #000 31%); mask: radial-gradient(circle closest-side, transparent 30%, #000 31%); }
+.ld-ontop.live .s, .box:hover .ld-ontop .s { animation-play-state: running; }
+
+/* face up: the top case shows its cover in perspective */
+.ld-face .fu { flex: none; position: relative; width: 100%; aspect-ratio: 1; margin-top: -40px; transform: perspective(420px) rotateX(52deg); transform-origin: 50% 100%; transition: transform .45s var(--ease); }
+.ld-face .fu i { position: absolute; inset: 0; border-radius: 3px; box-shadow: 0 0 0 3px rgba(220,225,235,.2), 0 0 0 4px rgba(0,0,0,.4); }
+.box:hover .ld-face .fu { transform: perspective(420px) rotateX(38deg); }
+.box:hover .ld-face .cd.top { translate: var(--x) 0; rotate: var(--r); }
+
+/* messy pile */
+.ld-messy .cd { flex: none; }
+
+/* ---------- peek: labelled edges without labels; listen-doors.js lifts the hovered sleeve ---------- */
+.ld-peek .sv { cursor: pointer; }
+.ld-peek .sv:last-child { cursor: inherit; }
+.ld-peek .sv i { pointer-events: none; transition: translate .3s var(--ease), filter .3s; }
+.ld-peek .sv i.up { filter: none; }
+/* none of the plain crate's hover moves: the front one is always on show */
+.box:hover .ld-peek .sv:last-child i { transform: none; }
+.box:hover .ld-peek .sv:nth-last-child(2) { translate: none; }
+/* a paper label on the front album, and on the one peeking out while it's up */
+.ld-peek .sv i b { position: absolute; top: 4px; left: 6px; max-width: calc(100% - 12px); padding: 0 5px; border-radius: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: 500 7.5px/12px "JetBrains Mono", monospace; letter-spacing: .04em; box-shadow: 0 1px 2px rgba(0,0,0,.35); opacity: 0; translate: 0 2px; transition: opacity .2s, translate .25s var(--ease); }
+.ld-peek .sv:nth-child(odd) i b { left: auto; right: 6px; }
+.ld-peek .sv:last-child i b, .ld-peek .sv i.up b { opacity: 1; translate: none; }
+.ld-peek .sv:last-child i b { left: 6px; right: auto; }

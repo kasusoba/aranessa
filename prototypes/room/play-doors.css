@@ -1,0 +1,184 @@
+/* play door explorations (play-doors.js). same materials as the rest of the room: paper, ink, stamp red, cover art. */
+.lv-s .hero.pd-full { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+/* the cartridge: grey shell, ridges on top, the art as its label, a grip at the bottom */
+.pd-cart { position: relative; aspect-ratio: 200/226; border-radius: 9px 9px 4px 4px; background: linear-gradient(#686a76, #55575f); box-shadow: 0 18px 28px -14px rgba(0,0,0,.75); flex: none; }
+.pd-cart::before { content: ""; position: absolute; left: 9%; right: 9%; top: 3.5%; height: 3%; border-radius: 1px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 5px, transparent 5px 8px); }
+.pd-cart::after { content: ""; position: absolute; left: 32%; right: 32%; bottom: 7%; height: 6%; border-radius: 2px; background: rgba(0,0,0,.16); }
+.pd-cart > i { position: absolute; left: 7%; right: 7%; top: 11%; height: 66%; border-radius: 3px; }
+.pd-cart .stk { position: absolute; right: -5px; top: 15%; padding: 3px 6px; border-radius: 2px; rotate: 7deg; font: 600 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .06em; color: var(--stamp); box-shadow: 0 2px 4px rgba(0,0,0,.35); }
+
+/* slotted: the cart stands in the console's slot, the console front hides its bottom */
+.pd-slot { margin-top: 10px; isolation: isolate; }
+.pd-slot .pd-cart { width: 76%; margin: 0 auto -30%; z-index: -1; }
+.box:hover .pd-slot .pd-cart { translate: 0 -12px; }
+.pd-slot .con { position: relative; height: 58px; border-radius: 4px 4px 12px 12px; background: linear-gradient(#3a3c45, #2a2c33); box-shadow: 0 18px 28px -14px rgba(0,0,0,.75);
+  display: flex; align-items: flex-end; gap: 6px; padding: 0 12px 10px; font: 500 7px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: #8d909c; }
+.pd-slot .con::before { content: ""; position: absolute; left: 9%; right: 9%; top: -3px; height: 7px; border-radius: 3px; background: #16171b; }
+.pd-slot .led, .pd-hh .led { width: 6px; height: 6px; border-radius: 50%; background: #4a2a2a; flex: none; }
+.pd-slot .led.on, .pd-hh .led.on { background: var(--stamp); box-shadow: 0 0 6px var(--stamp); }
+
+/* stack: oldest at the back, each one in front covers the bottom of the one behind */
+.pd-stack .pl { --w: min(78cqw, 24cqh); display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+.pd-stack .pd-cart { width: var(--w); translate: var(--x) 0; rotate: var(--r); }
+.pd-stack .pd-cart + .pd-cart { margin-top: calc(var(--w) * -.66); }
+.pd-stack .pd-cart:not(:last-child):hover { translate: var(--x) -16px; rotate: 0deg; }
+.pd-stack .cap { margin-top: 14px; }
+.pd-stack .cap b, .pd-fan li b { display: block; font: 400 18px/1.05 var(--serif); color: var(--strong); }
+.pd-stack .cap span, .pd-fan li span { display: block; font: 9.5px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; margin-top: 4px; }
+
+/* loose: tossed down the door */
+.pd-loose { position: relative; }
+.pd-loose .pd-cart { position: absolute; width: min(62cqw, 26cqh); top: var(--t); left: var(--l); rotate: var(--r); cursor: pointer; }
+.pd-loose .pd-cart:hover { z-index: 10 !important; rotate: 0deg; translate: 0 -6px; }
+
+/* box art: the cover with a round store sticker */
+.pd-box { aspect-ratio: 2/3; margin-top: 8px; }
+.pd-box > i { position: absolute; inset: 0; border-radius: 4px; box-shadow: 0 18px 28px -14px rgba(0,0,0,.75); }
+.pd-box .tag { position: absolute; right: -8px; top: -10px; width: 52px; height: 52px; border-radius: 50%; display: grid; place-content: center; text-align: center; rotate: 14deg;
+  font: 600 7px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--stamp); box-shadow: 0 3px 6px rgba(0,0,0,.4); }
+.pd-box .tag b { font: 400 21px/.9 var(--serif); letter-spacing: 0; }
+.box:hover .pd-box .tag { rotate: 0deg; }
+
+/* case, ajar: the cover hinges on the spine, the disc sits in the tray behind */
+.lv-s .hero.pd-ajar { width: 88%; aspect-ratio: 135/190; margin: 8px 0 12px; perspective: 700px; }
+.pd-ajar .tray { position: absolute; inset: 0; border-radius: 3px 6px 6px 3px; background: #1d1f25; box-shadow: inset 0 0 0 2px #2a2c33; display: grid; place-items: center; }
+.pd-ajar .dsc { width: 84%; aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 16% 18%; text-align: center;
+  background: radial-gradient(circle, transparent 0 8%, rgba(255,255,255,.5) 8.5% 15%, transparent 15.5%), conic-gradient(from 40deg, #e4e6ea, #b9bdc6, #f2f3f5, #aeb3bd, #dfe1e6, #c3c7cf, #e4e6ea); }
+.pd-ajar .dsc b { font: 400 13px/1 var(--serif); color: var(--paper-ink); }
+.pd-ajar .dsc em { font: 600 7.5px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .1em; color: var(--stamp); margin-top: 4px; }
+.lv-s .hero.pd-ajar .cv { position: absolute; inset: 0; border-radius: 3px 6px 6px 3px; transform-origin: 0 50%; transform: rotateY(-52deg);
+  box-shadow: 14px 10px 24px -8px rgba(0,0,0,.6), inset 0 0 0 2px rgba(0,0,0,.35); transition: transform .55s var(--ease); }
+.pd-ajar .cv::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 8px; background: rgba(0,0,0,.35); }
+.box:hover .pd-ajar .cv { transform: rotateY(-74deg); }
+
+/* fanned: cases pivot from below the bottom edge */
+.pd-fan .fan { --w: min(48cqw, 25cqh); position: relative; flex: none; height: calc(var(--w) * 1.5 + 24px); margin-top: 6px; }
+:is(.pd-fan, .pd-hhfan) .cs { position: absolute; bottom: 0; left: calc(50% - var(--w) / 2); width: var(--w); aspect-ratio: 2/3; transform-origin: 50% 130%; rotate: var(--r); cursor: pointer; }
+:is(.pd-fan, .pd-hhfan) .cs i { position: absolute; inset: 0; border-radius: 3px; box-shadow: 0 10px 20px -8px rgba(0,0,0,.7), inset 0 0 0 2px rgba(0,0,0,.3); }
+.pd-fan .cs:hover { z-index: 5; translate: 0 -12px; }
+.pd-fan ul { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.pd-fan li b { font-size: 15px; }
+
+/* handheld: the body is paper, the bezel is dark, A/B in stamp red */
+.pd-hh .bd { flex: none; display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 8px 8px 30px 8px; }
+.pd-hh .bz { flex: none; padding: 10px 12px 7px; border-radius: 5px 5px 18px 5px; background: #3a3d48; }
+.pd-hh .scr { position: relative; aspect-ratio: 1; border-radius: 2px; background: #111; overflow: hidden; }
+.pd-hh .scr > div { position: absolute; inset: 0; opacity: 0; filter: brightness(.45) saturate(.4); transition: opacity .25s, filter .35s; }
+.pd-hh .scr > div.on { opacity: 1; }
+.pd-hh .scr.lit > div, .box:hover .pd-hh .scr > div { filter: none; }
+.pd-hh .bz small { display: flex; align-items: center; gap: 5px; margin-top: 6px; font: 500 6.5px "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: #9aa0ae; }
+.pd-hh ul { list-style: none; margin: 0; padding: 0; flex: none; }
+.pd-hh li { display: flex; gap: 6px; align-items: baseline; padding: 4px 0 4px 10px; border-bottom: 1px dotted rgba(42,38,32,.25); cursor: pointer; position: relative;
+  font: 500 8.5px "JetBrains Mono", monospace; color: var(--paper-ink); }
+.pd-hh li::before { content: "▸"; position: absolute; left: 0; color: var(--stamp); opacity: 0; }
+.pd-hh li.on::before { opacity: 1; }
+.pd-hh li b { flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-hh li.on b { color: var(--stamp); }
+.pd-hh li em { font-style: normal; color: var(--paper-muted); white-space: nowrap; }
+.pd-hh .ctl { margin-top: 6px; display: flex; justify-content: space-between; align-items: center; padding: 0 2px 6px; }
+.pd-hh .dp { width: 36px; height: 36px; background: linear-gradient(#2a2c33, #2a2c33) center/12px 100% no-repeat, linear-gradient(#2a2c33, #2a2c33) center/100% 12px no-repeat; }
+.pd-hh .ab { display: flex; gap: 7px; rotate: -24deg; }
+.pd-hh .ab i { width: 17px; height: 17px; border-radius: 50%; background: var(--stamp); box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.pd-hh .spk { margin: -4px 0 4px auto; width: 34px; height: 34px; rotate: -24deg; background: repeating-linear-gradient(90deg, rgba(42,38,32,.22) 0 3px, transparent 3px 7px); border-radius: 3px; }
+@container (max-height: 470px) { .pd-hh .ctl, .pd-hh .spk { display: none; } }
+
+/* memory card: dark card with a clipped corner, a paper label, gold pins along the bottom */
+.pd-mc .sh { filter: drop-shadow(0 16px 18px rgba(0,0,0,.55)); margin-top: 6px; }
+.pd-mc .cd { background: linear-gradient(#30323a, #25272e); padding: 12px 10px 0; border-radius: 4px 0 6px 6px; clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%); }
+.pd-mc .lb { padding: 9px 9px 4px; border-radius: 2px; }
+.pd-mc .hd { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 6px; margin-bottom: 2px; border-bottom: 1.5px solid rgba(178,58,58,.45); }
+.pd-mc .hd b { font: 600 7px "JetBrains Mono", monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--paper-ink); }
+.pd-mc .hd small { font: 600 7px "JetBrains Mono", monospace; letter-spacing: .1em; color: var(--stamp); }
+.pd-mc .sv { display: flex; gap: 8px; align-items: center; padding: 7px 2px; border-bottom: 1px dotted rgba(42,38,32,.25); }
+.pd-mc .sv:last-child { border-bottom: 0; }
+.pd-mc .sv:hover { background: rgba(178,58,58,.07); }
+.pd-mc .sv > i { width: 24px; height: 30px; border-radius: 2px; flex: none; }
+.pd-mc .sv > div { min-width: 0; }
+.pd-mc .sv b { display: block; font: 400 14px/1.05 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-mc .sv span { display: block; font: 8px "JetBrains Mono", monospace; color: var(--paper-muted); letter-spacing: .04em; margin-top: 2px; }
+.pd-mc .pins { height: 20px; margin: 10px 4px 0; background: repeating-linear-gradient(90deg, #b8933f 0 6px, transparent 6px 10px); opacity: .8; }
+
+/* time card: in its rack, the pocket hides the bottom; hover pulls it up */
+.pd-tc { position: relative; }
+.pd-tc .cd { position: absolute; inset: 4px 4px 0; padding: 12px 10px; border-radius: 2px;
+  background: repeating-linear-gradient(transparent 0 25px, rgba(47,61,92,.12) 25px 26px) 0 50px / 100% 100% no-repeat, var(--paper); }
+.box:hover .pd-tc .cd { translate: 0 -16px; }
+.pd-tc .hd { font: 600 8px "JetBrains Mono", monospace; letter-spacing: .26em; text-transform: uppercase; color: var(--paper-ink); text-align: center; padding-bottom: 7px; border-bottom: 1.5px solid rgba(178,58,58,.45); }
+.pd-tc .cl, .pd-tc .rw { display: grid; grid-template-columns: 1fr 42px 26px; gap: 6px; align-items: center; }
+.pd-tc .cl { margin: 6px 0 2px; font: 500 6.5px "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--paper-muted); }
+.pd-tc .cl span:last-child, .pd-tc .rw span { text-align: right; }
+.pd-tc .rw { height: 26px; }
+.pd-tc .rw b { font: 400 13px/1 var(--serif); color: var(--paper-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-tc .rw em { font: 600 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .04em; text-transform: uppercase; color: var(--stamp); rotate: var(--r); opacity: .85; }
+.pd-tc .rw span { font: 500 10px "JetBrains Mono", monospace; color: var(--paper-ink); }
+.pd-tc .tt { text-align: right; font: 700 19px var(--hand); color: var(--ink); rotate: -3deg; margin-top: 4px; }
+.pd-tc .pk { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; border-radius: 3px 3px 6px 6px; background: linear-gradient(#3a3c45, #2a2c33); box-shadow: 0 -8px 14px -6px rgba(0,0,0,.5), 0 18px 28px -14px rgba(0,0,0,.75); }
+
+/* hours: banners with big numbers */
+.pd-hrs { gap: 16px; }
+.pd-hrs .rw > i { display: block; aspect-ratio: 460/215; border-radius: 5px; }
+.pd-hrs .nb { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+.pd-hrs .nb b { font: 400 26px/1 var(--serif); color: var(--strong); }
+.pd-hrs .nb small { font: 9px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .1em; margin-left: 4px; }
+.pd-hrs .nb span { font: 9.5px "JetBrains Mono", monospace; color: var(--muted); }
+
+/* ---------- round 2 ---------- */
+/* sideways: wide body, the banner art fits the screen as it is */
+.pd-hh .bd.wide { border-radius: 14px; gap: 9px; }
+.pd-hh .bd.wide .bz { border-radius: 5px; padding: 8px 9px 6px; }
+.pd-hh .bd.wide .scr { aspect-ratio: 460/215; }
+.pd-hh .bd.wide .ctl { margin-top: 0; padding: 0 4px; }
+.pd-hh .bd.wide .dp { width: 30px; height: 30px; background-size: 10px 100%, 100% 10px; }
+.pd-hh .bd.wide .ab i { width: 14px; height: 14px; }
+
+/* cart in the back: the cartridge stands in the slot on top, behind the body */
+.pd-cartin { isolation: isolate; padding-top: 40px; }
+.pd-cartin > .pd-cart { position: absolute; top: 0; left: 18%; width: 64%; z-index: -1; box-shadow: none; }
+.pd-cartin > .pd-cart .sw i { position: absolute; left: 7%; right: 7%; top: 11%; height: 66%; border-radius: 3px; opacity: 0; transition: opacity .25s; }
+.pd-cartin > .pd-cart .sw i.on { opacity: 1; }
+.box:hover .pd-cartin > .pd-cart { translate: 0 -6px; }
+
+/* unlocked: the achievement toast along the bottom of the screen */
+.pd-hh .toast { position: absolute; left: 5px; right: 5px; bottom: 5px; display: flex; gap: 6px; align-items: center; padding: 5px; border-radius: 3px; background: rgba(12,14,20,.86); }
+.pd-hh .toast > i { width: 26px; height: 26px; border-radius: 2px; flex: none; }
+.pd-hh .toast > div { min-width: 0; }
+.pd-hh .toast small { display: block; font: 500 6px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: #9aa0ae; }
+.pd-hh .toast b { display: block; font: 500 10px/1.2 var(--sans); color: #eef0f4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* handheld + fan: the cases sit behind the body, only their tops show */
+.pd-hhfan { isolation: isolate; }
+.pd-hhfan .fan { --w: min(38cqw, 17cqh); position: relative; height: 70px; flex: none; z-index: -1; }
+.pd-hhfan .fan .cs { bottom: auto; top: 6px; transform-origin: 50% 160%; }
+.pd-hhfan .fan .cs:hover, .pd-hhfan .fan .cs.on:hover { translate: 0 -14px; }
+.pd-hhfan .bd { position: relative; }
+
+/* fans with more cases, and the stickers / stamp on them */
+.pd-fan .fan.five { --w: min(42cqw, 22cqh); }
+.pd-fan .cs .stk { position: absolute; top: 8px; right: -4px; padding: 2px 5px; border-radius: 2px; rotate: 6deg; font: 600 7.5px "JetBrains Mono", monospace; font-style: normal; color: var(--stamp); box-shadow: 0 2px 4px rgba(0,0,0,.35); }
+.pd-fan .ast { position: absolute; z-index: 6; left: calc(50% + var(--w) / 2 - 26px); bottom: 6px; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--stamp); color: var(--stamp);
+  display: grid; place-items: center; font: 600 8px "JetBrains Mono", monospace; rotate: -14deg; background: color-mix(in srgb, var(--paper) 80%, transparent); }
+.pd-fan .cap { margin-top: 16px; }
+.pd-fan .cap b { display: block; font: 400 18px/1.05 var(--serif); color: var(--strong); }
+.pd-fan .cap span { display: block; font: 9.5px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; margin-top: 4px; }
+
+/* two hands: smaller fans, one over the other */
+.pd-fan2 .u-label { font-size: 8.5px; margin: 6px 0 2px; flex: none; }
+.pd-fan2 .u-label + .fan { margin-bottom: 14px; }
+.pd-fan2 .fan { --w: min(38cqw, 16cqh); }
+
+/* fan + backlog: a pile of case edges, one per owned game */
+.pd-fanlog .pile { position: relative; flex: none; margin: 18px 4px 0; height: min(calc(var(--n) * .5px), 22cqh); border-radius: 2px; rotate: -1.5deg; transition: rotate .35s var(--ease);
+  background: repeating-linear-gradient(#2b2d35 0 2px, #3d4049 2px 3px, #1f2127 3px 4px); box-shadow: 0 18px 28px -14px rgba(0,0,0,.75); }
+.box:hover .pd-fanlog .pile { rotate: 0deg; }
+.pd-fanlog .pile .st { position: absolute; right: 10px; top: 50%; translate: 0 -50%; width: 64px; height: 64px; border-radius: 50%; border: 1.5px solid var(--stamp); color: var(--stamp);
+  display: grid; place-content: center; text-align: center; font: 400 22px/1 var(--serif); rotate: -12deg; background: color-mix(in srgb, var(--paper) 88%, transparent); }
+.pd-fanlog .pile .st small { font: 600 6px "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+.pd-fanlog .tot { display: flex; justify-content: space-between; margin-top: 8px; font: 9.5px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; }
+
+/* fan, linked: the lit line and the raised case follow each other */
+.pd-fanlink .cs.on { translate: 0 -12px; z-index: 5; }
+.pd-fanlink li { cursor: pointer; padding-left: 10px; position: relative; }
+.pd-fanlink li::before { content: "▸"; position: absolute; left: 0; top: 2px; color: var(--stamp); opacity: 0; font-size: 10px; }
+.pd-fanlink li.on::before { opacity: 1; }
+.pd-fanlink li.on b { color: var(--stamp); }
