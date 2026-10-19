@@ -35,7 +35,11 @@ export function doors(D: RoomData, photo: string): Door[] {
 	return list.filter((d): d is Door => !!d);
 }
 
-const box = (d: Door, open: boolean) => `<div class="box${open ? " on has-xl" : ""}" data-k="${d.k}">
+// on a phone the doors stand on two shelves, top then bottom column by column; each door keeps its cell (--r, --c), so
+// one opening over the shelves leaves a gap instead of shifting the rest
+const cell = (i: number) => `--r:${(i % 2) + 1};--c:${Math.floor(i / 2) + 1}`;
+
+const box = (d: Door, open: boolean, i: number) => `<div class="box${open ? " on has-xl" : ""}" data-k="${d.k}" style="${cell(i)}">
     <div class="head">${glyph(d.k)}<a class="nm" href="${pathOf(d.k)}">${NAME[d.k]}</a>${d.head}<span class="cue">+</span></div>
     <button class="x" data-close aria-label="close">esc</button>
     <div class="lv lv-s">${d.door}</div>
@@ -44,7 +48,7 @@ const box = (d: Door, open: boolean) => `<div class="box${open ? " on has-xl" : 
 
 // the placeholder that always ends the strip, so it always runs past the screen: a floor plan, the opening leading
 // into a room drawn only as a dashed outline with a "?" in it
-const end = `<div class="box end-box" aria-hidden="true"><div class="ed ed-plan pn-up"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="pn">
+const end = (i: number) => `<div class="box end-box" aria-hidden="true" style="${cell(i)}"><div class="ed ed-plan pn-up"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="pn">
     <path class="wl" d="M4 70 H30 M70 70 H96"/><path class="lf" d="M30 70 L30 30"/><path class="arc" d="M30 30 A40 40 0 0 1 70 70"/><path class="rm" d="M4 70 V-50 H96 V70"/><text class="q" x="50" y="-4">?</text></svg></div></div>`;
 
 // the ledge: the now pill (opens the sticky note) and the socials
@@ -62,7 +66,7 @@ const ledge = () => {
 export function renderRoom(D: RoomData, photo: string, open?: string) {
 	const list = doors(D, photo);
 	return `<section class="concept on" id="c-strip">
-  <div class="strip${open ? " has-on" : ""}" id="strip">${list.map((d) => box(d, d.k === open)).join("")}${end}</div>
+  <div class="strip${open ? " has-on" : ""}" id="strip">${list.map((d, i) => box(d, d.k === open, i)).join("")}${end(list.length)}</div>
   ${ledge()}
 </section>`;
 }

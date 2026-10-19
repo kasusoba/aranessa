@@ -18,6 +18,8 @@ export function strip(onClose: () => boolean) {
 	const keys = boxes().map((b) => b.dataset.k ?? "");
 	let cur: string | null = el.querySelector<HTMLElement>(".box.on")?.dataset.k ?? null;
 	const timers = new Map<HTMLElement, number>();
+	// on a phone an opened door comes up over the shelves, outside the scroll, so the strip doesn't follow it
+	const phone = matchMedia("(max-width: 760px)");
 
 	// css eases the flex-basis change; this follows it with the scroll so the opened box glides to the middle
 	// instead of the old one collapsing under it first. closing keeps the box where it is.
@@ -100,15 +102,16 @@ export function strip(onClose: () => boolean) {
 		}
 		cur = k;
 		el.classList.toggle("has-on", !!k);
-		if (anchor) follow(anchor, from, k ? el.clientWidth / 2 : from);
+		if (anchor && !phone.matches) follow(anchor, from, k ? el.clientWidth / 2 : from);
 		document.title = titleOf(k);
 		if (push) history.pushState({ k }, "", pathOf(k));
 	}
 
 	// doors grow with the screen until the row overflows with the end door half in view, so the strip always reads as
 	// scrollable. when the real doors already overflow at the smallest width, they stay at the smallest width.
+	// (a phone ignores --door: its shelves hold desktop-sized doors at 80%)
 	function size() {
-		const min = innerWidth < 760 ? 140 : 190;
+		const min = 190;
 		const gap = 10;
 		const n = keys.length;
 		const w = el.clientWidth;
@@ -121,7 +124,7 @@ export function strip(onClose: () => boolean) {
 	// a page like /listen lands with that door open and centred
 	const open = cur && el.querySelector(`.box[data-k="${cur}"]`);
 	if (open) {
-		el.scrollLeft += mid(open) - el.clientWidth / 2;
+		if (!phone.matches) el.scrollLeft += mid(open) - el.clientWidth / 2;
 		open.querySelector(".lv-xl")?.dispatchEvent(new CustomEvent("room:open", { bubbles: true }));
 	}
 	history.replaceState({ k: cur }, "");
