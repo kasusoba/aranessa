@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="shows-views.css" />
 <link rel="stylesheet" href="end-doors.css" />
 <link rel="stylesheet" href="ledges.css" />
+<link rel="stylesheet" href="mobile-doors.css" />
 <style>
   .concept { padding: 100px 16px 16px; }
   .bar { background: var(--bg); }
@@ -106,6 +107,7 @@
 <script src="shows-views.js"></script>
 <script src="ledges.js"></script>
 <script src="end-doors.js"></script>
+<script src="mobile-doors.js"></script>
 <script>
 let MODE = 3, DOORS = "touch"; // baseline: round 6 views, touch doors
 // the listen door is the "peek" crate; ?listen=<key> swaps in another variant from listen-door.html
@@ -199,7 +201,7 @@ const strip = (() => {
     });
     cur = k;
     el.classList.toggle("has-on", !!k);
-    if (anchor) follow(anchor, from, k ? el.clientWidth / 2 : from);
+    if (anchor && !MDOOR.over()) follow(anchor, from, k ? el.clientWidth / 2 : from);
   }
   // a door shows only the thumbnails that fit whole, then says how many more are inside
   function fit(b) {
@@ -218,7 +220,8 @@ const strip = (() => {
   // when the real doors already overflow at the smallest width, they stay at the smallest width.
   function size() {
     const min = narrow() ? 140 : 190, gap = 10, n = keys.length, w = el.clientWidth;
-    const door = n * min + (n - 1) * gap > w ? min : Math.max(min, (w - n * gap) / (n + .5));
+    // ?mobile=<key> tries a phone take from mobile-door.html, which picks its own door width
+    const door = MDOOR.size(n, w, gap) ?? (n * min + (n - 1) * gap > w ? min : Math.max(min, (w - n * gap) / (n + .5)));
     el.style.setProperty("--door", door + "px");
   }
   function build(k) {

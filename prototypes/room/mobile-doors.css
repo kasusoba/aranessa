@@ -1,0 +1,63 @@
+/* phone takes on the strip (mobile-doors.js). each is scoped to html.md-<key> and to phone widths, so the desktop room is untouched */
+@media (max-width: 760px) {
+  /* one and a half: desktop-shaped doors, snapping to the left edge */
+  .md-half .strip { scroll-snap-type: x proximity; }
+  .md-half .strip .box { scroll-snap-align: start; }
+
+  /* one at a time: a door fills the screen, neighbours peek, snaps to the middle */
+  .md-one .strip { scroll-snap-type: x mandatory; padding-inline: 18px; margin-inline: -16px; }
+  .md-one .strip .box { scroll-snap-align: center; }
+  .md-one .strip.has-on { scroll-snap-type: none; }
+  .md-one .strip .box:not(.on) .lv-s { align-items: center; }
+
+  /* two and a slip: narrow doors, snapping to the left edge */
+  .md-two .strip { scroll-snap-type: x proximity; }
+  .md-two .strip .box { scroll-snap-align: start; }
+
+  /* the room, smaller: closed doors keep their desktop size and shrink as a whole */
+  .md-mini .strip .box:not(.on) { zoom: .72; }
+  .md-mini .strip { gap: 8px; }
+
+  /* two shelves (html.md-sh): two rows of short doors scrolling sideways together, doors at 80% */
+  .md-sh .strip { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); grid-auto-flow: column; grid-auto-columns: auto; gap: 8px; }
+  .md-sh .strip .box { width: var(--door); zoom: .8; }
+  .md-sh .strip .box:not(.on):has(.m-badge) { overflow: hidden; }
+  .md-sh .strip .box.on { grid-row: 1 / -1; width: 88vw; zoom: 1; }
+  /* snapped: settles on a column edge */
+  .md-sh-snap .strip { scroll-snap-type: x mandatory; }
+  .md-sh-snap .strip .box:nth-child(odd) { scroll-snap-align: start; }
+  .md-sh-snap .strip.has-on { scroll-snap-type: none; }
+  /* across first: the top shelf fills first; an opened door still spans both shelves and the rest flow on */
+  .md-sh-across .strip { grid-auto-flow: row dense; grid-template-columns: repeat(var(--md-cols, 4), auto); }
+  /* staggered: the bottom shelf half a door to the right. a relative offset moves it without touching the grid */
+  .md-sh-stagger .strip .box:nth-child(even):not(.on) { position: relative; left: calc(var(--door) / 2 + 5px); }
+  /* tall top: uneven shelves */
+  .md-sh-uneven .strip { grid-template-rows: minmax(0, 1.38fr) minmax(0, 1fr); }
+  /* three shelves */
+  .md-sh-3 .strip { grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .md-sh-3 .strip .box { zoom: .62; }
+  .md-sh-3 .strip .box.on { zoom: 1; }
+  /* fit the phone: the scale comes from the row height (MDOOR sets --md-z) */
+  .md-sh-fit .strip .box { zoom: var(--md-z, .8); }
+  .md-sh-fit .strip .box.on { zoom: 1; }
+  /* opens over: the opened door leaves its cell and covers the strip; the shelves stay put underneath */
+  .md-sh-over .strip .box { grid-row: var(--r); grid-column: var(--c); }
+  .md-sh-over .strip .box.on, .md-sh-over .strip .box.closing { position: fixed; inset: 26px 16px 72px; width: auto; z-index: 20; zoom: 1; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
+  .md-sh-over .strip .box.on { animation: md-up .35s var(--ease) both; }
+  .md-sh-over .strip .box.closing { opacity: 0; translate: 0 24px; transition: opacity .3s, translate .3s var(--ease); }
+  .md-sh-over .strip.has-on .box:not(.on) { opacity: .25; }
+  .md-sh-over .strip .box { transition: opacity .3s, border-color .2s, background .5s, translate .25s var(--ease); }
+  @keyframes md-up { from { opacity: 0; translate: 0 24px; } }
+
+  /* down the page: a column of full-width doors */
+  .md-down .strip { flex-direction: column; overflow: hidden auto; padding: 0; margin: 0; gap: 10px; }
+  .md-down .strip .box, .md-down .strip.has-on .box:not(.on) { flex: 0 0 380px; width: 100%; }
+  .md-down .strip .box.on { flex-basis: 100%; }
+  .md-down .strip .box.end-box { flex-basis: 140px; }
+  /* a door shows the top of its hero, fading out where the door ends */
+  .md-down .strip .box:not(.on) .lv-s { -webkit-mask: linear-gradient(#000 70%, transparent); mask: linear-gradient(#000 70%, transparent); }
+}
+@media (max-width: 760px) {
+  /* the badge keeps its desktop width instead of stretching across the wide door, so its face shows */
+  .md-down .strip .box:not(.on) .m-badge, .md-one .strip .box:not(.on) .m-badge { width: 200px; margin-inline: auto; }
+}
