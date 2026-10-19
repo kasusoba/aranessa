@@ -937,7 +937,7 @@
     .strip .box:not(.on):has(.m-badge) { overflow: hidden; }
     .strip .box.on, .strip .box.closing { position: fixed; inset: 26px 16px 72px; width: auto; z-index: 20; zoom: 1; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
     .strip .box.on { animation: shelf-up .35s var(--ease) both; }
-    .strip .box.closing { opacity: 0; translate: 0 24px; transition: opacity .3s, translate .3s var(--ease); }
+    .strip .box.closing { opacity: 0; translate: 0 16px; transition: opacity .18s, translate .18s var(--ease); }
     .strip.has-on .box:not(.on) { opacity: .25; }
   }
   @keyframes shelf-up { from { opacity: 0; translate: 0 24px; } }

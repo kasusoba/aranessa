@@ -86,7 +86,8 @@ export function strip(onClose: () => boolean) {
 				refresh(view);
 				view.dispatchEvent(new CustomEvent("room:open", { bubbles: true }));
 			} else if (b.classList.contains("has-xl") && !b.classList.contains("closing")) {
-				// the opened view fades out fast; the door's own content waits until the box is narrow again
+				// the opened view fades out fast; the door's own content waits until the box is narrow again. a phone has no
+				// width to ease back from, so the door is back on its shelf as soon as the fade is done
 				b.classList.add("closing");
 				timers.set(
 					b,
@@ -96,7 +97,7 @@ export function strip(onClose: () => boolean) {
 						b.querySelector(".lv-xl")?.remove();
 						b.classList.add("settle");
 						timers.set(b, window.setTimeout(() => b.classList.remove("settle"), 300));
-					}, 560),
+					}, phone.matches ? 180 : 560),
 				);
 			}
 		}
