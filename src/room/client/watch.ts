@@ -35,6 +35,8 @@ export function watch() {
 		if (set && row && set.contains(row) && !row.classList.contains("on")) tune(set, row);
 	});
 	document.addEventListener("pointerout", (e) => {
+		// a finger leaves the screen right after the tap, so on touch the picked one stays until the next tap
+		if (e.pointerType === "touch") return;
 		const set = (e.target as Element).closest?.<HTMLElement>(SETS);
 		if (!set || set.contains(e.relatedTarget as Node)) return;
 		const home = set.querySelector<HTMLElement>(".ch");
