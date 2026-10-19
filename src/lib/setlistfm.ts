@@ -8,6 +8,7 @@ export interface SetlistShow {
 	country: string;
 	date: Date;
 	url: string;
+	tour: string;
 	songs: string[];
 }
 
@@ -52,6 +53,7 @@ export async function getSetlistAttended(): Promise<SetlistShow[]> {
 			country: s.venue?.city?.country?.name ?? "",
 			date: new Date(Date.UTC(y, m - 1, d)),
 			url: s.url,
+			tour: s.tour?.name ?? "",
 			// biome-ignore lint/suspicious/noExplicitAny: setlist.fm payload is loosely typed
 			songs: (s.sets?.set ?? []).flatMap((set: any) =>
 				// biome-ignore lint/suspicious/noExplicitAny: setlist.fm payload is loosely typed

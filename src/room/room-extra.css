@@ -1,0 +1,21 @@
+/* what the production room adds around the prototype's styles (room.css) */
+.concept { padding: 26px 16px 16px; }
+/* a fresh label while it's live ("watching", "now playing") */
+.lit { color: var(--gold); }
+/* the door's name is a real link for keyboards and crawlers; with a pointer the whole door is the target */
+.head a.nm { color: inherit; text-decoration: none; pointer-events: auto; }
+.head a.nm:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+.box:has(a.nm:focus-visible) { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* easter egg (Dorohedoro): the wet red dark of Kaiman's throat, behind the room */
+.egg { position: fixed; inset: 0; pointer-events: none; }
+#egg-bg-doro { z-index: 0; opacity: 0; overflow: hidden; background: radial-gradient(circle at 50% 52%, #6a0d0d 0%, #3a0707 38%, #160203 72%, #0a0103 100%); }
+#egg-bg-doro > div { position: absolute; inset: 0; }
+#egg-risu { display: flex; align-items: center; justify-content: center; opacity: 0; }
+#egg-risu svg { height: 55vh; width: auto; }
+#egg-teeth svg { width: 100%; height: 100%; }
+.concept { z-index: 1; }
+/* classic subtitle: white text on an opaque black box, over everything */
+#egg-subtitle { inset: auto 0 8%; z-index: 60; display: flex; justify-content: center; padding: 0 16px; }
+.egg-sub-text { opacity: 0; background: #000; color: #fff; padding: 4px 12px; border-radius: 3px; font: 500 20px/1.35 var(--sans); letter-spacing: .03em; }
+@media (min-width: 768px) { .egg-sub-text { font-size: 30px; } }

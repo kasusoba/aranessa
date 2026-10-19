@@ -1,0 +1,14 @@
+---
+// every aspect has its own page: the same room, landing with that door open
+import Room from "../components/Room.astro";
+
+export function getStaticPaths() {
+	return [
+		{ params: { aspect: "i" }, props: { open: "me" } },
+		...["listen", "watch", "read", "play", "code", "shows"].map((k) => ({ params: { aspect: k }, props: { open: k } })),
+	];
+}
+const { open } = Astro.props;
+---
+
+<Room open={open} />
