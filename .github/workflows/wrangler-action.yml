@@ -55,6 +55,8 @@ jobs:
           GH_USERNAME: ${{ vars.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           HARDCOVER_TOKEN: ${{ secrets.HARDCOVER_TOKEN }}
+          SETLISTFM_API_KEY: ${{ secrets.SETLISTFM_API_KEY }}
+          SETLISTFM_USERNAME: ${{ vars.SETLISTFM_USERNAME }}
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
