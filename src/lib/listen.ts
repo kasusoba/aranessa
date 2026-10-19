@@ -1,15 +1,13 @@
-// Data layer for the listen page. Server-rendered: everything is resolved at
-// build time (static site), so the page ships zero runtime API calls. Period
-// switching is done client-side by toggling pre-rendered per-range blocks.
-import { devCache, kvGet, kvSet } from "./cache";
+// Data layer for the listen aspect. Resolved at build time (static site); the
+// period chips switch between pre-rendered per-range blocks in the browser.
+import { devCache } from "./cache";
+import { deezerImage, mapLimit } from "./deezer";
 import {
-	getLovedTracks,
 	getRecentTracks,
 	getTopAlbums,
 	getTopArtists,
 	getTopTracks,
 } from "./lastfm";
-import { getRelativeTime } from "./utils";
 
 const TTL = 30 * 60 * 1000;
 const STAR = "2a96cbd8b46e442fc41c2b86b821562f"; // Last.fm placeholder image hash
@@ -33,43 +31,6 @@ const pick = (arr: Img | undefined, order = ["extralarge", "large", "medium"]) =
 	}
 	return "";
 };
-const rel = (uts?: string) =>
-	uts ? getRelativeTime(new Date(parseInt(uts, 10) * 1000)) : "";
-
-// Run async work over a list with a small concurrency cap (be nice to Deezer).
-async function mapLimit<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R>) {
-	const out: R[] = new Array(items.length);
-	let i = 0;
-	await Promise.all(
-		Array.from({ length: Math.min(limit, items.length) }, async () => {
-			while (i < items.length) {
-				const idx = i++;
-				out[idx] = await fn(items[idx]);
-			}
-		}),
-	);
-	return out;
-}
-
-// Resolve an artist photo via Deezer's keyless public API, cached forever in the
-// persistent kv store (like TMDB posters). "" is cached for no-match.
-async function deezerImage(name: string): Promise<string> {
-	const key = `deezer:artist:${name.toLowerCase()}`;
-	const cached = kvGet(key);
-	if (cached !== undefined) return cached;
-	let url = "";
-	try {
-		const r = await fetch(
-			`https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=1`,
-		);
-		const d = await r.json();
-		url = d.data?.[0]?.picture_medium ?? "";
-	} catch {
-		// best-effort; leave blank
-	}
-	kvSet(key, url);
-	return url;
-}
 
 export async function getListenData() {
 	// Period-keyed top lists for every range (so chips toggle client-side).
@@ -87,10 +48,7 @@ export async function getListenData() {
 		return Object.fromEntries(entries);
 	});
 
-	const [recentRaw, lovedRaw] = await Promise.all([
-		devCache("ll-recent", TTL, () => getRecentTracks(20)),
-		devCache("ll-loved", TTL, () => getLovedTracks(12)),
-	]);
+	const recentRaw = await devCache("ll-recent", TTL, () => getRecentTracks(20));
 
 	// Resolve Deezer photos for every artist that appears in any period (deduped).
 	const artistNames = [
@@ -110,43 +68,60 @@ export async function getListenData() {
 					albums: d.albums.map((a) => ({
 						name: a.name,
 						artist: a.artist.name,
-						image: pick(a.image),
+						img: pick(a.image),
 						url: a.url,
 						plays: Number(a.playcount),
 					})),
 					artists: d.artists.map((a) => ({
 						name: a.name,
+						img: artistImg.get(a.name) || "",
 						url: a.url,
 						plays: Number(a.playcount),
-						image: artistImg.get(a.name) || "",
 					})),
 					tracks: d.tracks.map((t) => ({
 						name: t.name,
 						artist: t.artist.name,
-						image: pick(t.image),
+						img: pick(t.image),
 						url: t.url,
 						plays: Number(t.playcount),
 					})),
 				},
 			];
 		}),
-	);
+	) as Record<string, ListenPeriod>;
 
-	const recent = recentRaw.map((t) => ({
+	const recent: ListenTrack[] = recentRaw.map((t) => ({
 		name: t.name,
 		artist: t.artist["#text"],
-		album: t.album["#text"],
-		image: pick(t.image, ["large", "medium"]),
+		album: t.album?.["#text"] ?? "",
+		img: pick(t.image),
 		url: t.url,
 		live: t["@attr"]?.nowplaying === "true",
-		when: rel(t.date?.uts),
+		date: t.date?.uts ? new Date(Number(t.date.uts) * 1000).toISOString() : new Date().toISOString(),
 	}));
-	const nowPlaying = recent.find((r) => r.live) ?? recent[0];
-	const feed = nowPlaying ? recent.filter((r) => r !== nowPlaying) : recent;
-
-	const loved = lovedRaw.map((t) => ({ name: t.name, artist: t.artist.name, url: t.url }));
-
-	return { periods, nowPlaying, feed, loved };
+	const now = recent.find((r) => r.live) ?? recent[0];
+	return { now, recent: recent.filter((r) => r !== now), periods };
 }
 
+export interface ListenItem {
+	name: string;
+	artist: string;
+	img: string;
+	url: string;
+	plays: number;
+}
+export interface ListenPeriod {
+	albums: ListenItem[];
+	artists: Omit<ListenItem, "artist">[];
+	tracks: ListenItem[];
+}
+export interface ListenTrack {
+	name: string;
+	artist: string;
+	album: string;
+	img: string;
+	url: string;
+	live: boolean;
+	date: string;
+}
 export type ListenData = Awaited<ReturnType<typeof getListenData>>;

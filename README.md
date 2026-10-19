@@ -1,46 +1,22 @@
-# Astro Starter Kit: Basics
+# aranessa
 
-```sh
-pnpm create astro@latest -- --template basics
-```
+onesal.me, built as a room: a strip of doors, one per thing (i, listen, watch, read, play, code, shows), with a ledge under it for the small stuff. Open a door to see the whole of that thing; every door also has its own page (`/listen`, `/i`, ...), which is the same room landing with that door open.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The site is static. Everything is fetched once at build time from Last.fm, Trakt, AniList, Hardcover, Steam, setlist.fm and GitHub (see `.env.example`), and rendered to html. In the browser, times stay current and now playing (Last.fm) and now watching (Trakt) are polled live.
 
-## 🚀 Project Structure
+## Where things are
 
-Inside of your Astro project, you'll see the following folders and files:
+- `src/lib/room.ts`: everything the room shows, from the per-source libs in `src/lib/`
+- `src/room/render/`: each aspect's door and opened view, as html strings
+- `src/room/client/`: the strip, hover and picking behaviour, live polling
+- `src/room/room.css`: the room's styles (cut from the prototype), `room-extra.css`: what production adds
+- `src/config.ts`: the ledge's now note, socials, the fallback project list
+- `prototypes/room/`: the design prototype and every variant explored, kept for reference
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+## Commands
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| Command        | Action                                                          |
+| :------------- | :-------------------------------------------------------------- |
+| `pnpm dev`     | dev server at `localhost:4321`, api results cached in `.cache/` |
+| `pnpm build`   | build the site to `./dist/` (always fetches fresh)              |
+| `pnpm preview` | preview the build                                               |

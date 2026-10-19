@@ -1,14 +1,5 @@
+// two accounts, merged per game everywhere
 const STEAM_IDS = ["76561198238407266", "76561198205996123"];
-const API = "https://api.steampowered.com/IPlayerService";
-
-export interface SteamGame {
-	appid: number;
-	name: string;
-	playtime_forever: number; // minutes
-	playtime_2weeks: number; // minutes
-	last_played: number; // unix timestamp
-	img_icon_url: string;
-}
 
 interface SteamApiGame {
 	appid: number;
@@ -23,73 +14,99 @@ export function getHeaderImage(appid: number): string {
 	return `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`;
 }
 
-async function call(apiKey: string, method: string, params: Record<string, string>): Promise<SteamApiGame[]> {
+export interface SteamAchievement {
+	title: string;
+	desc: string;
+	icon: string;
+	at: number; // unix seconds
+}
+
+export interface SteamLibraryGame {
+	appid: number;
+	name: string;
+	mins: number;
+	mins2w: number;
+	last: number; // unix seconds, 0 for family-shared games
+	ach: { got: number; total: number; recent: SteamAchievement[] } | null;
+}
+
+export interface SteamLibrary {
+	games: SteamLibraryGame[];
+}
+
+// the profile linked on the site
+export const STEAM_PROFILE = `https://steamcommunity.com/profiles/${STEAM_IDS[0]}`;
+
+async function steamGet(apiKey: string, path: string, params: Record<string, string>) {
 	try {
 		const q = new URLSearchParams({ key: apiKey, format: "json", ...params });
-		const res = await fetch(`${API}/${method}/v1/?${q}`);
-		if (!res.ok) return [];
-		const data = await res.json();
-		return data.response?.games ?? [];
+		const res = await fetch(`https://api.steampowered.com/${path}/?${q}`);
+		return res.ok ? await res.json() : null;
 	} catch {
-		return [];
+		return null;
 	}
 }
 
-// One account's recently played games, newest first, with real last-played times.
-// GetRecentlyPlayedGames has the order and 2-week playtime but no timestamps;
-// GetOwnedGames has rtime_last_played. Family-shared games aren't owned, so they
-// have no timestamp: they borrow the next older game's time (a lower bound).
-async function fetchAccountRecent(apiKey: string, steamId: string): Promise<SteamGame[]> {
-	const [recent, owned] = await Promise.all([
-		call(apiKey, "GetRecentlyPlayedGames", { steamid: steamId }),
-		call(apiKey, "GetOwnedGames", { steamid: steamId, include_played_free_games: "1" }),
-	]);
-	const lastPlayed = new Map(owned.map((g) => [g.appid, g.rtime_last_played ?? 0]));
-	const known = recent.map((g) => lastPlayed.get(g.appid) || 0);
-	const twoWeeksAgo = Math.floor(Date.now() / 1000) - 14 * 86400;
-	return recent.map((g, i) => ({
-		appid: g.appid,
-		name: g.name,
-		playtime_forever: g.playtime_forever ?? 0,
-		playtime_2weeks: g.playtime_2weeks ?? 0,
-		last_played: known[i] || (known.slice(i + 1).find((t) => t) ?? twoWeeksAgo) + 1,
-		img_icon_url: g.img_icon_url ?? "",
-	}));
-}
-
-export async function getRecentGames(count: number = 2): Promise<SteamGame[]> {
+// The whole library across both accounts, merged per game (playtime summed, last
+// played = latest), plus achievements for what's been played lately and the most
+// played. Achievements are unioned across accounts, the earliest unlock wins.
+// About 30 calls, so callers should cache it.
+export async function getSteamLibrary(): Promise<SteamLibrary | null> {
 	const apiKey = import.meta.env.STEAM_API_KEY;
-	if (!apiKey) return [];
+	if (!apiKey) return null;
 
-	const results = await Promise.all(
-		STEAM_IDS.map((id) => fetchAccountRecent(apiKey, id).catch(() => [])),
-	);
-
-	const merged = new Map<number, SteamGame>();
-
-	for (const games of results) {
-		for (const game of games) {
-			const existing = merged.get(game.appid);
-			merged.set(
-				game.appid,
-				existing
-					? {
-							...existing,
-							playtime_forever: existing.playtime_forever + game.playtime_forever,
-							playtime_2weeks: existing.playtime_2weeks + game.playtime_2weeks,
-							last_played: Math.max(existing.last_played, game.last_played),
-						}
-					: { ...game },
-			);
+	const games = new Map<number, SteamLibraryGame & { accounts: string[] }>();
+	for (const id of STEAM_IDS) {
+		const owned: SteamApiGame[] =
+			(await steamGet(apiKey, "IPlayerService/GetOwnedGames/v1", { steamid: id, include_appinfo: "1", include_played_free_games: "1" }))?.response?.games ?? [];
+		const recent: SteamApiGame[] =
+			(await steamGet(apiKey, "IPlayerService/GetRecentlyPlayedGames/v1", { steamid: id }))?.response?.games ?? [];
+		const twoWeeks = new Map(recent.map((g) => [g.appid, g.playtime_2weeks ?? 0]));
+		for (const g of [...owned, ...recent.filter((r) => !owned.some((o) => o.appid === r.appid))]) {
+			const cur = games.get(g.appid) ?? { appid: g.appid, name: g.name, mins: 0, mins2w: 0, last: 0, ach: null, accounts: [] };
+			cur.mins += g.playtime_forever ?? 0;
+			cur.mins2w += twoWeeks.get(g.appid) ?? 0;
+			cur.last = Math.max(cur.last, g.rtime_last_played ?? 0);
+			cur.accounts.push(id);
+			games.set(g.appid, cur);
 		}
 	}
+	if (!games.size) return null;
 
-	return Array.from(merged.values())
-		.sort((a, b) => b.last_played - a.last_played)
-		.slice(0, count);
-}
+	const all = [...games.values()];
+	const picked = new Set([
+		...all.filter((g) => g.mins2w).map((g) => g.appid),
+		...[...all].sort((a, b) => b.mins - a.mins).slice(0, 10).map((g) => g.appid),
+	]);
+	for (const appid of picked) {
+		const g = games.get(appid);
+		if (!g) continue;
+		const schema: Array<{ name: string; displayName: string; description?: string; icon: string }> =
+			(await steamGet(apiKey, "ISteamUserStats/GetSchemaForGame/v2", { appid: String(appid), l: "english" }))?.game?.availableGameStats?.achievements ?? [];
+		if (!schema.length) continue;
+		const info = new Map(schema.map((a) => [a.name, { title: a.displayName, desc: a.description ?? "", icon: a.icon }]));
+		const got = new Map<string, number>();
+		for (const id of g.accounts) {
+			const list: Array<{ apiname: string; achieved: number; unlocktime: number }> =
+				(await steamGet(apiKey, "ISteamUserStats/GetPlayerAchievements/v1", { steamid: id, appid: String(appid) }))?.playerstats?.achievements ?? [];
+			for (const a of list) {
+				if (a.achieved && (!got.has(a.apiname) || a.unlocktime < (got.get(a.apiname) ?? 0))) got.set(a.apiname, a.unlocktime);
+			}
+		}
+		g.ach = {
+			total: schema.length,
+			got: got.size,
+			recent: [...got]
+				.sort((a, b) => b[1] - a[1])
+				.slice(0, 6)
+				.flatMap(([k, at]) => {
+					const a = info.get(k);
+					return a ? [{ ...a, at }] : [];
+				}),
+		};
+	}
 
-export function formatHours(minutes: number): string {
-	const hours = Math.round(minutes / 60);
-	return hours === 1 ? "1 hr" : `${hours.toLocaleString()} hrs`;
+	return {
+		games: all.map(({ accounts: _, ...g }) => g).sort((a, b) => b.last - a.last),
+	};
 }

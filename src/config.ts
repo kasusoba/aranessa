@@ -2,6 +2,11 @@ import tmsyncImg from "./assets/tmsync.jpeg";
 import chrolloImg from "./assets/chrollo.png";
 
 export const userConfig = {
+	// the sticky note on the ledge: the first line is what the ledge says, the rest are on the note
+	now: {
+		lines: ["daydreaming.", "learning japanese, slowly."],
+		updated: "2026-10-17",
+	},
 	socials: [
 		{
 			name: "github",

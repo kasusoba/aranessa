@@ -1,9 +1,6 @@
-// Client-side live pollers shared by the home, listen, and watch pages. The
-// site is static (built once), so "now playing" (Last.fm) and "now watching"
-// (Trakt) come alive in the browser by polling and normalizing into the small
-// shapes the pages wire into their own markup.
-import { getRelativeTime } from "../lib/utils";
-
+// Client-side live pollers for the room. The site is static (built once), so
+// "now playing" (Last.fm) and "now watching" (Trakt) come alive in the browser
+// by polling and normalizing into small shapes the room wires into its doors.
 const LFM_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY;
 const LFM_USER = import.meta.env.PUBLIC_LASTFM_USERNAME;
 const TRAKT_KEY = import.meta.env.PUBLIC_TRAKT_CLIENT_ID;
@@ -28,7 +25,7 @@ export interface LiveTrack {
 	artist: string;
 	url: string;
 	image: string;
-	when: string;
+	date: string; // iso, "" while playing
 }
 
 // Recent Last.fm tracks; index 0 carries @attr.nowplaying when something's on.
@@ -51,7 +48,7 @@ export async function fetchTracks(limit = 20): Promise<LiveTrack[] | null> {
 				artist: t.artist?.["#text"] ?? "",
 				url: t.url,
 				image: pickImg(t.image),
-				when: uts ? getRelativeTime(new Date(parseInt(uts, 10) * 1000)) : "",
+				date: uts ? new Date(parseInt(uts, 10) * 1000).toISOString() : "",
 			};
 		});
 	} catch {
