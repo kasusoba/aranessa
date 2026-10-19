@@ -879,7 +879,7 @@
 .ed-plan .tb em { display: block; font-style: normal; font-size: 8px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
 
 /* ledges.css */
-/* the ledge under the strip (ledges.js). it's a size container, so a narrow one drops its socials. */
+/* the ledge under the strip (ledges.js). it's a size container, so a narrow one folds its socials into an elsewhere pill. */
 .ledge { flex: none; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface2);
   position: relative; font-size: 13px; white-space: nowrap; container: ledge / inline-size; }
 .ledge .sp { flex: 1; }
@@ -889,7 +889,12 @@
 .ledge .links { overflow: hidden; }
 .ledge .links a { color: var(--text); font-style: italic; text-decoration: none; }
 .ledge .links a:hover { color: var(--accent); }
-@container ledge (max-width: 700px) { .ledge .links { display: none; } }
+.ledge .elsewhere { display: none; }
+@container ledge (max-width: 700px) { .ledge .links { display: none; } .ledge .elsewhere { display: flex; } }
+/* the socials, folded into a pop for a narrow ledge */
+.pop.pop-links { width: auto; min-width: 180px; padding: 8px; display: flex; flex-direction: column; }
+.pop.pop-links a { padding: 10px 14px; border-radius: 10px; font: italic 400 17px var(--serif); color: var(--text); text-decoration: none; }
+.pop.pop-links a:hover, .pop-links a:active { background: var(--surface2); color: var(--accent); }
 
 /* the now sticky note, bare at its own size */
 .pop { position: absolute; bottom: 58px; width: min(400px, calc(100vw - 32px)); border-radius: 16px; background: var(--surface); border: 1px solid var(--line);

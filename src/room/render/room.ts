@@ -51,15 +51,18 @@ const box = (d: Door, open: boolean, i: number) => `<div class="box${open ? " on
 const end = (i: number) => `<div class="box end-box" aria-hidden="true" style="${cell(i)}"><div class="ed ed-plan pn-up"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="pn">
     <path class="wl" d="M4 70 H30 M70 70 H96"/><path class="lf" d="M30 70 L30 30"/><path class="arc" d="M30 30 A40 40 0 0 1 70 70"/><path class="rm" d="M4 70 V-50 H96 V70"/><text class="q" x="50" y="-4">?</text></svg></div></div>`;
 
-// the ledge: the now pill (opens the sticky note) and the socials
+// the ledge: the now pill (opens the sticky note) and the socials. a narrow ledge folds the socials into an elsewhere pill
 const ledge = () => {
 	const { lines, updated } = userConfig.now;
 	const date = new Date(updated).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).toLowerCase();
+	const links = (sep: string) => userConfig.socials.map((s) => `<a ${ext(s.url)}>${esc(s.name)}</a>`).join(sep);
 	return `<div class="ledge" id="ledge">
     <button class="lg" data-pop="now" aria-expanded="false">${glyph("now")} now <i>"${esc(lines[0])}"</i></button>
     <span class="sp"></span>
-    <span class="lg links">${glyph("elsewhere")} ${userConfig.socials.map((s) => `<a ${ext(s.url)}>${esc(s.name)}</a>`).join(" ")}</span>
-    <div class="pop bare" style="width:320px"><div style="position:relative;height:280px"><div class="u-small"><div class="u-sticky">${lines.map(esc).join("<br>")}<small>updated ${date}</small></div></div></div></div>
+    <span class="lg links">${glyph("elsewhere")} ${links(" ")}</span>
+    <button class="lg elsewhere" data-pop="elsewhere" aria-expanded="false" aria-label="elsewhere">${glyph("elsewhere")} elsewhere</button>
+    <div class="pop pop-links" data-for="elsewhere">${links("")}</div>
+    <div class="pop bare" data-for="now" style="width:320px"><div style="position:relative;height:280px"><div class="u-small"><div class="u-sticky">${lines.map(esc).join("<br>")}<small>updated ${date}</small></div></div></div></div>
   </div>`;
 };
 
