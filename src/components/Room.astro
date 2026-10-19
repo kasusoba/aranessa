@@ -32,25 +32,6 @@ const title = name ? `${name} · onesal.me` : "onesal.me";
 		/>
 	</head>
 	<body>
-		<!-- easter egg (Dorohedoro): clicking the badge photo in the opened "i" view travels into Kaiman's mouth (client/egg.ts) -->
-		<div id="egg-bg-doro" class="egg" aria-hidden="true">
-			<div id="egg-risu">
-				<svg viewBox="0 0 200 360" fill="#0a0103">
-					<circle cx="100" cy="58" r="40"></circle>
-					<path d="M52 112 q48 -22 96 0 l14 150 q-62 26 -124 0 z"></path>
-					<rect x="68" y="250" width="26" height="104" rx="6"></rect>
-					<rect x="106" y="250" width="26" height="104" rx="6"></rect>
-				</svg>
-			</div>
-			<div id="egg-teeth">
-				<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
-					<polygon fill="#f4ece0" points="0,0 1000,0 1000,130 925,300 855,160 780,310 705,165 630,315 555,160 480,310 405,170 330,315 255,160 180,305 105,165 35,300 0,130"></polygon>
-					<polygon fill="#f4ece0" points="0,1000 1000,1000 1000,870 925,700 855,840 780,690 705,835 630,685 555,840 480,690 405,830 330,685 255,840 180,695 105,835 35,700 0,870"></polygon>
-				</svg>
-			</div>
-		</div>
-		<div id="egg-subtitle" class="egg" aria-hidden="true"><span class="egg-sub-text">お前は違う</span></div>
-
 		<Fragment set:html={renderRoom(data, profile.src, open)} />
 
 		<script>
