@@ -340,8 +340,10 @@
 @container (max-width: 640px) { .lv-big { grid-template-columns: 1fr; } .lv-big .lv-crate { margin: 0 auto; } }
 
 /* pulled out: the sleeve with its record half out the right side */
-.lv-pull > .pl { display: none; grid-template-columns: 150px minmax(0, 1fr); gap: 76px; align-items: center; }
-.lv-pull > .pl.on { display: grid; animation: fadein .2s both; }
+/* every album sits in the same cell, so the block is as tall as the tallest one and the rows under it never move */
+.lv-pull { display: grid; }
+.lv-pull > .pl { grid-area: 1 / 1; display: grid; visibility: hidden; grid-template-columns: 150px minmax(0, 1fr); gap: 76px; align-items: center; }
+.lv-pull > .pl.on { visibility: visible; animation: fadein .2s both; }
 .lv-pull .sl { position: relative; display: block; width: 150px; aspect-ratio: 1; }
 .lv-pull .sl > i { position: absolute; inset: 0; border-radius: 3px; }
 .lv-pull .rc { position: absolute; inset: 4px; border-radius: 50%; translate: 40% 0; transition: translate .5s var(--ease);
@@ -356,7 +358,7 @@
 .lv-pull .nums { margin-top: 14px; font: 10px "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted); }
 .lv-pull .nums b { font: 400 30px/1 var(--serif); color: var(--strong); letter-spacing: 0; }
 @keyframes lv-slide { from { translate: 0 0; } }
-@container (max-width: 460px) { .lv-pull > .pl.on { grid-template-columns: 110px minmax(0, 1fr); gap: 56px; } .lv-pull .sl { width: 110px; } }
+@container (max-width: 460px) { .lv-pull > .pl { grid-template-columns: 110px minmax(0, 1fr); gap: 56px; } .lv-pull .sl { width: 110px; } }
 
 /* the chart as rows, linked to the crate */
 .lv-rows { list-style: none; margin: 26px 0 0; padding: 0; }
