@@ -1,4 +1,6 @@
-import { getImage } from "astro:assets";
+import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
+import sharp from "sharp";
 import { userConfig } from "../config";
 
 const GITHUB_API_BASE = "https://api.github.com";
@@ -40,6 +42,7 @@ async function ogImage(owner: string, repo: string): Promise<string | null> {
 	try {
 		const res = await fetch(`https://github.com/${owner}/${repo}`, {
 			headers: { "User-Agent": "aranessa-site" },
+			signal: AbortSignal.timeout(15000),
 		});
 		if (!res.ok) return null;
 		const html = await res.text();
@@ -52,19 +55,30 @@ async function ogImage(owner: string, repo: string): Promise<string | null> {
 	}
 }
 
-// Download & optimize the remote OG image at build time so it's served from our
-// own domain. Returns null if the fetch/optimize fails (renders placeholder).
-async function localImage(remoteUrl: string): Promise<string | null> {
-	try {
-		const optimized = await getImage({
-			src: remoteUrl,
-			inferSize: true,
-			format: "webp",
-		});
-		return optimized.src;
-	} catch {
-		return null;
+// GitHub rate-limits its card images (429) when a build asks for several at once, so each one is fetched here, one at a
+// time with retries, shrunk to webp, and written to .cache/og/. astro.config.mjs serves that folder at /og/ in dev and
+// copies it into the build. Returns null when it still fails (the project gets its pattern instead).
+const OG_DIR = ".cache/og";
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function localImage(remoteUrl: string, name: string): Promise<string | null> {
+	for (let tries = 0; tries < 5; tries++) {
+		try {
+			const res = await fetch(remoteUrl, { headers: { "User-Agent": "aranessa-site" }, signal: AbortSignal.timeout(15000) });
+			if (res.status === 429 || res.status >= 500) {
+				await sleep(Math.min(8000, Number(res.headers.get("retry-after")) * 1000 || 1500 * 2 ** tries));
+				continue;
+			}
+			if (!res.ok) return null;
+			const out = await sharp(Buffer.from(await res.arrayBuffer())).resize({ width: 960, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer();
+			const file = `${name.toLowerCase()}-${createHash("sha1").update(out).digest("hex").slice(0, 8)}.webp`;
+			mkdirSync(OG_DIR, { recursive: true });
+			writeFileSync(`${OG_DIR}/${file}`, out);
+			return `/og/${file}`;
+		} catch {
+			await sleep(Math.min(8000, 1500 * 2 ** tries));
+		}
 	}
+	return null;
 }
 
 async function toProject(repo: GitHubRepo, owner: string): Promise<Project> {
@@ -84,7 +98,8 @@ async function toProject(repo: GitHubRepo, owner: string): Promise<Project> {
 		description: repo.description ?? "",
 		url: repo.html_url,
 		site: repo.homepage ?? "",
-		image: remote ? await localImage(remote) : null,
+		// the picture in config stands in when github's won't come
+		image: (remote ? await localImage(remote, repo.name) : null) ?? known?.image?.src ?? null,
 		featured: topics.includes(TOPIC_FEATURED),
 	};
 }
@@ -120,9 +135,9 @@ export async function getProjects(): Promise<Project[] | null> {
 		const selected = repos.filter((r) =>
 			(r.topics ?? []).includes(TOPIC_PORTFOLIO),
 		);
-		const projects = await Promise.all(
-			selected.map((r) => toProject(r, owner)),
-		);
+		// one at a time, so github doesn't turn the images away
+		const projects: Project[] = [];
+		for (const r of selected) projects.push(await toProject(r, owner));
 		return projects.sort(
 			(a, b) => Number(b.featured) - Number(a.featured),
 		);
