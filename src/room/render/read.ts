@@ -21,10 +21,12 @@ const star = (r: string) => (r ? `★${String(r).replace(/\/10$/, "")}` : "");
 // anilist notes open with the time they were written; the subtitle already has the month
 const note = (n: string) => n.trim().replace(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s*/, "");
 const dim = (x: Shelved) => `linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.42)), ${cov(x)}`;
-// everything on the shelf once: what's being read (newest first), then what's finished
+// everything on the shelf once: what's being read (newest first), then everything finished, newest first. reviewed
+// ones count too (the data keeps them out of "finished" so the view doesn't list them twice)
 const shelf = (R: Read): Shelved[] => {
 	const seen = new Set<string>();
-	return [...R.reading.map((x) => ({ ...x, on: true })), ...R.finished].filter((x) => !seen.has(x.t) && seen.add(x.t));
+	const done = [...R.finished, ...R.reviews].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+	return [...R.reading.map((x) => ({ ...x, on: true })), ...done].filter((x) => !seen.has(x.t) && seen.add(x.t));
 };
 
 export const readHead = () => `<span class="live">reading</span>`;
@@ -83,7 +85,7 @@ export const readView = (R: Read) => {
 	);
 	// the pile from the door, grown: the current book standing on everything else lying flat
 	const lying = (x: Shelved) => `<a class="bk${x.on ? " on" : ""}" ${ext(x.url)} data-type="${x.type}" ${x.on ? reading(x) : finished(x)} style="height:${x.type === "manga" ? 22 : 28 + (hash(x.t) % 5)}px;width:${x.on ? 66 : 72 + (hash(x.t) % 18)}%;margin-left:${hash(`${x.t}x`) % 7}%;background:${dim(x)}">
-    <span>${esc(short(x.t))}</span>${x.on ? `<em class="u-paper">${esc(mk(x))}</em>` : x.r ? `<em class="rt">★${esc(x.r)}</em>` : ""}
+    <span>${esc(short(x.t))}</span>${x.on ? `<em class="u-paper">${esc(mk(x))}</em>` : x.r ? `<em class="rt">${esc(rate(x))}</em>` : ""}
     <b class="tg u-paper">${esc(x.t)}<small>${x.on ? `reading · ${esc(mk(x))}` : `finished${due(x.date) ? ` · ${due(x.date)}` : ""}`}</small></b></a>`;
 	const pile = `<div class="pl">
     <div class="stand"><span class="mk u-paper" data-sm>${esc(mk(now))}</span><a class="cv u-lit" ${ext(now.url)} data-sc style="background:${cov(now)}"></a></div>
