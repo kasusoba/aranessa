@@ -5,6 +5,7 @@ import { listen } from "./listen";
 import { live } from "./live";
 import { swing } from "./me";
 import { pickers } from "./pick";
+import { rails } from "./rails";
 import { read } from "./read";
 import { shows } from "./shows";
 import { strip } from "./strip";
@@ -13,6 +14,7 @@ import { views } from "./views";
 import { watch } from "./watch";
 
 views();
+rails();
 listen();
 watch();
 read();
