@@ -3,6 +3,8 @@ const SETLISTFM_API_BASE = "https://api.setlist.fm/rest/1.0";
 export interface SetlistShow {
 	id: string;
 	artist: string;
+	// MusicBrainz id, to tell artists who share a name apart
+	mbid: string;
 	venue: string;
 	city: string;
 	country: string;
@@ -48,6 +50,7 @@ export async function getSetlistAttended(): Promise<SetlistShow[]> {
 		return {
 			id: s.id,
 			artist: s.artist?.name ?? "",
+			mbid: s.artist?.mbid ?? "",
 			venue: s.venue?.name ?? "",
 			city: s.venue?.city?.name ?? "",
 			country: s.venue?.city?.country?.name ?? "",

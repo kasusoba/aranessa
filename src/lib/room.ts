@@ -4,7 +4,7 @@ import { execSync } from "node:child_process";
 import { userConfig } from "../config";
 import { type AnilistActivity, getAnilistActivity, getAnilistEntries, getAnilistFavorites } from "./anilist";
 import { devCache } from "./cache";
-import { deezerImage, mapLimit } from "./deezer";
+import { deezerImageFor, mapLimit } from "./deezer";
 import { getProjects } from "./github";
 import { getHardcoverRead, getHardcoverReading } from "./hardcover";
 import { getListenData } from "./listen";
@@ -264,8 +264,8 @@ const cityOf = (c: string) =>
 
 async function shows(): Promise<Show[]> {
 	const sets = await devCache("setlistfm-attended", TTL, () => getSetlistAttended());
-	const names = [...new Set(sets.map((s) => s.artist).filter(Boolean))];
-	const photos = new Map(await mapLimit(names, 6, async (n) => [n, await deezerImage(n)] as const));
+	const acts = [...new Map(sets.filter((s) => s.artist).map((s) => [s.artist, s.mbid] as const))];
+	const photos = new Map(await mapLimit(acts, 6, async ([n, mbid]) => [n, await deezerImageFor(n, mbid)] as const));
 	return sets.map((s) => ({
 		id: s.id,
 		artist: s.artist,

@@ -36,3 +36,35 @@ export async function deezerImage(name: string): Promise<string> {
 	kvSet(key, url);
 	return url;
 }
+
+// The artist's own Deezer page, through MusicBrainz: a name search picks the most popular match, so "Eve" (the
+// Japanese singer) came back as the US rapper. MusicBrainz links an artist to its Deezer id, so an mbid (setlist.fm
+// gives one per act) finds the right one. Falls back to the name search when there's no link. Cached forever.
+let mbLast = 0;
+export async function deezerImageFor(name: string, mbid?: string): Promise<string> {
+	if (!mbid) return deezerImage(name);
+	const key = `deezer:mbid:${mbid}`;
+	const cached = kvGet(key);
+	if (cached !== undefined) return cached || deezerImage(name);
+	let url = "";
+	try {
+		// MusicBrainz allows one request a second
+		const wait = mbLast + 1100 - Date.now();
+		mbLast = Date.now() + Math.max(0, wait);
+		if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+		const r = await fetch(`https://musicbrainz.org/ws/2/artist/${mbid}?inc=url-rels&fmt=json`, {
+			headers: { "User-Agent": "aranessa-site/1.0 (https://onesal.me)", Accept: "application/json" },
+		});
+		const d = await r.json();
+		// biome-ignore lint/suspicious/noExplicitAny: musicbrainz payload is loosely typed
+		const id = (d.relations ?? []).map((x: any) => String(x.url?.resource ?? "").match(/deezer\.com\/(?:\w+\/)?artist\/(\d+)/)?.[1]).find(Boolean);
+		if (id) {
+			const a = await (await fetch(`https://api.deezer.com/artist/${id}`)).json();
+			url = a.picture_medium ?? "";
+		}
+	} catch {
+		// best-effort; the name search below still runs
+	}
+	kvSet(key, url);
+	return url || deezerImage(name);
+}
