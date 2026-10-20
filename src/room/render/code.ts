@@ -30,7 +30,7 @@ export const codeDoor = (C: Code) => {
 	const last = C.commits[0];
 	return `<div class="hero t cd-full cd-rd cd-wlead"><div class="wn"><div class="tb"><i></i><i></i><i></i><span>~/code</span></div><div class="bd">
     ${lab("featured")}${card(a)}${more.length ? `<div class="mr">${more.map((p) => card(p, true)).join("")}</div>` : ""}
-    ${R.length ? `<div class="al">also ${R.map((p) => `<b>${esc(p.img ? p.t : "more soon")}</b>`).join(", ")}</div>` : ""}
+    ${R.length ? `<div class="al">also ${R.map((p) => `<b>${esc(p.t)}</b>`).join(", ")}</div>` : ""}
     ${
 			last
 				? `${lab("lately")}<ul class="la">${C.commits
@@ -56,11 +56,10 @@ export const codeView = (C: Code) => {
 	};
 	const gh = (p: Project) =>
 		[p.url ? `<a class="gh" ${ext(p.url)}>open on github ↗</a>` : "", p.site ? `<a class="gh" ${ext(p.site)}>${esc(where(p.site))} ↗</a>` : ""].filter(Boolean).join(" ");
-	const name = (p: Project) => (p.img || p.featured ? esc(p.t) : "more soon");
 	// a project at three sizes: the hero (picture beside the words), the card (picture over the words), the row (thumbnail + one line)
 	const hero = (p: Project) => `<article class="cv-hero"><i class="sh" style="background:${shot(p)}"></i><div><span class="kd">${esc(p.cat)}</span><h2>${esc(p.t)}</h2><p>${esc(p.d)}</p>${gh(p)}</div></article>`;
 	const card = (p: Project) => `<article class="cv-card"><i class="sh" style="background:${shot(p)}"></i><span class="kd">${esc(p.cat)}</span><h3>${esc(p.t)}</h3><p>${esc(p.d)}</p>${gh(p)}</article>`;
-	const row = (p: Project) => `<a class="cv-row" ${ext(p.url)}><i class="th" style="background:${shot(p)}"></i><div><b>${name(p)}</b><span>${esc(p.cat)}</span></div><p>${esc(p.d)}</p><em>↗</em></a>`;
+	const row = (p: Project) => `<a class="cv-row" ${ext(p.url)}><i class="th" style="background:${shot(p)}"></i><div><b>${esc(p.t)}</b><span>${esc(p.cat)}</span></div><p>${esc(p.d)}</p><em>↗</em></a>`;
 	const lately = `<ul class="cv-la">${C.commits
 		.map((c) => {
 			const [v, t] = human(c);
