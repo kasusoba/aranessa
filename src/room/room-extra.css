@@ -14,11 +14,12 @@
 .rail > .hrow3.dragging { cursor: grabbing; user-select: none; }
 .rail > .hrow3.dragging * { pointer-events: none; }
 .rail .ra { position: absolute; top: calc(50% - 22px); z-index: 3; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--strong); font: 20px/1 var(--serif); cursor: pointer;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--muted); font: 20px/1 var(--serif); cursor: pointer;
   display: grid; place-items: center; padding: 0 0 3px; box-shadow: 0 4px 14px rgba(0,0,0,.35); opacity: 0; transition: opacity .2s, background .2s; }
 .rail .ra.l { left: 4px; }
 .rail .ra.r { right: 4px; }
 .rail .ra[hidden] { display: none; }
 .rail:hover .ra, .rail .ra:focus-visible { opacity: 1; }
-.rail .ra:hover { background: var(--surface); color: var(--accent); }
+/* hover like the chips: brighter, no accent */
+.rail .ra:hover { background: var(--surface); color: var(--strong); border-color: color-mix(in srgb, var(--strong) 30%, transparent); }
 @media (hover: none) { .rail .ra { display: none; } }
