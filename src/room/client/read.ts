@@ -33,7 +33,24 @@ function put(g: HTMLElement, key: Element, x: Lift) {
 	);
 }
 
+// The door's stack sits on the floor of the door. When the door is too short for all of it (a phone), the books at the
+// bottom of the pile go first, so the standing book on top always shows whole with its bookmark.
+function fit(stack: HTMLElement) {
+	const top = stack.querySelector<HTMLElement>(":scope > .top");
+	const books = [...stack.querySelectorAll<HTMLElement>(":scope > .bk")];
+	for (const b of books) b.style.display = "";
+	if (!top) return;
+	// the stack's top 30px fade out (the mask in room.css), and the bookmark sticks out 14px into them
+	const room = () => top.getBoundingClientRect().top - 26 >= stack.getBoundingClientRect().top;
+	for (let n = books.length - 1; n >= 0 && !room(); n--) books[n].style.display = "none";
+}
+
 export function read() {
+	const fitter = new ResizeObserver((es) => {
+		for (const e of es) fit(e.target as HTMLElement);
+	});
+	for (const s of document.querySelectorAll<HTMLElement>(".rd-stack")) fitter.observe(s);
+
 	document.addEventListener("pointerover", (e) => {
 		const g = (e.target as Element).closest?.<HTMLElement>("[data-lean]");
 		const el = (e.target as Element).closest?.<HTMLElement>("[data-ti]");
