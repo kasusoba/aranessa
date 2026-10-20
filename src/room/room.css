@@ -436,7 +436,7 @@
 .wv-set .tvb .pb { left: 18px; right: 18px; bottom: 14px; height: 4px; }
 .wv-set .tvb .ctl { height: 32px; gap: 8px; } .wv-set .tvb .ctl b { width: 12px; height: 12px; }
 .wv-set .tvc .u-title { margin-top: 22px; font-size: clamp(28px, 4.4cqw, 44px); }
-.wv-set .gd { max-height: 440px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; margin-right: -8px; padding-right: 8px; }
+.wv-set .gd { max-height: 440px; overflow-y: auto; scrollbar-width: thin; margin-right: -8px; padding-right: 8px; }
 .wv-set .ch { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 10px; align-items: baseline; position: relative;
   padding: 8px 10px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: background .2s; }
 .wv-set .ch em { font: 600 10px "JetBrains Mono", monospace; font-style: normal; color: var(--muted); grid-row: span 2; }
