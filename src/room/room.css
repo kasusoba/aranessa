@@ -459,7 +459,7 @@
 .wv-bl .bls { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: start; }
 .wv-bl .bl { display: flex; gap: 14px; padding: 14px 10px; border-bottom: 1px solid var(--line); border-radius: 6px 6px 0 0; position: relative; transition: background .2s; }
 .wv-bl .bl:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-.wv-bl .bl .cv { width: 40px; aspect-ratio: 2/3; border-radius: 2px; flex: none; }
+.wv-bl .bl .cv { width: 40px; aspect-ratio: 2/3; border-radius: 2px; flex: none; align-self: flex-start; }
 .wv-bl .bl .tx { flex: 1; min-width: 0; }
 .wv-bl .bl .hd { display: flex; gap: 10px; align-items: baseline; }
 .wv-bl .bl .hd b { font: 400 20px/1.1 var(--serif); color: var(--strong); flex: 1; min-width: 0; }
