@@ -917,9 +917,12 @@
     padding: 8px 0 16px; margin: -8px 0 -10px; }
   .lv-s .more { flex: none; font: 11px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; padding-top: 2px; }
   @container (min-width: 140px) and (min-height: 110px) { .strip .box:not(.on) .lv-s { display: flex !important; } }
-  /* every door shares --door, set by the strip so the row always runs past the screen (see the inline script in Room.astro).
+  /* doors grow with the strip until the row overflows with the end door half in view, so it always reads as scrollable;
+     below that they stay at 190px. pure css (--n is the door count from the server), so the first paint is already right.
+     a phone ignores this: its shelves hold desktop-sized doors at 80%.
      no max-width cap: a cap would freeze the closing box at the cap while its basis animates down to it */
-  .strip .box { flex: 0 0 var(--door, 190px); transition: flex-basis .55s var(--ease), border-color .2s, background .5s, translate .25s var(--ease); }
+  .strip { container-type: inline-size; }
+  .strip .box { flex: 0 0 max(190px, (100cqw - var(--n) * 10px) / (var(--n) + .5)); transition: flex-basis .55s var(--ease), border-color .2s, background .5s, translate .25s var(--ease); }
   .strip .box.on { flex: 0 0 min(900px, 74vw); }
   .box.has-xl > .lv, .box.has-xl > .head { display: none !important; }
   .lv-xl { position: absolute; inset: 0; animation: fadein .3s .35s both; }

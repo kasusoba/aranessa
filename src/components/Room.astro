@@ -34,30 +34,6 @@ const title = name ? `${name} · onesal.me` : "onesal.me";
 	<body>
 		<Fragment set:html={renderRoom(data, profile.src, open)} />
 
-		<!--
-			doors grow with the screen until the row overflows with the end door half in view, so the strip always reads as
-			scrollable. when the real doors already overflow at the smallest width, they stay at the smallest width.
-			(a phone ignores --door: its shelves hold desktop-sized doors at 80%)
-			this runs inline, before the first paint: the module script comes after it, and setting --door then would
-			show every door easing out from 190px on load.
-		-->
-		<script is:inline>
-			(() => {
-				const el = document.getElementById("strip");
-				if (!el) return;
-				const n = el.querySelectorAll(".box:not(.end-box)").length;
-				const size = () => {
-					const min = 190;
-					const gap = 10;
-					const w = el.clientWidth;
-					const door = n * min + (n - 1) * gap > w ? min : Math.max(min, (w - n * gap) / (n + 0.5));
-					el.style.setProperty("--door", `${door}px`);
-				};
-				size();
-				addEventListener("resize", size);
-			})();
-		</script>
-
 		<script>
 			import "../room/client/main";
 		</script>

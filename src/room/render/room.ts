@@ -69,7 +69,7 @@ const ledge = () => {
 export function renderRoom(D: RoomData, photo: string, open?: string) {
 	const list = doors(D, photo);
 	return `<section class="concept on" id="c-strip">
-  <div class="strip${open ? " has-on" : ""}" id="strip">${list.map((d, i) => box(d, d.k === open, i)).join("")}${end(list.length)}</div>
+  <div class="strip${open ? " has-on" : ""}" id="strip" style="--n:${list.length}">${list.map((d, i) => box(d, d.k === open, i)).join("")}${end(list.length)}</div>
   ${ledge()}
 </section>`;
 }
