@@ -49,7 +49,13 @@ export const codeView = (C: Code) => {
 	const R = rest(C);
 	const last = C.commits[0];
 	const lab = (s: string) => `<div class="cv-lb">${s}</div>`;
-	const gh = (p: Project) => (p.url ? `<a class="gh" ${ext(p.url)}>open on github ↗</a>` : "");
+	// the repo, and the homepage named by where it goes ("chrome web store", "onesal.me")
+	const where = (u: string) => {
+		const h = new URL(u).hostname.replace(/^www\./, "");
+		return /chromewebstore\.google\.com|chrome\.google\.com/.test(h) ? "chrome web store" : /addons\.mozilla\.org/.test(h) ? "firefox add-ons" : h;
+	};
+	const gh = (p: Project) =>
+		[p.url ? `<a class="gh" ${ext(p.url)}>open on github ↗</a>` : "", p.site ? `<a class="gh" ${ext(p.site)}>${esc(where(p.site))} ↗</a>` : ""].filter(Boolean).join(" ");
 	const name = (p: Project) => (p.img || p.featured ? esc(p.t) : "more soon");
 	// a project at three sizes: the hero (picture beside the words), the card (picture over the words), the row (thumbnail + one line)
 	const hero = (p: Project) => `<article class="cv-hero"><i class="sh" style="background:${shot(p)}"></i><div><span class="kd">${esc(p.cat)}</span><h2>${esc(p.t)}</h2><p>${esc(p.d)}</p>${gh(p)}</div></article>`;

@@ -87,7 +87,9 @@ export interface Project {
 	cat: string;
 	d: string;
 	img: string;
+	// the repo, and its homepage ("" without one)
 	url: string;
+	site: string;
 	featured: boolean;
 }
 export interface Commit {
@@ -281,8 +283,8 @@ async function code() {
 	// GitHub repos tagged `portfolio` (featured ones first), or the list in config when that's unavailable
 	const fetched = await getProjects();
 	const projects: Project[] = fetched?.length
-		? fetched.map((p) => ({ t: p.title, cat: p.category, d: p.description, img: p.image ?? "", url: p.url, featured: p.featured }))
-		: userConfig.projects.map((p) => ({ t: p.title, cat: p.category, d: p.description, img: p.image?.src ?? "", url: p.url, featured: false }));
+		? fetched.map((p) => ({ t: p.title, cat: p.category, d: p.description, img: p.image ?? "", url: p.url, site: p.site, featured: p.featured }))
+		: userConfig.projects.map((p) => ({ t: p.title, cat: p.category, d: p.description, img: p.image?.src ?? "", url: p.url, site: "", featured: false }));
 	// always one featured project to lead with
 	if (projects.length && !projects.some((p) => p.featured)) projects[0].featured = true;
 	// what changed lately on this site, from its own git history

@@ -704,6 +704,7 @@
 .cv p { font: 13.5px/1.6 var(--sans); color: var(--tx); margin: 10px 0 0; }
 .cv .gh { display: inline-block; margin-top: 12px; font: 11.5px "JetBrains Mono", monospace; color: var(--accent); }
 .cv .gh:hover { text-decoration: underline; }
+.cv .gh + .gh { margin-left: 16px; }
 .cv .sh { display: block; aspect-ratio: 16/10; border-radius: 6px; box-shadow: 0 0 0 1px #141c30; }
 .cv .cur { display: inline-block; width: 7px; height: 13px; vertical-align: -2px; background: var(--tx); animation: cd-blink 1.1s steps(1) infinite; }
 

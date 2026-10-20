@@ -1,4 +1,5 @@
 import { getImage } from "astro:assets";
+import { userConfig } from "../config";
 
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -23,7 +24,10 @@ export interface Project {
 	title: string;
 	category: string;
 	description: string;
+	// the repo on github
 	url: string;
+	// the repo's homepage when it has one (a store page, the live site), "" otherwise
+	site: string;
 	image: string | null;
 	featured: boolean;
 }
@@ -65,7 +69,10 @@ async function localImage(remoteUrl: string): Promise<string | null> {
 
 async function toProject(repo: GitHubRepo, owner: string): Promise<Project> {
 	const topics = repo.topics ?? [];
+	// topics are search tags ("anilist" for tmsync), so a category written in config wins; the first topic is the fallback
+	const known = userConfig.projects.find((p) => p.title.toLowerCase() === repo.name.toLowerCase());
 	const category =
+		known?.category ??
 		topics.find((t) => !CONTROL_TOPICS.has(t))?.replace(/-/g, " ") ??
 		"project";
 
@@ -75,7 +82,8 @@ async function toProject(repo: GitHubRepo, owner: string): Promise<Project> {
 		title: repo.name,
 		category,
 		description: repo.description ?? "",
-		url: repo.homepage || repo.html_url,
+		url: repo.html_url,
+		site: repo.homepage ?? "",
 		image: remote ? await localImage(remote) : null,
 		featured: topics.includes(TOPIC_FEATURED),
 	};
