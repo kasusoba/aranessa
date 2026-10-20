@@ -917,7 +917,7 @@
     padding: 8px 0 16px; margin: -8px 0 -10px; }
   .lv-s .more { flex: none; font: 11px "JetBrains Mono", monospace; color: var(--muted); letter-spacing: .06em; padding-top: 2px; }
   @container (min-width: 140px) and (min-height: 110px) { .strip .box:not(.on) .lv-s { display: flex !important; } }
-  /* every door shares --door, set by the strip so the row always runs past the screen (see size() in the script).
+  /* every door shares --door, set by the strip so the row always runs past the screen (see the inline script in Room.astro).
      no max-width cap: a cap would freeze the closing box at the cap while its basis animates down to it */
   .strip .box { flex: 0 0 var(--door, 190px); transition: flex-basis .55s var(--ease), border-color .2s, background .5s, translate .25s var(--ease); }
   .strip .box.on { flex: 0 0 min(900px, 74vw); }

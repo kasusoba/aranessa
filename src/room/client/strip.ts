@@ -109,20 +109,6 @@ export function strip(onClose: () => boolean) {
 		if (push) history.pushState({ k }, "", pathOf(k));
 	}
 
-	// doors grow with the screen until the row overflows with the end door half in view, so the strip always reads as
-	// scrollable. when the real doors already overflow at the smallest width, they stay at the smallest width.
-	// (a phone ignores --door: its shelves hold desktop-sized doors at 80%)
-	function size() {
-		const min = 190;
-		const gap = 10;
-		const n = keys.length;
-		const w = el.clientWidth;
-		const door = n * min + (n - 1) * gap > w ? min : Math.max(min, (w - n * gap) / (n + 0.5));
-		el.style.setProperty("--door", `${door}px`);
-	}
-	size();
-	addEventListener("resize", size);
-
 	// on a phone the opened view is a drawer: pull it down to close it. the pull starts from the handle, or from
 	// anywhere once what's under the finger is scrolled to its top. a short pull springs back
 	let pull: { b: HTMLElement; x: number; y: number; t: number; d: number; on: boolean } | null = null;
