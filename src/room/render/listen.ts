@@ -47,15 +47,17 @@ export const listenView = (L: ListenData) => {
 		else sessions.push({ album: t.album, artist: t.artist, img: t.img, url: t.url, tracks: [t] });
 	}
 	let d = "";
+	// a track that was playing when the site was built carries data-np-built, so client/live.ts can hide it while
+	// it's still the one playing (the live row on top shows it)
 	const recently = sec(
 		"recently",
-		`<div class="lv-sess">${sessions
+		`<div class="lv-sess"><div class="ss np" data-np-row hidden></div>${sessions
 			.map((g) => {
 				const dd = day(g.tracks[0].date);
 				const dh = dd !== d ? `<div class="dh">${dd}</div>` : "";
 				d = dd;
 				return `${dh}<div class="ss"><i class="u-lit" style="background:${cov(g, g.artist + g.album)}"></i><div><b>${esc(g.album || g.tracks[0].name)}</b><small>${lo(g.artist)}</small>
-        <ol>${g.tracks.map((t, i) => `<li><a ${ext(t.url)}>${esc(t.name)}</a><em${i === 0 && t === L.now ? " data-np-time" : ""}>${hm(t.date)}</em></li>`).join("")}</ol></div></div>`;
+        <ol>${g.tracks.map((t) => `<li${t === L.now && t.live ? ` data-np-built="${esc(t.name)}"` : ""}><a ${ext(t.url)}>${esc(t.name)}</a><em>${hm(t.date)}</em></li>`).join("")}</ol></div></div>`;
 			})
 			.join("")}</div>`,
 	);

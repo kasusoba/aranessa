@@ -953,3 +953,14 @@
     .strip.has-on ~ .ledge > * { pointer-events: none; opacity: .4; transition: opacity .2s; }
   }
   @keyframes shelf-up { from { opacity: 0; translate: 0 24px; } }
+
+/* live: what's on now, painted in by client/live.ts */
+.ld-peek .sv.np i b { background: var(--gold); color: #1a1714; }
+.lsv [data-np-view] .np-t { color: var(--strong); text-transform: none; letter-spacing: 0; font: 400 15px var(--serif); margin-left: 4px; }
+.lsv [data-np-view] .np-t:hover { color: var(--accent); }
+.lsv [data-np-view] .np-a { text-transform: none; }
+.lv-sess .np { grid-column: 1 / -1; }
+.lv-sess .ss[hidden], .lv-sess li[hidden] { display: none; }
+.lv-sess .np em.live { color: var(--gold); display: inline-flex; gap: 6px; align-items: center; }
+.ch.np em .eq { height: 9px; }
+.wv-set .ch.np small.live { color: var(--gold); opacity: 1; }
